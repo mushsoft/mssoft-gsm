@@ -1,4 +1,4 @@
-import IspCard from "@/src/components/isp-card";
+import IspCard from "@/components/isp-card";
 
 // Sample Test Point Data (This will come from your database)
 const samplePoints = [

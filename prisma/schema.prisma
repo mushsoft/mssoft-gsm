@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum CategoryType {
@@ -39,39 +38,39 @@ model Product {
 }
 
 model TestPoint {
-  id          String   @id @default(uuid())
-  brand       String   // e.g. Tecno, Infinix, Samsung
-  modelName   String   // e.g. Spark 8 Pro
-  chipset     String   // e.g. MediaTek MT6769, Snapdragon 680
-  title       String   // e.g. EMMC / UFS ISP Pinout
-  diagramUrl  String   // Image link
-  notes       String?  // Voltages, CLK, CMD instructions
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  brand      String   // e.g. Tecno, Infinix, Samsung
+  modelName  String   // e.g. Spark 8 Pro
+  chipset    String   // e.g. MediaTek MT6769, Snapdragon 680
+  title      String   // e.g. EMMC / UFS ISP Pinout
+  diagramUrl String   // Image link
+  notes      String?  // Voltages, CLK, CMD instructions
+  createdAt  DateTime @default(now())
 }
 
 model RepairGuide {
-  id          String   @id @default(uuid())
-  title       String   // e.g. Tecno Camon 18 Charging IC Fix
-  brand       String
-  modelName   String
-  videoUrl    String?  // YouTube embed link
-  thumbnail   String
-  content     String   // Written step-by-step
-  toolsUsed   String[]
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  title     String   // e.g. Tecno Camon 18 Charging Flex Fix
+  brand     String
+  modelName String
+  videoUrl  String?  // YouTube embed link
+  thumbnail String
+  content   String   // Written step-by-step
+  toolsUsed String[]
+  createdAt DateTime @default(now())
 }
 
 model Order {
-  id              String        @id @default(uuid())
-  customerName    String
-  customerPhone   String        // e.g. +256...
-  customerEmail   String
-  totalAmount     Float
-  paymentStatus   PaymentStatus @default(PENDING)
-  txRef           String        @unique
-  paymentMethod   String        // "MOBILE_MONEY" or "CARD"
-  items           OrderItem[]
-  createdAt       DateTime      @default(now())
+  id            String        @id @default(uuid())
+  customerName  String
+  customerPhone String        // e.g. +256...
+  customerEmail String
+  totalAmount   Float
+  paymentStatus PaymentStatus @default(PENDING)
+  txRef         String        @unique
+  paymentMethod String        // "MOBILE_MONEY" or "CARD"
+  items         OrderItem[]
+  createdAt     DateTime      @default(now())
 }
 
 model OrderItem {

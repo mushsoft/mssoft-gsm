@@ -1,7 +1,7 @@
 // schemaTypes/inventoryItem.ts
 import { defineField, defineType } from 'sanity'
 import { ALL_BRANDS } from './brandData'
-import { DynamicModelInput } from '../src/components/DynamicModelInput'
+import { DynamicModelInput } from '../components/DynamicModelInput'
 
 export const inventoryItem = defineType({
   name: 'inventoryItem',

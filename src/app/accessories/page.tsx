@@ -1,14 +1,143 @@
 "use client";
 
 import React, { useState } from "react";
-import ProductCard from "@/src/components/product-card";
+import { ProductCard } from "@/components/cards/ProductCard";
+import type { ProductCondition } from "@/types/product";
 
-const sampleAccessories = [
-  { id: "1", title: "20W Fast Charger Adapter + Type-C Cable", brand: "Samsung", price: 45000, category: "ACCESSORY", subType: "CHARGER" },
-  { id: "2", title: "Silicon Shockproof Clear Case - iPhone 13 Pro", brand: "Apple", price: 25000, category: "ACCESSORY", subType: "COVER" },
-  { id: "3", title: "9D Matte Tempered Glass Screen Guard", brand: "Tecno", price: 15000, category: "ACCESSORY", subType: "SCREEN_GUARD" },
-  { id: "4", title: "Wireless Noise Cancelling Earbuds", brand: "Oraimo", price: 95000, category: "ACCESSORY", subType: "EARBUDS" },
-  { id: "5", title: "Heavy Bass Wired Earphones with Mic", brand: "JBL", price: 30000, category: "ACCESSORY", subType: "EARPHONE_MIC" },
+type AccessorySpecs = Record<string, string | number | boolean | undefined>;
+
+type AccessoryItem = {
+  id: string;
+  title: string;
+  name: string;
+  brand: string;
+  price: number;
+  priceUgx: number;
+  condition: string;
+  image: string;
+  description: string;
+  stock: number;
+  inStock: boolean;
+  specs: AccessorySpecs;
+  category: string;
+  subType: string;
+};
+
+type AccessoryProductCardProduct = {
+  id: string;
+  title: string;
+  name: string;
+  brand: string;
+  price: number;
+  priceUgx: number;
+  condition: ProductCondition;
+  image: string;
+  description: string;
+  stock: number;
+  inStock: boolean;
+  specs: TechSpecs;
+  category: string;
+  subType: string;
+};
+
+type TechSpecs = {
+  modelCode: string;
+  chipset: string;
+  display: string;
+  battery: string;
+  ram: string;
+  ramStorage: string;
+  network: string;
+  cameras: string;
+  storage: string;
+  camera: string;
+  os: string;
+  color: string;
+  warranty: string;
+};
+
+// Removed 'as const' to prevent overly strict readonly tuple types
+const sampleAccessories: AccessoryItem[] = [
+  {
+    id: "1",
+    title: "20W Fast Charger Adapter + Type-C Cable",
+    name: "20W Fast Charger Adapter + Type-C Cable",
+    brand: "Samsung",
+    price: 45000,
+    priceUgx: 45000,
+    condition: "New",
+    image: "/images/accessories/charger-20w.png",
+    description: "Fast charging adapter with Type-C cable for Samsung devices.",
+    stock: 24,
+    inStock: true,
+    specs: {},
+    category: "ACCESSORY",
+    subType: "CHARGER",
+  },
+  {
+    id: "2",
+    title: "Silicon Shockproof Clear Case - iPhone 13 Pro",
+    name: "Silicon Shockproof Clear Case - iPhone 13 Pro",
+    brand: "Apple",
+    price: 25000,
+    priceUgx: 25000,
+    condition: "New",
+    image: "/images/accessories/clear-case-iphone-13-pro.png",
+    description: "Shockproof clear case designed to protect the iPhone 13 Pro.",
+    stock: 18,
+    inStock: true,
+    specs: {},
+    category: "ACCESSORY",
+    subType: "COVER",
+  },
+  {
+    id: "3",
+    title: "9D Matte Tempered Glass Screen Guard",
+    name: "9D Matte Tempered Glass Screen Guard",
+    brand: "Tecno",
+    price: 15000,
+    priceUgx: 15000,
+    condition: "New",
+    image: "/images/accessories/matte-tempered-glass.png",
+    description: "Durable 9D tempered glass screen guard for superior protection.",
+    stock: 30,
+    inStock: true,
+    specs: {},
+    category: "ACCESSORY",
+    subType: "SCREEN_GUARD",
+  },
+  {
+    id: "4",
+    title: "Wireless Noise Cancelling Earbuds",
+    name: "Wireless Noise Cancelling Earbuds",
+    brand: "Oraimo",
+    price: 95000,
+    priceUgx: 95000,
+    condition: "New",
+    image: "/images/accessories/wireless-earbuds.png",
+    description: "Wireless earbuds with noise cancelling for clear audio.",
+    stock: 12,
+    inStock: true,
+    specs: {},
+    category: "ACCESSORY",
+    subType: "EARBUDS",
+  },
+  {
+    id: "5",
+    title: "Heavy Bass Wired Earphones with Mic",
+    name: "Heavy Bass Wired Earphones with Mic",
+    brand: "JBL",
+    price: 30000,
+    priceUgx: 30000,
+    condition: "New",
+    image: "/images/accessories/wired-earphones-mic.png",
+    description: "Wired earphones with mic and heavy bass for immersive sound.",
+    stock: 20,
+    inStock: true,
+    specs: {},
+    category: "ACCESSORY",
+    subType: "EARPHONE_MIC",
+  },
 ];
 
 const categories = [
@@ -23,9 +152,10 @@ const categories = [
 export default function AccessoriesPage() {
   const [activeTab, setActiveTab] = useState("ALL");
 
-  const filteredItems = activeTab === "ALL" 
-    ? sampleAccessories 
-    : sampleAccessories.filter(item => item.subType === activeTab);
+  const filteredItems =
+    activeTab === "ALL"
+      ? sampleAccessories
+      : sampleAccessories.filter((item) => item.subType === activeTab);
 
   return (
     <main className="min-h-screen bg-slate-950 text-white p-6 md:p-12">
@@ -52,8 +182,30 @@ export default function AccessoriesPage() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
-          {filteredItems.map((item) => (
-            <ProductCard key={item.id} {...item} />
+          {filteredItems.map((item: AccessoryItem) => (
+            <ProductCard
+              key={item.id}
+              product={
+                {
+                  ...item,
+                  condition: item.condition as ProductCondition,
+                  specs: {
+                    modelCode: "",
+                    chipset: "",
+                    display: "",
+                    battery: "",
+                    ram: "",
+                    storage: "",
+                    camera: "",
+                    os: "",
+                    color: "",
+                    warranty: "",
+                  },
+                } as AccessoryProductCardProduct
+              }
+              onOpenSpecs={() => {}}
+              onOrderWhatsApp={() => {}}
+            />
           ))}
         </div>
       </div>

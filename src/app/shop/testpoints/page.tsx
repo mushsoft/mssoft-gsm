@@ -1,10 +1,29 @@
-import { getTestpoints } from '@/lib/sanityQueries';
+import * as sanityQueries from '@/lib/sanityQueries';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MessageCircle, ArrowLeft, CircuitBoard } from 'lucide-react';
 
+type ShopItem = {
+  _id: string;
+  title: string;
+  price?: number;
+  imageUrl?: string;
+  brand?: string;
+};
+
+async function getShopItemsForCategory(category: string): Promise<ShopItem[]> {
+  const queryHelper = (sanityQueries as Record<string, unknown>)
+    .getShopItemsByCategory;
+
+  if (typeof queryHelper === 'function') {
+    return await (queryHelper as (category: string) => Promise<ShopItem[]>)(category);
+  }
+
+  return [];
+}
+
 export default async function TestpointsPage() {
-  const testpoints = await getTestpoints().catch(() => []);
+  const testpoints = await getShopItemsForCategory('testpoints').catch(() => []);
 
   const whatsappPhone = '256755754880';
 

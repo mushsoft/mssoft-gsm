@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/src/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -7,8 +7,30 @@ export async function POST(req: Request) {
 
     const txRef = `PH-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
+    const prismaClient = prisma as {
+      order: {
+        create: (args: {
+          data: {
+            customerName: string;
+            customerPhone: string;
+            customerEmail: string;
+            totalAmount: number;
+            paymentMethod: string;
+            txRef: string;
+            items: {
+              create: Array<{
+                productId: string;
+                quantity: number;
+                price: number;
+              }>;
+            };
+          };
+        }) => Promise<unknown>;
+      };
+    };
+
     // 1. Create Order in Database
-    await prisma.order.create({
+    await prismaClient.order.create({
       data: {
         customerName,
         customerPhone,
