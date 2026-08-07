@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CategoryType {
+  PHONE
+  ACCESSORY
+  SPARE_PART
+  REPAIR_TOOL
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+}
+
+model Product {
+  id          String       @id @default(uuid())
+  title       String
+  slug        String       @unique
+  description String
+  price       Float
+  stock       Int          @default(0)
+  category    CategoryType
+  brand       String       // e.g. Samsung, Tecno, Apple
+  modelName   String?      // e.g. Galaxy A12, iPhone 11
+  images      String[]
+  specs       Json?        // Dynamic specs (RAM, Storage, Condition)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  OrderItem OrderItem[]
+}
+
+model TestPoint {
+  id          String   @id @default(uuid())
+  brand       String   // e.g. Tecno, Infinix, Samsung
+  modelName   String   // e.g. Spark 8 Pro
+  chipset     String   // e.g. MediaTek MT6769, Snapdragon 680
+  title       String   // e.g. EMMC / UFS ISP Pinout
+  diagramUrl  String   // Image link
+  notes       String?  // Voltages, CLK, CMD instructions
+  createdAt   DateTime @default(now())
+}
+
+model RepairGuide {
+  id          String   @id @default(uuid())
+  title       String   // e.g. Tecno Camon 18 Charging IC Fix
+  brand       String
+  modelName   String
+  videoUrl    String?  // YouTube embed link
+  thumbnail   String
+  content     String   // Written step-by-step
+  toolsUsed   String[]
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id              String        @id @default(uuid())
+  customerName    String
+  customerPhone   String        // e.g. +256...
+  customerEmail   String
+  totalAmount     Float
+  paymentStatus   PaymentStatus @default(PENDING)
+  txRef           String        @unique
+  paymentMethod   String        // "MOBILE_MONEY" or "CARD"
+  items           OrderItem[]
+  createdAt       DateTime      @default(now())
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+}
