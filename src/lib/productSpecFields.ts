@@ -6,7 +6,7 @@
 // category/subcategory still round-trip safely through the form's freeform
 // "Additional Info" section.
 
-export type SpecFieldType = 'text' | 'select';
+export type SpecFieldType = 'text' | 'select' | 'multiselect';
 
 export interface SpecFieldDef {
   key: string;
@@ -73,13 +73,15 @@ const compatibilityField = (placeholder = 'SM-A546B, SM-A546U'): SpecFieldDef =>
 
 const RAM_OPTIONS = ['1GB', '2GB', '3GB', '4GB', '6GB', '8GB', '12GB', '16GB', '18GB'];
 const STORAGE_OPTIONS = ['8GB', '16GB', '32GB', '64GB', '128GB', '256GB', '512GB', '1TB'];
-const SCREEN_SIZE_OPTIONS = [
-  '5.0"', '5.5"', '6.1"', '6.4"', '6.5"', '6.6"', '6.7"', '6.8"', '6.9"', '7.0"', '7.2"', '8.7"', '10.1"', '10.4"',
-];
 
-const ramField = (): SpecFieldDef => ({ key: 'ram', label: 'RAM', type: 'select', options: RAM_OPTIONS });
-const storageField = (): SpecFieldDef => ({ key: 'storage', label: 'Storage', type: 'select', options: STORAGE_OPTIONS });
-const screenSizeField = (): SpecFieldDef => ({ key: 'screenSize', label: 'Screen Size', type: 'select', options: SCREEN_SIZE_OPTIONS });
+// RAM/storage are multiselect (stored as a comma-joined string, e.g. "6GB, 8GB")
+// since many phones ship in more than one variant. Screen size is freeform text
+// rather than a preset list — real screen sizes land on continuous decimals
+// (6.43", 6.72", 6.78", ...) that a fixed dropdown can never fully cover.
+const ramField = (): SpecFieldDef => ({ key: 'ram', label: 'RAM', type: 'multiselect', options: RAM_OPTIONS });
+const storageField = (): SpecFieldDef => ({ key: 'storage', label: 'Storage', type: 'multiselect', options: STORAGE_OPTIONS });
+const screenSizeField = (): SpecFieldDef => ({ key: 'screenSize', label: 'Screen Size', type: 'text', placeholder: '6.78"' });
+const resolutionField = (): SpecFieldDef => ({ key: 'resolution', label: 'Screen Resolution', type: 'text', placeholder: '1080 x 2340 px' });
 
 /** Category-level fallback fields — used when no subcategory is picked yet, and always for PHONE/KIDS_TAB/REPAIR_TOOL. */
 export const CATEGORY_SPEC_FIELDS: Record<ProductCategory, SpecFieldDef[]> = {
@@ -88,6 +90,7 @@ export const CATEGORY_SPEC_FIELDS: Record<ProductCategory, SpecFieldDef[]> = {
     ramField(),
     storageField(),
     screenSizeField(),
+    resolutionField(),
     { key: 'battery', label: 'Battery', type: 'text', placeholder: '5000 mAh' },
     { key: 'camera', label: 'Main Camera', type: 'text', placeholder: '50MP' },
     { key: 'chipset', label: 'Chipset / Processor', type: 'text', placeholder: 'Snapdragon 8 Gen 3' },
@@ -106,6 +109,7 @@ export const CATEGORY_SPEC_FIELDS: Record<ProductCategory, SpecFieldDef[]> = {
   ],
   KIDS_TAB: [
     screenSizeField(),
+    resolutionField(),
     storageField(),
     ramField(),
     { key: 'battery', label: 'Battery', type: 'text', placeholder: '3000 mAh' },

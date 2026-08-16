@@ -485,37 +485,73 @@ export default function ProductForm({
         <div>
           <label className={labelClass}>{detailsLabel} Details</label>
           <div className="grid grid-cols-1 gap-3 rounded-lg border border-neutral-200 dark:border-neutral-800 p-3 sm:grid-cols-2">
-            {specFields.map((field) => (
-              <div key={field.key}>
-                <label className="mb-1 block text-[10px] text-neutral-500">{field.label}</label>
-                {field.type === 'select' ? (
-                  <select
-                    value={values.specs[field.key] ?? ''}
-                    onChange={(e) => updateSpecField(field.key, e.target.value)}
-                    disabled={isSubmitting}
-                    className={inputClass}
-                  >
-                    <option value="">—</option>
-                    {values.specs[field.key] && !field.options?.includes(values.specs[field.key]) && (
-                      <option value={values.specs[field.key]}>{values.specs[field.key]}</option>
-                    )}
-                    {field.options?.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    value={values.specs[field.key] ?? ''}
-                    onChange={(e) => updateSpecField(field.key, e.target.value)}
-                    disabled={isSubmitting}
-                    className={inputClass}
-                    placeholder={field.placeholder}
-                  />
-                )}
-              </div>
-            ))}
+            {specFields.map((field) => {
+              const selectedMulti =
+                field.type === 'multiselect'
+                  ? (values.specs[field.key] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+                  : [];
+
+              function toggleMultiOption(opt: string) {
+                const next = selectedMulti.includes(opt)
+                  ? selectedMulti.filter((s) => s !== opt)
+                  : [...selectedMulti, opt];
+                updateSpecField(field.key, next.join(', '));
+              }
+
+              return (
+                <div key={field.key}>
+                  <label className="mb-1 block text-[10px] text-neutral-500">{field.label}</label>
+                  {field.type === 'select' ? (
+                    <select
+                      value={values.specs[field.key] ?? ''}
+                      onChange={(e) => updateSpecField(field.key, e.target.value)}
+                      disabled={isSubmitting}
+                      className={inputClass}
+                    >
+                      <option value="">—</option>
+                      {values.specs[field.key] && !field.options?.includes(values.specs[field.key]) && (
+                        <option value={values.specs[field.key]}>{values.specs[field.key]}</option>
+                      )}
+                      {field.options?.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  ) : field.type === 'multiselect' ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {field.options?.map((opt) => {
+                        const isChecked = selectedMulti.includes(opt);
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            disabled={isSubmitting}
+                            onClick={() => toggleMultiOption(opt)}
+                            aria-pressed={isChecked}
+                            className={`rounded-md border px-2 py-1 text-xs font-semibold transition-colors disabled:opacity-60 ${
+                              isChecked
+                                ? 'border-amber-500 bg-amber-500/10 text-amber-500'
+                                : 'border-neutral-200 dark:border-neutral-800 text-neutral-500 hover:border-amber-500/40'
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <input
+                      value={values.specs[field.key] ?? ''}
+                      onChange={(e) => updateSpecField(field.key, e.target.value)}
+                      disabled={isSubmitting}
+                      className={inputClass}
+                      placeholder={field.placeholder}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
