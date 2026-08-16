@@ -41,6 +41,9 @@
     "styled-components": "^6.5.3",
     "tailwind-merge": "^3.6.0"
   },
+  "overrides": {
+    "uuid": "^14.0.1"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
