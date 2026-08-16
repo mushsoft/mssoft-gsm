@@ -1,48 +1,59 @@
-import { createClient } from "next-sanity";
+import { client } from "./sanity";
 
-export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "",
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
-  apiVersion: "2024-01-01",
-  useCdn: false,
-});
+export { client };
 
-// TypeScript interface matching your Sanity product schema
+// TypeScript interface matching the active Sanity `product` schema
+// (see sanity.config.ts) — field names must stay in sync with it.
 export interface Product {
   _id: string;
-  name: string;
+  title: string;
   slug: string;
   category: string;
-  subCategory?: string;
+  accessoryType?: string;
   brand?: string;
-  model?: string;
-  itemCondition?: "brand_new" | "uk_used";
+  modelName?: string;
+  itemCondition?: "brand_new" | "uk_used" | "open_box";
   price: number;
   originalPrice?: number;
   imageUrl?: string;
   isSoldOut?: boolean;
 }
 
+export type ShopItem = Pick<Product, "_id" | "title" | "price" | "imageUrl" | "brand">;
+
+// URL category slugs (used throughout the app's routes) mapped to the
+// uppercase `category` enum values actually defined in sanity.config.ts.
+const CATEGORY_SLUG_TO_ENUM: Record<string, string> = {
+  phones: "PHONE",
+  screens: "SCREEN",
+  spares: "SCREEN",
+  accessories: "ACCESSORY",
+  tools: "REPAIR_TOOL",
+  testpoints: "TESTPOINT",
+};
+
+const PRODUCT_PROJECTION = `{
+  _id,
+  title,
+  "slug": slug.current,
+  category,
+  accessoryType,
+  brand,
+  modelName,
+  itemCondition,
+  price,
+  originalPrice,
+  "imageUrl": image.asset->url,
+  isSoldOut
+}`;
+
 /**
- * 1. HOMEPAGE QUERY
- * Fetches featured banners, recent products, and hot deals for PhoneHub's home page.
+ * HOMEPAGE QUERY
+ * Fetches recent products and any banners for the home page.
  */
 export async function getHomePageData() {
   const query = `{
-    "featuredProducts": *[_type == "product" && !isSoldOut] | order(_createdAt desc)[0...8] {
-      _id,
-      name,
-      "slug": slug.current,
-      category,
-      subCategory,
-      brand,
-      model,
-      itemCondition,
-      price,
-      originalPrice,
-      "imageUrl": mainImage.asset->url,
-      isSoldOut
-    },
+    "featuredProducts": *[_type == "product" && !isSoldOut] | order(_createdAt desc)[0...8] ${PRODUCT_PROJECTION},
     "banners": *[_type == "banner"] {
       _id,
       title,
@@ -56,23 +67,18 @@ export async function getHomePageData() {
 }
 
 /**
- * 2. CATEGORY & SHOP PAGE QUERY
- * Fetches products by primary category and optional dynamic filters (subCategory, itemCondition, brand).
+ * CATEGORY & SHOP PAGE QUERY
+ * Fetches products by primary category (accepts either a URL slug like
+ * "screens" or the raw Sanity enum value like "SCREEN") and optional filters.
  */
 export async function getProductsByCategory(
   category: string,
-  subCategory?: string,
   condition?: string,
   brand?: string
 ): Promise<Product[]> {
-  const filterConditions = [
-    `_type == "product"`,
-    `(category == $category || category->slug.current == $category)`
-  ];
+  const categoryValue = CATEGORY_SLUG_TO_ENUM[category.toLowerCase()] ?? category;
 
-  if (subCategory) {
-    filterConditions.push(`subCategory == $subCategory`);
-  }
+  const filterConditions = [`_type == "product"`, `category == $category`];
 
   if (condition) {
     filterConditions.push(`itemCondition == $condition`);
@@ -82,25 +88,26 @@ export async function getProductsByCategory(
     filterConditions.push(`brand == $brand`);
   }
 
-  const query = `*[${filterConditions.join(" && ")}] | order(_createdAt desc) {
-    _id,
-    name,
-    "slug": slug.current,
-    category,
-    subCategory,
-    brand,
-    model,
-    itemCondition,
-    price,
-    originalPrice,
-    "imageUrl": mainImage.asset->url,
-    isSoldOut
-  }`;
+  const query = `*[${filterConditions.join(" && ")}] | order(_createdAt desc) ${PRODUCT_PROJECTION}`;
 
   return await client.fetch<Product[]>(query, {
-    category,
-    subCategory: subCategory || null,
+    category: categoryValue,
     condition: condition || null,
     brand: brand || null,
   });
+}
+
+/**
+ * Lightweight variant of getProductsByCategory used by shop category pages
+ * that only need id/title/price/image/brand (e.g. the testpoints diagram shop).
+ */
+export async function getShopItemsByCategory(category: string): Promise<ShopItem[]> {
+  const products = await getProductsByCategory(category);
+  return products.map(({ _id, title, price, imageUrl, brand }) => ({
+    _id,
+    title,
+    price,
+    imageUrl,
+    brand,
+  }));
 }

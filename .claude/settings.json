@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('type:', p.type\\); console.log\\('devDeps has tsx:', !!\\(p.devDependencies&&p.devDependencies.tsx\\)\\); console.log\\('devDeps has ts-node:', !!\\(p.devDependencies&&p.devDependencies['ts-node']\\)\\)\")",
+      "Bash(npm install *)",
+      "Bash(npx tsx *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('dotenv:', p.dependencies?.dotenv || p.devDependencies?.dotenv || 'NOT INSTALLED'\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/dotenv/package.json'\\).version\\)\")",
+      "Bash(curl -s -w \"\\\\nSTATUS:%{http_code}\\\\n\" -X POST http://localhost:3000/api/checkout -H \"Content-Type: application/json\" -d '{\"customerName\":\"Test Customer\",\"customerPhone\":\"+256700000000\",\"customerEmail\":\"test@example.com\",\"paymentMethod\":\"CARD\",\"items\":[{\"id\":\"57c1fb67-8461-4d5b-995c-26075be07fbc\",\"quantity\":2}]}')",
+      "Bash(curl -s -w \"\\\\nSTATUS:%{http_code}\\\\n\" -X POST http://localhost:3000/api/checkout/webhook -H \"Content-Type: application/json\" -H \"verif-hash: test-webhook-secret\" -d '{\"data\":{\"tx_ref\":\"PH-6323e80e-4090-429e-ab29-380df4dac768\",\"id\":999}}')",
+      "Bash(curl -s http://localhost:3000/shop/screens)",
+      "Bash(curl -s \"http://localhost:3000/shop?search=iphone\")",
+      "Bash(curl -s -o /dev/null -w \"STATUS /shop/tools: %{http_code}\\\\n\" http://localhost:3000/shop/tools)",
+      "Bash(node -e \"console.log\\(require\\('fs'\\).readFileSync\\('.env.local','utf8'\\).match\\(/NEXT_PUBLIC_BASE_URL=.*/\\)[0]\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/@supabase/supabase-js/package.json'\\).version\\)\")",
+      "Bash(echo \"EXIT CODE: $?\")",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}

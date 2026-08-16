@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Footer from "@/components/Footer";
+import ConditionalHeader from "@/components/ConditionalHeader";
+import ConditionalFooter from "@/components/ConditionalFooter";
+import { THEME_INIT_SCRIPT } from "@/components/ThemeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,9 +15,46 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const siteName = "MS Soft GSM";
+const title = "MS Soft GSM | Phones, Spare Parts & Technician Support Uganda";
+const description =
+  "Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp — fast delivery across Kampala & East Africa.";
+
 export const metadata: Metadata = {
-  title: "MS Soft GSM - Phone Spare Parts & Repair Register Uganda",
-  description: "Your trusted supplier for phone screens, batteries, spares, and accessories.",
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: title,
+    template: `%s | ${siteName}`,
+  },
+  description,
+  keywords: [
+    "phone spares Uganda",
+    "phone screens Kampala",
+    "GSM repair tools",
+    "testpoint diagrams",
+    "UK used phones Uganda",
+    "phone batteries Uganda",
+  ],
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    locale: "en_UG",
+    url: baseUrl,
+    siteName,
+    title,
+    description,
+  },
+  twitter: {
+    card: "summary",
+    title,
+    description,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -26,14 +65,30 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
-        {/* Main Content Area */}
-        <div className="flex-grow">{children}</div>
+      <body className="min-h-full flex flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100 font-sans">
+        {/* Runs before paint to apply a stored light/dark preference — see ThemeToggle. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
 
-        {/* Global Footer */}
-        <Footer />
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-100 focus:rounded-lg focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-black"
+        >
+          Skip to content
+        </a>
+
+        {/* Global Header (hidden on /studio, which renders full-screen) */}
+        <ConditionalHeader />
+
+        {/* Main Content Area */}
+        <div id="main-content" className="grow">
+          {children}
+        </div>
+
+        {/* Global Footer (hidden on /studio, which renders full-screen) */}
+        <ConditionalFooter />
       </body>
     </html>
   );

@@ -59,10 +59,10 @@ const sampleTools = [
 
 export default function ToolsPage() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-6 md:p-12">
+    <main className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white p-6 md:p-12">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-extrabold text-amber-400">Technician Repair Tools</h1>
-        <p className="text-slate-400 mt-2">
+        <p className="text-slate-500 dark:text-slate-400 mt-2">
           Professional heat guns, soldering irons, microscopes, and opening toolkits.
         </p>
 

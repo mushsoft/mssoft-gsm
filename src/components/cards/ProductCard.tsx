@@ -16,12 +16,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onOrderWhatsApp,
 }) => {
   return (
-    <div className="group relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-slate-700 transition-all duration-300 flex flex-col justify-between">
-      
+    <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 flex flex-col justify-between">
+
       {/* Top Image Container & Badges */}
-      <div className="relative aspect-square w-full overflow-hidden bg-slate-950 p-4">
+      <div className="relative aspect-square w-full overflow-hidden bg-slate-50 dark:bg-slate-950 p-4">
         {/* Condition Tag */}
-        <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800/90 text-slate-200 border border-slate-700 backdrop-blur-md">
+        <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100/90 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 backdrop-blur-md">
           {product.condition}
         </span>
 
@@ -44,21 +44,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* Card Details */}
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1 font-mono">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1 font-mono">
             <span>{product.brand}</span>
             <span className="text-emerald-400">{product.specs.modelCode}</span>
           </div>
 
-          <h3 className="font-bold text-slate-100 text-base line-clamp-1">{product.name}</h3>
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 text-base line-clamp-1">{product.name}</h3>
 
           {/* Quick Hardware Pill */}
-          <div className="mt-2 inline-block px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-xs font-medium">
+          <div className="mt-2 inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium">
             ⚡ {product.specs.chipset}
           </div>
         </div>
 
         {/* Pricing & CTA Buttons */}
-        <div className="mt-4 pt-3 border-t border-slate-800/80">
+        <div className="mt-4 pt-3 border-t border-slate-200/80 dark:border-slate-800/80">
           <div className="mb-3">
             <span className="text-lg font-black text-emerald-400">
               {formatUGX(product.priceUgx)}
@@ -68,7 +68,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => onOpenSpecs(product)}
-              className="py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+              className="py-2 px-3 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition"
             >
               Tech Specs
             </button>

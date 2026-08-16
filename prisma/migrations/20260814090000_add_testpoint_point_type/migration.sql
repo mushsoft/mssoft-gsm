@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "TestPoint" ADD COLUMN "pointType" TEXT NOT NULL DEFAULT 'EDL';
+ALTER TABLE "TestPoint" ALTER COLUMN "pointType" DROP DEFAULT;

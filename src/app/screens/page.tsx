@@ -1,6 +1,7 @@
 import type { Product } from "@/types/product";
 import { ProductCard } from "@/components/cards/ProductCard";
 import { client, urlFor } from "@/lib/sanity";
+import Link from "next/link";
 
 // Ensure Next.js always fetches fresh screens from Sanity
 export const revalidate = 0;
@@ -43,19 +44,19 @@ export default async function ScreensPage() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-6 md:p-12">
+    <main className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white p-6 md:p-12">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-extrabold text-amber-400">Phone Replacement Screens</h1>
-        <p className="text-slate-400 mt-1 mb-8">
+        <p className="text-slate-500 dark:text-slate-400 mt-1 mb-8">
           Browse replacement displays organized by brand and model.
         </p>
 
         {screens.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 bg-slate-900 rounded-2xl border border-slate-800">
+          <div className="p-8 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
             No screens added yet. Add your first screen from the{" "}
-            <a href="/studio" className="text-amber-400 underline">
+            <Link href="/studio" className="text-amber-400 underline">
               Sanity Studio
-            </a>
+            </Link>
             !
           </div>
         ) : (
@@ -68,10 +69,10 @@ export default async function ScreensPage() {
               return (
                 <section key={brandName} className="space-y-4">
                   <div className="flex items-center gap-3 border-l-4 border-amber-500 pl-3">
-                    <h2 className="text-xl font-bold text-white tracking-wide">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-wide">
                       {brandName === "Apple" ? "iPhone (Apple) Screens" : `${brandName} Screens`}
                     </h2>
-                    <span className="text-xs bg-slate-900 text-amber-400 font-mono px-2.5 py-0.5 rounded-full border border-slate-800">
+                    <span className="text-xs bg-white dark:bg-slate-900 text-amber-400 font-mono px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-800">
                       {brandItems.length} {brandItems.length === 1 ? "Model" : "Models"}
                     </span>
                   </div>

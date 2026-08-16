@@ -27,7 +27,7 @@ export default function BannerSlider({ banners }: { banners: Banner[] }) {
   if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="relative w-full h-[280px] sm:h-[400px] overflow-hidden rounded-2xl shadow-lg bg-neutral-900">
+    <div className="relative w-full h-[280px] sm:h-[400px] overflow-hidden rounded-2xl shadow-lg bg-white dark:bg-neutral-900">
       {banners.map((banner, index) => (
         <div
           key={banner._id}

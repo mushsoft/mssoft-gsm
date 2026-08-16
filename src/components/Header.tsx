@@ -3,12 +3,12 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  Search, 
-  ChevronDown, 
-  MessageCircle, 
-  Menu, 
-  X, 
+import {
+  Search,
+  ChevronDown,
+  MessageCircle,
+  Menu,
+  X,
   PhoneCall,
   Flame,
   Smartphone,
@@ -18,8 +18,11 @@ import {
   Cpu,
   Layers,
   CircuitBoard,
+  GraduationCap,
+  UserCircle,
   type LucideIcon
 } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface SubCategory {
   title: string;
@@ -123,20 +126,20 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-neutral-950/95 backdrop-blur-md border-b border-neutral-800">
+    <header className="sticky top-0 z-50 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800">
       {/* 1. TOP ANNOUNCEMENT BAR */}
-      <div className="bg-neutral-900 border-b border-neutral-800 text-[11px] py-1.5 px-4 text-neutral-300">
+      <div className="bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 text-[11px] py-1.5 px-4 text-neutral-600 dark:text-neutral-300">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Fast delivery across Kampala & East Africa</span>
           </div>
-          <div className="hidden sm:flex items-center gap-4 text-neutral-400">
-            <a 
-              href={whatsappUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="hover:text-amber-400 transition-colors flex items-center gap-1.5"
+          <div className="hidden sm:flex items-center gap-4 text-neutral-500 dark:text-neutral-400">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors flex items-center gap-1.5"
             >
               <PhoneCall className="w-3 h-3 text-amber-500" />
               <span>Call / WhatsApp: +256 755 754 880</span>
@@ -147,25 +150,25 @@ export default function Header() {
 
       {/* 2. MAIN BRANDING & SEARCH BAR */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-        
+
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-2.5 group shrink-0">
           <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center font-black text-black text-lg shadow-lg group-hover:scale-105 transition-transform">
             PH
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-black tracking-wider text-white leading-none">
+            <span className="text-xl font-black tracking-wider text-neutral-900 dark:text-white leading-none">
               MS SOFT<span className="text-amber-500">GSM</span>
             </span>
-            <span className="text-[9px] font-bold text-neutral-400 tracking-widest uppercase mt-0.5">
+            <span className="text-[9px] font-bold text-neutral-500 dark:text-neutral-400 tracking-widest uppercase mt-0.5">
               Spares & Phones
             </span>
           </div>
         </Link>
 
         {/* SEARCH BAR (Desktop) */}
-        <form 
-          onSubmit={handleSearch} 
+        <form
+          onSubmit={handleSearch}
           className="hidden md:flex flex-1 max-w-lg relative items-center"
         >
           <input
@@ -173,9 +176,9 @@ export default function Header() {
             placeholder="Search EDL testpoints, blowers, screens, UK used phones..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-neutral-900 border border-neutral-800 text-xs text-neutral-100 placeholder-neutral-500 rounded-xl py-2.5 pl-10 pr-20 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+            className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-xl py-2.5 pl-10 pr-20 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
           />
-          <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 pointer-events-none" />
+          <Search className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 pointer-events-none" />
           <button
             type="submit"
             className="absolute right-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-lg transition-colors"
@@ -186,6 +189,16 @@ export default function Header() {
 
         {/* ACTIONS */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
+
+          <Link
+            href="/account"
+            aria-label="My Account"
+            className="hidden sm:flex items-center justify-center p-2 text-neutral-600 dark:text-neutral-300 hover:text-amber-500 dark:hover:text-amber-400 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg transition-colors"
+          >
+            <UserCircle className="w-4 h-4" />
+          </Link>
+
           <a
             href={whatsappUrl}
             target="_blank"
@@ -200,7 +213,7 @@ export default function Header() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle navigation menu"
             aria-expanded={isMobileMenuOpen}
-            className="md:hidden p-2 text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 rounded-lg focus:outline-none focus:border-amber-500"
+            className="md:hidden p-2 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg focus:outline-none focus:border-amber-500"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -215,9 +228,9 @@ export default function Header() {
             placeholder="Search testpoints, blowers, screens..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-neutral-900 border border-neutral-800 text-xs text-neutral-100 placeholder-neutral-500 rounded-lg py-2 pl-9 pr-16 focus:outline-none focus:border-amber-500"
+            className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-lg py-2 pl-9 pr-16 focus:outline-none focus:border-amber-500"
           />
-          <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-3 pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 absolute left-3 pointer-events-none" />
           <button
             type="submit"
             className="absolute right-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-black font-bold text-[10px] rounded"
@@ -228,11 +241,11 @@ export default function Header() {
       </div>
 
       {/* 3. DESKTOP NAVIGATION */}
-      <nav className="hidden md:block bg-neutral-900/60 border-t border-neutral-800">
+      <nav className="hidden md:block bg-neutral-50/60 dark:bg-neutral-900/60 border-t border-neutral-200 dark:border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ul className="flex items-center gap-6 text-xs font-bold tracking-wide text-neutral-300">
+          <ul className="flex items-center gap-6 text-xs font-bold tracking-wide text-neutral-600 dark:text-neutral-300">
             <li className="py-2.5">
-              <Link href="/" className="hover:text-amber-400 transition-colors">
+              <Link href="/" className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
                 HOME
               </Link>
             </li>
@@ -241,22 +254,22 @@ export default function Header() {
               const Icon = cat.icon;
               return (
                 <li key={cat.title} className="relative group py-2.5">
-                  <Link 
-                    href={cat.mainHref} 
-                    className="flex items-center gap-1.5 hover:text-amber-400 transition-colors py-1"
+                  <Link
+                    href={cat.mainHref}
+                    className="flex items-center gap-1.5 hover:text-amber-500 dark:hover:text-amber-400 transition-colors py-1"
                   >
-                    <Icon className="w-3.5 h-3.5 text-neutral-400 group-hover:text-amber-400" />
+                    <Icon className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-400 group-hover:text-amber-500 dark:group-hover:text-amber-400" />
                     <span>{cat.title}</span>
-                    <ChevronDown className="w-3.5 h-3.5 text-neutral-500 group-hover:text-amber-400 transition-transform group-hover:rotate-180" />
+                    <ChevronDown className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-transform group-hover:rotate-180" />
                   </Link>
 
                   {/* DROPDOWN SUBMENU */}
-                  <div className="absolute left-0 top-full hidden group-hover:block group-focus-within:block w-56 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl py-2 z-50">
+                  <div className="absolute left-0 top-full hidden group-hover:block group-focus-within:block w-56 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl py-2 z-50">
                     {cat.subcategories.map((sub) => (
                       <Link
                         key={sub.title}
                         href={sub.href}
-                        className="block px-4 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 transition-colors"
+                        className="block px-4 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
                       >
                         {sub.title}
                       </Link>
@@ -267,9 +280,19 @@ export default function Header() {
             })}
 
             <li className="py-2.5 ml-auto">
-              <Link 
-                href="/deals" 
-                className="flex items-center gap-1 text-red-400 font-bold hover:text-red-300 transition-colors"
+              <Link
+                href="/learn-to-repair"
+                className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors"
+              >
+                <GraduationCap className="w-3.5 h-3.5" />
+                <span>LEARN TO REPAIR</span>
+              </Link>
+            </li>
+
+            <li className="py-2.5">
+              <Link
+                href="/deals"
+                className="flex items-center gap-1 text-red-500 dark:text-red-400 font-bold hover:text-red-400 dark:hover:text-red-300 transition-colors"
               >
                 <Flame className="w-3.5 h-3.5 fill-current" />
                 <span>HOT DEALS</span>
@@ -281,11 +304,11 @@ export default function Header() {
 
       {/* MOBILE DROPDOWN ACCORDION MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-neutral-900 border-t border-neutral-800 px-4 py-4 space-y-2 max-h-[75vh] overflow-y-auto">
+        <div className="md:hidden bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 px-4 py-4 space-y-2 max-h-[75vh] overflow-y-auto">
           <Link
             href="/"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 text-sm font-bold text-neutral-200"
+            className="block py-2 text-sm font-bold text-neutral-800 dark:text-neutral-200"
           >
             HOME
           </Link>
@@ -295,13 +318,13 @@ export default function Header() {
             const isOpen = activeMobileCategory === cat.title;
 
             return (
-              <div key={cat.title} className="border-b border-neutral-800/60 pb-1">
+              <div key={cat.title} className="border-b border-neutral-200/60 dark:border-neutral-800/60 pb-1">
                 <button
                   onClick={() =>
                     setActiveMobileCategory(isOpen ? null : cat.title)
                   }
                   aria-expanded={isOpen}
-                  className="w-full flex items-center justify-between py-2 text-xs font-bold text-neutral-200 text-left"
+                  className="w-full flex items-center justify-between py-2 text-xs font-bold text-neutral-800 dark:text-neutral-200 text-left"
                 >
                   <div className="flex items-center gap-2">
                     <Icon className="w-4 h-4 text-amber-500" />
@@ -309,13 +332,13 @@ export default function Header() {
                   </div>
                   <ChevronDown
                     className={`w-4 h-4 transition-transform ${
-                      isOpen ? 'rotate-180 text-amber-500' : 'text-neutral-500'
+                      isOpen ? 'rotate-180 text-amber-500' : 'text-neutral-400 dark:text-neutral-500'
                     }`}
                   />
                 </button>
 
                 {isOpen && (
-                  <div className="pl-4 py-1 space-y-1.5 border-l border-neutral-800 ml-2">
+                  <div className="pl-4 py-1 space-y-1.5 border-l border-neutral-200 dark:border-neutral-800 ml-2">
                     <Link
                       href={cat.mainHref}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -328,7 +351,7 @@ export default function Header() {
                         key={sub.title}
                         href={sub.href}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="block text-xs text-neutral-400 hover:text-amber-400 py-1"
+                        className="block text-xs text-neutral-500 dark:text-neutral-400 hover:text-amber-500 dark:hover:text-amber-400 py-1"
                       >
                         {sub.title}
                       </Link>
@@ -340,9 +363,18 @@ export default function Header() {
           })}
 
           <Link
+            href="/learn-to-repair"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center gap-2 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400"
+          >
+            <GraduationCap className="w-4 h-4" />
+            <span>LEARN TO REPAIR</span>
+          </Link>
+
+          <Link
             href="/deals"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center gap-2 py-2 text-xs font-bold text-red-400"
+            className="flex items-center gap-2 py-2 text-xs font-bold text-red-500 dark:text-red-400"
           >
             <Flame className="w-4 h-4 fill-current" />
             <span>HOT DEALS</span>

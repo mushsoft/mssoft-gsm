@@ -16,48 +16,48 @@ export default function Footer() {
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello Phone Hub, I need support with an inquiry/order.')}`;
 
   return (
-    <footer className="bg-neutral-950 text-neutral-300 border-t border-neutral-800 pt-12 pb-8">
+    <footer className="bg-white text-neutral-600 dark:bg-neutral-950 dark:text-neutral-300 border-t border-neutral-200 dark:border-neutral-800 pt-12 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* 1. TRUST BADGES */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pb-12 border-b border-neutral-800">
-          <div className="flex items-center gap-4 bg-neutral-900/60 p-4 rounded-xl border border-neutral-800/80">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pb-12 border-b border-neutral-200 dark:border-neutral-800">
+          <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
             <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Genuine Parts</h4>
-              <p className="text-xs text-neutral-400">Tested & Tech Certified</p>
+              <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Genuine Parts</h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Tested & Tech Certified</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-neutral-900/60 p-4 rounded-xl border border-neutral-800/80">
+          <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
             <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
               <Truck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Fast Delivery</h4>
-              <p className="text-xs text-neutral-400">Across East Africa</p>
+              <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Fast Delivery</h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Across East Africa</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-neutral-900/60 p-4 rounded-xl border border-neutral-800/80">
+          <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
             <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
               <Wrench className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Pro Repairs</h4>
-              <p className="text-xs text-neutral-400">Expert Technician Support</p>
+              <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Pro Repairs</h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Expert Technician Support</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-neutral-900/60 p-4 rounded-xl border border-neutral-800/80">
+          <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
             <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
               <Headphones className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">24/7 Assistance</h4>
-              <p className="text-xs text-neutral-400">Quick WhatsApp Response</p>
+              <h4 className="text-sm font-bold text-neutral-900 dark:text-white">24/7 Assistance</h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Quick WhatsApp Response</p>
             </div>
           </div>
         </div>
@@ -68,14 +68,14 @@ export default function Footer() {
           {/* Brand Info & Direct WhatsApp CTA */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-black tracking-wider text-white">
+              <span className="text-2xl font-black tracking-wider text-neutral-900 dark:text-white">
                 PHONE<span className="text-amber-500">HUB</span>
               </span>
             </div>
-            <p className="text-sm text-neutral-400 leading-relaxed max-w-sm">
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-sm">
               Your trusted partner for genuine smartphone screens, UK used phones, brand new devices, accessories, and professional repair tools across East Africa.
             </p>
-            
+
             {/* Direct WhatsApp Support Button */}
             <div className="pt-2">
               <a
@@ -90,7 +90,7 @@ export default function Footer() {
             </div>
 
             {/* Quick Location & Phone */}
-            <div className="space-y-1.5 text-xs font-medium text-neutral-400 pt-1">
+            <div className="space-y-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400 pt-1">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-amber-500" />
                 <span>Kampala, Uganda</span>
@@ -104,7 +104,7 @@ export default function Footer() {
 
           {/* Shop Column */}
           <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-2">
+            <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-2">
               Shop Categories
             </h3>
             <ul className="space-y-2.5 text-sm">
@@ -134,7 +134,7 @@ export default function Footer() {
 
           {/* Highlights */}
           <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-2">
+            <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-2">
               Highlights
             </h3>
             <ul className="space-y-2.5 text-sm">
@@ -160,7 +160,7 @@ export default function Footer() {
 
           {/* Social Links & Legal */}
           <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-2">
+            <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-2">
               Follow Us
             </h3>
             <ul className="space-y-2 text-sm">
@@ -194,11 +194,11 @@ export default function Footer() {
         </div>
 
         {/* 3. COPYRIGHT */}
-        <div className="pt-8 border-t border-neutral-800 flex flex-col sm:flex-row justify-between items-center text-xs text-neutral-500 gap-4">
+        <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800 flex flex-col sm:flex-row justify-between items-center text-xs text-neutral-500 gap-4">
           <p>© {new Date().getFullYear()} PhoneHub East Africa. All rights reserved.</p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="hover:text-neutral-400">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-neutral-400">Terms of Service</Link>
+            <Link href="/privacy" className="hover:text-neutral-700 dark:hover:text-neutral-400">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-neutral-700 dark:hover:text-neutral-400">Terms of Service</Link>
           </div>
         </div>
 

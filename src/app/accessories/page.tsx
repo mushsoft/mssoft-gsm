@@ -158,13 +158,13 @@ export default function AccessoriesPage() {
       : sampleAccessories.filter((item) => item.subType === activeTab);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-6 md:p-12">
+    <main className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white p-6 md:p-12">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-extrabold text-amber-400">Phone Accessories</h1>
-        <p className="text-slate-400 mt-2">Filter by accessory type to find exactly what you need.</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-2">Filter by accessory type to find exactly what you need.</p>
 
         {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-2 mt-6 pb-4 border-b border-slate-800">
+        <div className="flex flex-wrap gap-2 mt-6 pb-4 border-b border-slate-200 dark:border-slate-800">
           {categories.map((tab) => (
             <button
               key={tab.value}
@@ -172,7 +172,7 @@ export default function AccessoriesPage() {
               className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
                 activeTab === tab.value
                   ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800"
+                  : "bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800"
               }`}
             >
               {tab.label}

@@ -28,17 +28,17 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl text-slate-100">
-        
+      <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xl text-slate-800 dark:text-slate-200">
+
         {/* Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl">📱</span>
-            <h3 className="font-bold text-lg text-white">Confirm WhatsApp Order</h3>
+            <h3 className="font-bold text-lg text-slate-900 dark:text-white">Confirm WhatsApp Order</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-md text-sm font-bold"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1 rounded-md text-sm font-bold"
           >
             ✕
           </button>
@@ -46,14 +46,14 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
         {/* Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          <div className="flex gap-4 p-3 bg-slate-950 rounded-xl border border-slate-800">
+          <div className="flex gap-4 p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800">
             <img
               src={product.image}
               alt={product.name}
-              className="w-16 h-16 object-contain rounded-lg bg-slate-900 p-1"
+              className="w-16 h-16 object-contain rounded-lg bg-white dark:bg-slate-900 p-1"
             />
             <div className="flex-1 min-w-0">
-              <h4 className="font-bold text-sm text-white truncate">{product.name}</h4>
+              <h4 className="font-bold text-sm text-slate-900 dark:text-white truncate">{product.name}</h4>
               <p className="text-xs text-emerald-400 font-mono mt-0.5">{product.specs.modelCode}</p>
               <p className="text-base font-black text-emerald-400 mt-1">
                 {formatUGX(product.priceUgx)}
@@ -62,7 +62,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">
               Delivery Location / Note (Optional)
             </label>
             <input
@@ -70,7 +70,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
               placeholder="e.g. Deliver to Ntinda, near Shell station"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
             />
           </div>
 

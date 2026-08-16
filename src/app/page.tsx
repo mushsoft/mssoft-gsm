@@ -1,107 +1,138 @@
-import React from 'react';
 import Link from 'next/link';
-import { HeroSearchPortal } from '@/components/ui/HeroSearchPortal';
-import { SparesPageContainer } from '@/components/spares/SparesPageContainer';
-
-// The screen spares data module is not available in this project yet.
-const SCREEN_SPARES_DATA: never[] = [];
-// The battery spares data module is not available in this project yet.
-const BATTERY_SPARES_DATA: never[] = [];
-// The charging flex spares data module is not available in this project yet.
-const CHARGING_FLEX_DATA: never[] = [];
+import {
+  CircuitBoard,
+  GraduationCap,
+  Headphones,
+  Layers,
+  MessageCircle,
+  Package,
+  ShieldCheck,
+  Smartphone,
+  Truck,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
+import { prisma } from '@/lib/prisma';
+import CatalogProductCard from '@/components/cards/CatalogProductCard';
+import GlowOrbs from '@/components/motion/GlowOrbs';
+import HeroContent from '@/components/motion/HeroContent';
+import Marquee from '@/components/motion/Marquee';
+import Reveal from '@/components/motion/Reveal';
+import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
 
 export const metadata = {
-  title: 'MS Soft GSM | Phones, Spare Parts & Technician support Uganda',
-  description: 'Official directory and spare parts hub for phone repair technicians in Uganda. Search original phones, screens, batteries, accessories and charging flex assemblies.',
+  title: 'MS Soft GSM | Phones, Spare Parts & Technician Support Uganda',
+  description:
+    'Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp — fast delivery across Kampala & East Africa.',
 };
 
-export default function HomePage() {
+// Featured products come from the live database — revalidate periodically
+// instead of freezing "Latest Arrivals" and stock levels at build time.
+export const revalidate = 60;
+
+const CATEGORY_TILES: { label: string; href: string; icon: LucideIcon; blurb: string }[] = [
+  { label: 'Phones', href: '/shop/phones', icon: Smartphone, blurb: 'Brand new & UK used' },
+  { label: 'Testpoints', href: '/shop/testpoints', icon: CircuitBoard, blurb: 'EDL / BROM / ISP' },
+  { label: 'Screens & Spares', href: '/shop/screens', icon: Layers, blurb: 'Batteries, flex, glass' },
+  { label: 'Repair Tools', href: '/shop/tools', icon: Wrench, blurb: 'Blowers, scopes, irons' },
+  { label: 'Accessories', href: '/shop/accessories', icon: Package, blurb: 'Chargers, cases, buds' },
+  { label: 'Learn to Repair', href: '/learn-to-repair', icon: GraduationCap, blurb: 'Free video guides' },
+];
+
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  PHONE: Smartphone,
+  ACCESSORY: Package,
+  SPARE_PART: Layers,
+  REPAIR_TOOL: Wrench,
+};
+
+const BRAND_TICKER = [
+  'Samsung', 'Apple', 'Tecno', 'Infinix', 'Xiaomi', 'itel', 'Vivo', 'Oppo', 'Realme', 'Nokia', 'Huawei', 'Honor',
+];
+
+const WHATSAPP_PHONE = '256755754880';
+
+export default async function HomePage() {
+  const featuredProducts = await prisma.product
+    .findMany({ orderBy: { createdAt: 'desc' }, take: 8 })
+    .catch(() => []);
+
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      {/* 1. URSB-Style Header Top Bar */}
-      <header className="bg-blue-700 text-white text-xs md:text-sm font-semibold py-2 px-4 border-b border-blue-800">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="bg-blue-800 px-2 py-0.5 rounded text-[11px] uppercase tracking-wider font-bold">Official</span>
-            <span>MS Soft GSM – Mobile Hub, Hardware & Software Repair Platform</span>
-          </div>
-          <div className="hidden sm:flex items-center gap-4 text-blue-100">
-            <span>Kampala, Uganda</span>
-            <span>•</span>
-            <a href="https://wa.me/256755754880" target="_blank" rel="noreferrer" className="hover:text-white underline">
-              Direct Support
-            </a>
-            <a href="https://wa.me/256773944288" target="_blank" rel="noreferrer" className="hover:text-white underline">
-              Direct Support
-            </a>
-          </div>
-        </div>
-      </header>
+    <main className="mx-auto max-w-7xl space-y-10 px-4 py-8">
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-6 sm:p-10">
+        <GlowOrbs />
+        <HeroContent />
+      </div>
 
-      {/* 2. Top Navigation */}
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-blue-500/20">
-              MS
+      <Marquee items={BRAND_TICKER} />
+
+      {/* Category Tiles */}
+      <div>
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Shop by Category</h2>
+        <StaggerGroup className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {CATEGORY_TILES.map(({ label, href, icon: Icon, blurb }) => (
+            <StaggerItem key={href}>
+              <Link
+                href={href}
+                className="group flex h-full flex-col items-center gap-2 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="text-xs font-bold text-neutral-800 dark:text-neutral-200">{label}</div>
+                <div className="text-[10px] text-neutral-500">{blurb}</div>
+              </Link>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      </div>
+
+      {/* Trust Strip */}
+      <StaggerGroup className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { icon: ShieldCheck, title: 'Genuine Parts', blurb: 'Tech certified' },
+          { icon: Truck, title: 'Fast Delivery', blurb: 'Across East Africa' },
+          { icon: MessageCircle, title: 'WhatsApp Support', blurb: '24/7 response' },
+          { icon: Headphones, title: 'Repair Guidance', blurb: 'Free technician tips' },
+        ].map(({ icon: Icon, title, blurb }) => (
+          <StaggerItem key={title}>
+            <div className="flex h-full items-center gap-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 p-4 transition-colors hover:border-neutral-300 dark:hover:border-neutral-700">
+              <div className="rounded-lg bg-amber-500/10 p-2.5 text-amber-500">
+                <Icon className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-neutral-900 dark:text-white">{title}</div>
+                <div className="text-[10px] text-neutral-500 dark:text-neutral-400">{blurb}</div>
+              </div>
             </div>
-            <div>
-              <span className="font-extrabold text-xl tracking-tight text-slate-900 block leading-none">
-                MS SOFT <span className="text-blue-600">GSM</span>
-              </span>
-              <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">mssoft-gsm.com</span>
-            </div>
-          </div>
+          </StaggerItem>
+        ))}
+      </StaggerGroup>
 
-          <div className="hidden md:flex items-center gap-8 font-semibold text-sm text-slate-600">
-            <Link href="/" className="text-blue-600 border-b-2 border-blue-600 py-5">Register Home</Link>
-            <a href="/spares" className="hover:text-blue-600 transition-colors">Phone Spares</a>
-            <Link href="/shop/accessories" className="hover:text-blue-600 transition-colors">Accessories</Link>
-            <a href="#services" className="hover:text-blue-600 transition-colors">Services</a>
-          </div>
-
-          <div className="flex items-center gap-3">
+      {/* Featured Products */}
+      {featuredProducts.length > 0 && (
+        <div>
+          <Reveal className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Latest Arrivals</h2>
             <a
-              href="https://wa.me/256755754880"
+              href={`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent('Hello Phone Hub! I want to see what is currently in stock.')}`}
               target="_blank"
-              rel="noreferrer"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors shadow-sm"
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-amber-500 hover:underline"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.143 4.174 4.148-1.087z"/>
-              </svg>
-              WhatsApp Support
+              Ask What&apos;s In Stock →
             </a>
-          </div>
+          </Reveal>
+          <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {featuredProducts.map((product) => (
+              <StaggerItem key={product.id}>
+                <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
         </div>
-      </nav>
-
-      {/* 3. Hero Search Portal (URSB Style) */}
-      <HeroSearchPortal />
-
-      {/* 4. Live Spares Register Table Container */}
-      <section className="max-w-7xl mx-auto px-4 md:px-8 py-10">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Active Spares Directory</h2>
-            <p className="text-slate-500 text-sm font-medium">Verified stock levels and technician pricing in UGX</p>
-          </div>
-        </div>
-
-        <SparesPageContainer
-          screens={SCREEN_SPARES_DATA}
-          batteries={BATTERY_SPARES_DATA}
-          chargingFlexes={CHARGING_FLEX_DATA}
-        />
-      </section>
-
-      {/* 5. Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-10 border-t border-slate-800 mt-12">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 text-center text-sm font-medium">
-          <p>© 2026 MS Soft GSM (mssoft-gsm.com). All rights reserved.</p>
-          <p className="mt-1 text-slate-500 text-xs">Serving  Phone Repair Technicians and GSM Specialists in Uganda.</p>
-        </div>
-      </footer>
+      )}
     </main>
   );
 }

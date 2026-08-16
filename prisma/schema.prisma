@@ -11,30 +11,51 @@ enum CategoryType {
   ACCESSORY
   SPARE_PART
   REPAIR_TOOL
+  KIDS_TAB
 }
 
 enum PaymentStatus {
   PENDING
   SUCCESSFUL
   FAILED
+  REFUNDED
+}
+
+enum FulfillmentStatus {
+  PROCESSING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
 }
 
 model Product {
-  id          String       @id @default(uuid())
-  title       String
-  slug        String       @unique
-  description String
-  price       Float
-  stock       Int          @default(0)
-  category    CategoryType
-  brand       String       // e.g. Samsung, Tecno, Apple
-  modelName   String?      // e.g. Galaxy A12, iPhone 11
-  images      String[]
-  specs       Json?        // Dynamic specs (RAM, Storage, Condition)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id            String       @id @default(uuid())
+  title         String
+  slug          String       @unique
+  description   String
+  price         Int          // Whole UGX — the currency has no widely-used subunit
+  originalPrice Int?         // Set to show a strikethrough "was" price on Hot Deals
+  isHotDeal     Boolean      @default(false)
+  stock         Int          @default(0)
+  category      CategoryType
+  subcategory   String?      // e.g. SCREEN, BATTERY, CHARGER — see src/lib/productSpecFields.ts
+  brand         String       // e.g. Samsung, Tecno, Apple
+  modelName     String?      // e.g. Galaxy A12, iPhone 11
+  images        String[]
+  specs         Json?        // Dynamic specs (RAM, Storage, Condition)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
-  OrderItem OrderItem[]
+  OrderItem    OrderItem[]
+  Review       Review[]
+  WishlistItem WishlistItem[]
+
+  @@index([createdAt])
 }
 
 model TestPoint {
@@ -42,6 +63,7 @@ model TestPoint {
   brand      String   // e.g. Tecno, Infinix, Samsung
   modelName  String   // e.g. Spark 8 Pro
   chipset    String   // e.g. MediaTek MT6769, Snapdragon 680
+  pointType  String   // EDL, BROM, ISP, SCHEMATIC — see src/lib/testPointTypes.ts
   title      String   // e.g. EMMC / UFS ISP Pinout
   diagramUrl String   // Image link
   notes      String?  // Voltages, CLK, CMD instructions
@@ -61,16 +83,28 @@ model RepairGuide {
 }
 
 model Order {
-  id            String        @id @default(uuid())
-  customerName  String
-  customerPhone String        // e.g. +256...
-  customerEmail String
-  totalAmount   Float
-  paymentStatus PaymentStatus @default(PENDING)
-  txRef         String        @unique
-  paymentMethod String        // "MOBILE_MONEY" or "CARD"
-  items         OrderItem[]
-  createdAt     DateTime      @default(now())
+  id                String            @id @default(uuid())
+  customerName      String
+  customerPhone     String            // e.g. +256...
+  customerEmail     String
+  totalAmount       Int               // Whole UGX — the currency has no widely-used subunit
+  paymentStatus     PaymentStatus     @default(PENDING)
+  fulfillmentStatus FulfillmentStatus @default(PROCESSING)
+  txRef             String            @unique
+  paymentMethod     String            // "MOBILE_MONEY" or "CARD"
+  items             OrderItem[]
+  createdAt         DateTime          @default(now())
+
+  customerId     String?  // nullable — guest checkout keeps working
+  couponCode     String?
+  discountAmount Int?     @default(0)
+
+  customer Customer? @relation(fields: [customerId], references: [id])
+  coupon   Coupon?   @relation(fields: [couponCode], references: [code])
+
+  @@index([customerId])
+  @@index([couponCode])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -78,7 +112,85 @@ model OrderItem {
   orderId   String
   productId String
   quantity  Int
-  price     Float
+  price     Int
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// Mirrors the Supabase Auth user for this app's own DB (a separate Postgres
+// instance from Supabase's project) — created lazily on first login via
+// getOrCreateCustomer() in src/lib/customerAuth.ts. Supabase owns credentials
+// and sessions; this row is the join point for all app-side relations.
+model Customer {
+  id             String   @id @default(uuid())
+  supabaseUserId String   @unique
+  email          String   @unique
+  name           String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  orders        Order[]
+  reviews       Review[]
+  wishlistItems WishlistItem[]
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  productId  String
+  customerId String
+  rating     Int      // 1-5, validated in application code
+  title      String?
+  body       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, productId])
+  @@index([productId])
+}
+
+model WishlistItem {
+  id         String   @id @default(uuid())
+  customerId String
+  productId  String
+  createdAt  DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, productId])
+}
+
+model Coupon {
+  id           String       @id @default(uuid())
+  code         String       @unique // matched uppercase in application code
+  discountType DiscountType
+  value        Int          // percent (0-100) or fixed whole-UGX amount, per discountType
+  active       Boolean      @default(true)
+  expiresAt    DateTime?
+  maxUses      Int?
+  usedCount    Int          @default(0)
+  createdAt    DateTime     @default(now())
+
+  orders Order[]
+}
+
+// Real, revocable admin sessions — replaces a prior design where the cookie
+// was a deterministic HMAC of a fixed message keyed by ADMIN_PASSWORD (same
+// value every login, no expiry, and "logout" only cleared the cookie
+// client-side — a captured token stayed valid forever). The cookie now holds
+// a random opaque id; this table is the source of truth for whether it's
+// still valid, so logout and expiry are real.
+model AdminSession {
+  id        String    @id @default(uuid())
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([expiresAt])
 }

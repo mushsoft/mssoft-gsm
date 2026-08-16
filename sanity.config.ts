@@ -223,7 +223,8 @@ export default defineConfig({
                 { title: 'Screens & Spares', value: 'SCREEN' },
                 { title: 'Accessories', value: 'ACCESSORY' },
                 { title: 'Repair Tools', value: 'REPAIR_TOOL' },
-              ] 
+                { title: 'Testpoint Diagrams', value: 'TESTPOINT' },
+              ]
             },
             validation: (Rule) => Rule.required(),
           }),
