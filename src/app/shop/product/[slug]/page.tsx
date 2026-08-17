@@ -1,3 +1,5 @@
+import { cache } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Flame, MessageCircle, Package } from 'lucide-react';
@@ -12,10 +14,54 @@ import { getRelatedProducts } from '@/lib/relatedProducts';
 import { getOrCreateCustomer } from '@/lib/customerAuth';
 
 const WHATSAPP_PHONE = '256755754880';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+// Shared with generateMetadata so the DB is only hit once per request
+// (React dedupes calls to the same cache()-wrapped function).
+const getProduct = cache((slug: string) => prisma.product.findUnique({ where: { slug } }));
+
+const CONDITION_SCHEMA_MAP: Record<string, string> = {
+  'Brand New': 'https://schema.org/NewCondition',
+  'UK Used': 'https://schema.org/UsedCondition',
+  'Open Box': 'https://schema.org/RefurbishedCondition',
+};
+
+function truncate(text: string, max = 160): string {
+  return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProduct(slug);
+  if (!product) return {};
+
+  const description = truncate(product.description);
+  const image = product.images[0];
+  const url = `${baseUrl}/shop/product/${product.slug}`;
+
+  return {
+    title: product.title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'website',
+      title: product.title,
+      description,
+      url,
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: image ? 'summary_large_image' : 'summary',
+      title: product.title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = await prisma.product.findUnique({ where: { slug } });
+  const product = await getProduct(slug);
 
   if (!product) {
     notFound();
@@ -46,8 +92,44 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       })
     : null;
 
+  const reviewStats = await prisma.review.aggregate({ where: { productId: product.id }, _avg: { rating: true }, _count: true });
+  const conditionValue = typeof rawSpecs.condition === 'string' ? rawSpecs.condition : undefined;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description,
+    image: product.images,
+    sku: product.id,
+    brand: { '@type': 'Brand', name: product.brand },
+    ...(conditionValue && CONDITION_SCHEMA_MAP[conditionValue]
+      ? { itemCondition: CONDITION_SCHEMA_MAP[conditionValue] }
+      : {}),
+    offers: {
+      '@type': 'Offer',
+      url: `${baseUrl}/shop/product/${product.slug}`,
+      priceCurrency: 'UGX',
+      price: product.price,
+      availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    },
+    ...(reviewStats._count > 0 && reviewStats._avg.rating
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: reviewStats._avg.rating,
+            reviewCount: reviewStats._count,
+          },
+        }
+      : {}),
+  };
+
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
       <Link
         href="/"
         className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"

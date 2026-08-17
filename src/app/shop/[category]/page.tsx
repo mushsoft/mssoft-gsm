@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -58,6 +59,18 @@ const CONDITION_SLUG_MAP: Record<string, string> = {
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
   searchParams: Promise<{ sub?: string; brand?: string; condition?: string }>;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
+  const { category } = await params;
+  const meta = CATEGORY_MAP[category];
+  if (!meta) return {};
+
+  return {
+    title: meta.label,
+    description: `Shop ${meta.label.toLowerCase()} at MS Soft GSM — genuine stock, competitive prices, fast delivery across Kampala & East Africa.`,
+    alternates: { canonical: `/shop/${category}` },
+  };
 }
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
