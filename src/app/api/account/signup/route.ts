@@ -24,10 +24,14 @@ export async function POST(req: Request) {
   }
 
   const supabase = await createSupabaseServerClient();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: name ? { name } : undefined },
+    options: {
+      data: name ? { name } : undefined,
+      emailRedirectTo: `${baseUrl}/account/login`,
+    },
   });
 
   if (error) {
