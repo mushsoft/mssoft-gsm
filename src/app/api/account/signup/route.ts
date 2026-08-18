@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 import { rateLimit, getClientIp } from '@/lib/rateLimit';
 import { REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 
@@ -42,6 +44,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: 'Please tell us how you heard about us' }, { status: 400 });
   }
 
+  // Checked here (not just via the DB unique constraint) so a duplicate is
+  // rejected before we ever create a Supabase auth user for it — the
+  // constraint below is the last-resort backstop for the race between this
+  // check and the create, not the primary UX.
+  const existing = await prisma.customer.findFirst({
+    where: { OR: [{ email }, { username }, { phone }] },
+    select: { email: true, username: true, phone: true },
+  });
+  if (existing) {
+    const field =
+      existing.email === email ? 'email' : existing.username === username ? 'username' : 'phone number';
+    return NextResponse.json({ success: false, error: `That ${field} is already registered` }, { status: 409 });
+  }
+
   const supabase = await createSupabaseServerClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const { data, error } = await supabase.auth.signUp({
@@ -55,6 +71,23 @@ export async function POST(req: Request) {
 
   if (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+  }
+  if (!data.user) {
+    return NextResponse.json({ success: false, error: 'Sign up failed' }, { status: 500 });
+  }
+
+  try {
+    await prisma.customer.create({
+      data: { supabaseUserId: data.user.id, email, name, username, phone, referralSource },
+    });
+  } catch (createError) {
+    if (createError instanceof Prisma.PrismaClientKnownRequestError && createError.code === 'P2002') {
+      return NextResponse.json(
+        { success: false, error: 'That username, phone number, or email was just taken — please try again' },
+        { status: 409 }
+      );
+    }
+    throw createError;
   }
 
   return NextResponse.json({ success: true, needsEmailConfirmation: !data.session });

@@ -130,12 +130,16 @@ model Customer {
   supabaseUserId String   @unique
   email          String   @unique
   name           String?
-  // Display handle collected at signup, not a login identifier (login is by
-  // email) — not enforced unique since the Customer row is only materialized
-  // lazily on first login (see getOrCreateCustomer), by which point two
-  // unconfirmed signups could already have picked the same one.
-  username       String?
-  phone          String?
+  // Display handle, not a login identifier (login is by email) — but still
+  // unique. Nullable rather than required so pre-existing rows created before
+  // this field existed stay valid; Postgres treats multiple NULLs as
+  // non-conflicting under a unique index. Enforced at signup time by
+  // creating the Customer row eagerly in /api/account/signup rather than
+  // waiting for getOrCreateCustomer's lazy first-login upsert — otherwise
+  // two unconfirmed signups could pick the same value before either ever hit
+  // the constraint.
+  username       String?  @unique
+  phone          String?  @unique
   referralSource String? // Free-text answer to "How did you hear about us?"
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
