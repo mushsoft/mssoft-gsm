@@ -198,36 +198,34 @@ export default function AccountSignupPage() {
             />
             {fieldErrors.email && <p className={fieldErrorClass}>{fieldErrors.email}</p>}
           </div>
-          <div>
-            <div className="flex gap-2">
-              <select
-                value={dialCode}
-                onChange={(e) => {
-                  setDialCode(e.target.value);
-                  clearFieldError('phone');
-                }}
-                disabled={isSubmitting}
-                className={`${inputClass} w-28 shrink-0`}
-                aria-label="Country code"
-              >
-                {COUNTRY_CODES.map((c) => (
-                  <option key={c.iso2} value={c.dialCode}>
-                    {c.dialCode} {c.iso2}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="tel"
-                value={localPhone}
-                onChange={(e) => {
-                  setLocalPhone(e.target.value);
-                  clearFieldError('phone');
-                }}
-                placeholder="7XX XXX XXX"
-                disabled={isSubmitting}
-                className={inputClass}
-              />
-            </div>
+          <div className="space-y-2">
+            <select
+              value={dialCode}
+              onChange={(e) => {
+                setDialCode(e.target.value);
+                clearFieldError('phone');
+              }}
+              disabled={isSubmitting}
+              className={inputClass}
+              aria-label="Country code"
+            >
+              {COUNTRY_CODES.map((c) => (
+                <option key={c.iso2} value={c.dialCode}>
+                  {c.dialCode} ({c.name})
+                </option>
+              ))}
+            </select>
+            <input
+              type="tel"
+              value={localPhone}
+              onChange={(e) => {
+                setLocalPhone(e.target.value);
+                clearFieldError('phone');
+              }}
+              placeholder="Phone Number (e.g. 7XX XXX XXX)"
+              disabled={isSubmitting}
+              className={inputClass}
+            />
             {fieldErrors.phone && <p className={fieldErrorClass}>{fieldErrors.phone}</p>}
           </div>
           <select
