@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, Flame, Package } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import AutoRefresh from '@/components/AutoRefresh';
 import CatalogProductCard from '@/components/cards/CatalogProductCard';
 
 export const revalidate = 60;
@@ -12,6 +13,7 @@ export default async function DealsPage() {
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 px-4 py-8">
+      <AutoRefresh intervalMs={30000} />
       <div>
         <Link
           href="/"

@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import AutoRefresh from '@/components/AutoRefresh';
 import CatalogProductCard from '@/components/cards/CatalogProductCard';
 import GlowOrbs from '@/components/motion/GlowOrbs';
 import HeroContent from '@/components/motion/HeroContent';
@@ -59,6 +60,7 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto max-w-7xl space-y-10 px-4 py-8">
+      <AutoRefresh intervalMs={30000} />
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-6 sm:p-10">
         <GlowOrbs />

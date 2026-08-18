@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { AlertTriangle, LayoutDashboard, Package, TrendingUp } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { getDashboardData } from '@/lib/adminDashboard';
+import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
 import RevenueTrendChart from '@/components/admin/RevenueTrendChart';
@@ -23,6 +24,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
+      <AutoRefresh intervalMs={15000} />
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">

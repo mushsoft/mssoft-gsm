@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, ClipboardList, MessageCircle, Package } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
+import AutoRefresh from '@/components/AutoRefresh';
 import OrderActions from '@/components/admin/OrderActions';
 import { PaymentStatusBadge, FulfillmentStatusBadge } from '@/components/admin/OrderStatusBadge';
 
@@ -24,6 +25,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+      <AutoRefresh intervalMs={15000} />
       <Link
         href="/admin/orders"
         className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Flame, MessageCircle, Package } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import AutoRefresh from '@/components/AutoRefresh';
 import ProductGallery from '@/components/product/ProductGallery';
 import RelatedProducts from '@/components/product/RelatedProducts';
 import ReviewsSection from '@/components/product/ReviewsSection';
@@ -126,6 +127,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
+      <AutoRefresh intervalMs={30000} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}

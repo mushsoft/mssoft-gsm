@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ClipboardList, Package } from 'lucide-react';
 import { requireCustomerPage } from '@/lib/customerAuth';
 import { prisma } from '@/lib/prisma';
+import AutoRefresh from '@/components/AutoRefresh';
 import AccountNav from '@/components/account/AccountNav';
 import { PaymentStatusBadge, FulfillmentStatusBadge } from '@/components/admin/OrderStatusBadge';
 
@@ -16,6 +17,7 @@ export default async function AccountOrdersPage() {
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+      <AutoRefresh intervalMs={20000} />
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
           <ClipboardList className="h-5 w-5" />
