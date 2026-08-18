@@ -181,7 +181,7 @@ export default async function LearnToRepairPage({ searchParams }: LearnToRepairP
         <p className="text-xs text-neutral-500">
           Not confident doing it yourself?{' '}
           <a
-            href="https://wa.me/256755754880?text=Hello%20Phone%20Hub%2C%20I%20need%20a%20technician%20for%20a%20repair."
+            href="https://wa.me/256773944288?text=Hello%20Phone%20Hub%2C%20I%20need%20a%20technician%20for%20a%20repair."
             target="_blank"
             rel="noopener noreferrer"
             className="font-bold text-emerald-400 hover:underline"

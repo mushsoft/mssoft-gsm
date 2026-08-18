@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 export default function Footer() {
-  const whatsappNumber = '256755754880';
+  const whatsappNumber = '256773944288';
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello Phone Hub, I need support with an inquiry/order.')}`;
 
   return (
@@ -85,7 +85,7 @@ export default function Footer() {
                 className="inline-flex items-center gap-2.5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all"
               >
                 <MessageCircle className="w-4 h-4 fill-current" />
-                <span>Support via WhatsApp (+256 755 754 880)</span>
+                <span>Support via WhatsApp (+256 773 944 288)</span>
               </a>
             </div>
 
@@ -95,10 +95,10 @@ export default function Footer() {
                 <MapPin className="w-4 h-4 text-amber-500" />
                 <span>Kampala, Uganda</span>
               </div>
-              <div className="flex items-center gap-2">
+              <a href="tel:+256755754880" className="flex items-center gap-2 hover:text-amber-500 dark:hover:text-amber-400 transition-colors w-fit">
                 <Phone className="w-4 h-4 text-amber-500" />
-                <span>+256 755 754 880</span>
-              </div>
+                <span>Call: +256 755 754 880</span>
+              </a>
             </div>
           </div>
 

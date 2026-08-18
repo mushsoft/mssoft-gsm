@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Flame, MessageCircle, type LucideIcon } from 'lucide-react';
 import BuyNowButton from '@/components/checkout/BuyNowButton';
 
-const WHATSAPP_PHONE = '256755754880';
+const WHATSAPP_PHONE = '256773944288';
 
 export type CatalogProduct = {
   id: string;

@@ -50,7 +50,7 @@ const BRAND_TICKER = [
   'Samsung', 'Apple', 'Tecno', 'Infinix', 'Xiaomi', 'itel', 'Vivo', 'Oppo', 'Realme', 'Nokia', 'Huawei', 'Honor',
 ];
 
-const WHATSAPP_PHONE = '256755754880';
+const WHATSAPP_PHONE = '256773944288';
 
 export default async function HomePage() {
   const featuredProducts = await prisma.product

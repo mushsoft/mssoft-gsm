@@ -2,7 +2,7 @@ import { Product } from '@/types/product';
 import { formatUGX } from '@/lib/formatters';
 
 // Replace with PhoneHub's primary business WhatsApp number (with country code)
-const PHONEHUB_WHATSAPP_NUMBER = '256700000000'; 
+const PHONEHUB_WHATSAPP_NUMBER = '256773944288'; 
 
 export const generateWhatsAppLink = (product: Product, userNote?: string): string => {
   const lineBreak = '\n';

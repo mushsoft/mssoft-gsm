@@ -113,8 +113,12 @@ export default function PrivacyPolicyPage() {
           <h2 className={headingClass}>Contact us</h2>
           <p className={bodyClass}>
             Questions about this policy or your data? Message us on WhatsApp at{' '}
-            <a href="https://wa.me/256755754880" target="_blank" rel="noopener noreferrer" className="font-semibold text-amber-500 hover:underline">
-              +256 755 754 880 , +256 773 944 288
+            <a href="https://wa.me/256773944288" target="_blank" rel="noopener noreferrer" className="font-semibold text-amber-500 hover:underline">
+              +256 773 944 288
+            </a>{' '}
+            or call{' '}
+            <a href="tel:+256755754880" className="font-semibold text-amber-500 hover:underline">
+              +256 755 754 880
             </a>{' '}
             or email us at{' '}
             <a href="mailto:mushsoft4@gmail.com" className="font-semibold text-amber-500 hover:underline">

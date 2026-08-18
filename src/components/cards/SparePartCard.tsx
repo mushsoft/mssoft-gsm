@@ -30,7 +30,7 @@ const CATEGORY_ICON: Record<SpareCategory, typeof MonitorSmartphone> = {
   backGlass: Layers,
 };
 
-const WHATSAPP_PHONE = '256755754880';
+const WHATSAPP_PHONE = '256773944288';
 
 export default function SparePartCard({
   item,

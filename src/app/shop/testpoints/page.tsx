@@ -17,7 +17,7 @@ export default async function TestpointsPage({
     orderBy: { createdAt: 'desc' },
   });
 
-  const whatsappPhone = '256755754880';
+  const whatsappPhone = '256773944288';
   const brandCount = new Set(testpoints.map((item) => item.brand).filter(Boolean)).size;
 
   return (

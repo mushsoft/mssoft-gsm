@@ -22,7 +22,7 @@ type OrderSummary = {
 
 const POLL_INTERVAL_MS = 3000;
 const MAX_POLLS = 20;
-const WHATSAPP_PHONE = '256755754880';
+const WHATSAPP_PHONE = '256773944288';
 
 export default function OrderStatus() {
   const searchParams = useSearchParams();

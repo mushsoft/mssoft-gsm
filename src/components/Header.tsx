@@ -114,7 +114,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMobileCategory, setActiveMobileCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const whatsappUrl = 'https://wa.me/256755754880';
+  const whatsappUrl = 'https://wa.me/256773944288';
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -135,14 +135,18 @@ export default function Header() {
             <span>Fast delivery across Kampala & East Africa</span>
           </div>
           <div className="hidden sm:flex items-center gap-4 text-neutral-500 dark:text-neutral-400">
+            <a href="tel:+256755754880" className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors flex items-center gap-1.5">
+              <PhoneCall className="w-3 h-3 text-amber-500" />
+              <span>Call: +256 755 754 880</span>
+            </a>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors flex items-center gap-1.5"
+              className="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
             >
-              <PhoneCall className="w-3 h-3 text-amber-500" />
-              <span>Call / WhatsApp: +256 755 754 880</span>
+              <MessageCircle className="w-3 h-3 text-emerald-500" />
+              <span>WhatsApp: +256 773 944 288</span>
             </a>
           </div>
         </div>

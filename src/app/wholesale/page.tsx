@@ -30,7 +30,7 @@ const PERKS = [
 ];
 
 export default function WholesalePage() {
-  const whatsappNumber = '256755754880';
+  const whatsappNumber = '256773944288';
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     "Hello Phone Hub! I'm a repair technician/shop interested in wholesale pricing. Here's a bit about my shop:\n\nShop name:\nLocation:\nParts I typically need:"
   )}`;

@@ -13,7 +13,7 @@ import { getSpecFields, type ProductCategory } from '@/lib/productSpecFields';
 import { getRelatedProducts } from '@/lib/relatedProducts';
 import { getOrCreateCustomer } from '@/lib/customerAuth';
 
-const WHATSAPP_PHONE = '256755754880';
+const WHATSAPP_PHONE = '256773944288';
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 // Shared with generateMetadata so the DB is only hit once per request

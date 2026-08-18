@@ -20,7 +20,7 @@ export default function NotFound() {
           Back to Home
         </Link>
         <a
-          href="https://wa.me/256755754880?text=Hello%20Phone%20Hub%2C%20I%20was%20looking%20for%20something%20on%20your%20site%20but%20hit%20a%20broken%20link."
+          href="https://wa.me/256773944288?text=Hello%20Phone%20Hub%2C%20I%20was%20looking%20for%20something%20on%20your%20site%20but%20hit%20a%20broken%20link."
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-xs font-bold text-neutral-600 transition-colors hover:border-emerald-500/40 hover:text-emerald-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"

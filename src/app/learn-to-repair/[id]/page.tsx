@@ -18,7 +18,7 @@ export default async function RepairGuideDetailPage({ params }: GuidePageProps) 
   }
 
   const waMessage = `Hello Phone Hub! I followed your "${guide.title}" guide but would like professional help.`;
-  const whatsappUrl = `https://wa.me/256755754880?text=${encodeURIComponent(waMessage)}`;
+  const whatsappUrl = `https://wa.me/256773944288?text=${encodeURIComponent(waMessage)}`;
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
