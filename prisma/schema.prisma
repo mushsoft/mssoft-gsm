@@ -54,6 +54,7 @@ model Product {
   OrderItem    OrderItem[]
   Review       Review[]
   WishlistItem WishlistItem[]
+  PageView     PageView[]
 
   @@index([createdAt])
 }
@@ -129,6 +130,13 @@ model Customer {
   supabaseUserId String   @unique
   email          String   @unique
   name           String?
+  // Display handle collected at signup, not a login identifier (login is by
+  // email) — not enforced unique since the Customer row is only materialized
+  // lazily on first login (see getOrCreateCustomer), by which point two
+  // unconfirmed signups could already have picked the same one.
+  username       String?
+  phone          String?
+  referralSource String? // Free-text answer to "How did you hear about us?"
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -178,6 +186,24 @@ model Coupon {
   createdAt    DateTime     @default(now())
 
   orders Order[]
+}
+
+// One row per page visit, fired client-side by src/components/VisitTracker.tsx
+// on every route change. productId is populated when the path is a product
+// detail page, so "most viewed products" is just a groupBy on this table
+// instead of needing a separate view-counter column on Product.
+model PageView {
+  id        String   @id @default(uuid())
+  path      String
+  productId String?
+  referrer  String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([productId])
 }
 
 // Real, revocable admin sessions — replaces a prior design where the cookie

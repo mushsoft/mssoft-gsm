@@ -3,27 +3,86 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { UserPlus, Loader2, MailCheck } from 'lucide-react';
+import { UserPlus, Loader2, MailCheck, Eye, EyeOff } from 'lucide-react';
+import { getPasswordStrength } from '@/lib/passwordStrength';
+import { REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+
+const inputClass =
+  'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500';
+
+function PasswordField({
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  autoComplete,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  disabled: boolean;
+  autoComplete: string;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        type={visible ? 'text' : 'password'}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        autoComplete={autoComplete}
+        className={`${inputClass} pr-10`}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        tabIndex={-1}
+        className="absolute inset-y-0 right-0 flex items-center px-3 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+        aria-label={visible ? 'Hide password' : 'Show password'}
+      >
+        {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
 
 export default function AccountSignupPage() {
   const router = useRouter();
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [referralSource, setReferralSource] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
 
+  const strength = getPasswordStrength(password);
+  const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+  const canSubmit =
+    !!email && !!username && !!phone && !!referralSource && password.length >= 8 && password === confirmPassword;
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const response = await fetch('/api/account/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, username, email, phone, referralSource, password }),
       });
       const data = await response.json();
 
@@ -68,7 +127,7 @@ export default function AccountSignupPage() {
   }
 
   return (
-    <main className="flex min-h-[75vh] items-center justify-center px-4">
+    <main className="flex min-h-[75vh] items-center justify-center px-4 py-8">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900"
@@ -88,7 +147,14 @@ export default function AccountSignupPage() {
             placeholder="Full Name"
             autoFocus
             disabled={isSubmitting}
-            className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500"
+            className={inputClass}
+          />
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+            disabled={isSubmitting}
+            className={inputClass}
           />
           <input
             type="email"
@@ -96,16 +162,65 @@ export default function AccountSignupPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             disabled={isSubmitting}
-            className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500"
+            className={inputClass}
           />
           <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password (min 8 characters)"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Phone Number (e.g. +256 7XX XXX XXX)"
             disabled={isSubmitting}
-            className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500"
+            className={inputClass}
           />
+          <select
+            value={referralSource}
+            onChange={(e) => setReferralSource(e.target.value)}
+            disabled={isSubmitting}
+            className={inputClass}
+          >
+            <option value="" disabled>
+              How did you hear about us?
+            </option>
+            {REFERRAL_SOURCE_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+
+          <div>
+            <PasswordField
+              value={password}
+              onChange={setPassword}
+              placeholder="Password (min 8 characters)"
+              disabled={isSubmitting}
+              autoComplete="new-password"
+            />
+            {strength && (
+              <div className="mt-1.5 flex items-center gap-2">
+                <div className="flex h-1 flex-1 gap-1">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className={`flex-1 rounded-full ${i <= strength.score ? strength.barColor : 'bg-neutral-200 dark:bg-neutral-800'}`}
+                    />
+                  ))}
+                </div>
+                <span className={`text-[10px] font-bold ${strength.textColor}`}>{strength.label}</span>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <PasswordField
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Confirm Password"
+              disabled={isSubmitting}
+              autoComplete="new-password"
+            />
+            {passwordsMismatch && <p className="mt-1 text-[10px] font-bold text-red-500">Passwords do not match</p>}
+          </div>
         </div>
 
         {error && (
@@ -116,7 +231,7 @@ export default function AccountSignupPage() {
 
         <button
           type="submit"
-          disabled={isSubmitting || !email || password.length < 8}
+          disabled={isSubmitting || !canSubmit}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create Account'}

@@ -50,8 +50,10 @@ export default async function AdminCustomersPage() {
                   <td className="px-4 py-3 align-top">
                     <div className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
                       {customer.name || 'Unnamed'}
+                      {customer.username && <span className="ml-1 font-normal text-neutral-400">@{customer.username}</span>}
                     </div>
                     <div className="text-[10px] text-neutral-500">{customer.email}</div>
+                    {customer.phone && <div className="text-[10px] text-neutral-500">{customer.phone}</div>}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs text-neutral-600 dark:text-neutral-300">
                     {customer.orders.length}

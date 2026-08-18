@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConditionalHeader from "@/components/ConditionalHeader";
 import ConditionalFooter from "@/components/ConditionalFooter";
+import VisitTracker from "@/components/VisitTracker";
 import { THEME_INIT_SCRIPT } from "@/components/ThemeToggle";
 
 const geistSans = Geist({
@@ -74,6 +75,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100 font-sans">
         {/* Runs before paint to apply a stored light/dark preference — see ThemeToggle. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <VisitTracker />
 
         <a
           href="#main-content"

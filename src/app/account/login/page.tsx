@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogIn, Loader2 } from 'lucide-react';
+import { LogIn, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function AccountLoginPage() {
   const router = useRouter();
@@ -11,6 +11,24 @@ export default function AccountLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [justVerified, setJustVerified] = useState(false);
+
+  // Supabase's "confirm signup" email link redirects here with ?code=... once
+  // the email is marked confirmed server-side. We don't exchange the code
+  // (that would silently log the user in) — just use its presence as the
+  // "verification just happened" signal, then scrub it from the URL.
+  useEffect(() => {
+    // Deferred a tick so the state update isn't a synchronous call in the
+    // effect body itself (matches the async-callback pattern used for
+    // setState elsewhere in this codebase, e.g. OrderStatus.tsx's poll()).
+    queueMicrotask(() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('code')) {
+        setJustVerified(true);
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    });
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -52,6 +70,13 @@ export default function AccountLoginPage() {
           <h1 className="mt-3 text-base font-black text-neutral-900 dark:text-white">Sign In</h1>
           <p className="mt-1 text-xs text-neutral-500">Access your orders and wishlist.</p>
         </div>
+
+        {justVerified && (
+          <div className="mb-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-600 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            Email verified successfully! You can sign in now.
+          </div>
+        )}
 
         <div className="space-y-3">
           <input

@@ -21,12 +21,18 @@ export async function getOrCreateCustomer(): Promise<Customer | null> {
 
   if (!user || !user.email) return null;
 
+  const metadata = user.user_metadata ?? {};
+  const stringField = (key: string) => (typeof metadata[key] === 'string' ? metadata[key] : null);
+
   return prisma.customer.upsert({
     where: { supabaseUserId: user.id },
     create: {
       supabaseUserId: user.id,
       email: user.email,
-      name: typeof user.user_metadata?.name === 'string' ? user.user_metadata.name : null,
+      name: stringField('name'),
+      username: stringField('username'),
+      phone: stringField('phone'),
+      referralSource: stringField('referralSource'),
     },
     update: {},
   });
