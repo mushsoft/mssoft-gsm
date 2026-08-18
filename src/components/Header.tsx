@@ -19,6 +19,7 @@ import {
   Layers,
   CircuitBoard,
   GraduationCap,
+  Stethoscope,
   UserCircle,
   type LucideIcon
 } from 'lucide-react';
@@ -285,6 +286,16 @@ export default function Header() {
 
             <li className="py-2.5 ml-auto">
               <Link
+                href="/account/repair-requests"
+                className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
+              >
+                <Stethoscope className="w-3.5 h-3.5" />
+                <span>ASK A TECH</span>
+              </Link>
+            </li>
+
+            <li className="py-2.5">
+              <Link
                 href="/learn-to-repair"
                 className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors"
               >
@@ -365,6 +376,15 @@ export default function Header() {
               </div>
             );
           })}
+
+          <Link
+            href="/account/repair-requests"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center gap-2 py-2 text-xs font-bold text-blue-600 dark:text-blue-400"
+          >
+            <Stethoscope className="w-4 h-4" />
+            <span>ASK A TECH</span>
+          </Link>
 
           <Link
             href="/learn-to-repair"

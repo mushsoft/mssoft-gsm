@@ -33,6 +33,12 @@ enum DiscountType {
   FIXED
 }
 
+enum RepairRequestStatus {
+  OPEN
+  ANSWERED
+  CLOSED
+}
+
 model Product {
   id            String       @id @default(uuid())
   title         String
@@ -144,9 +150,35 @@ model Customer {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  orders        Order[]
-  reviews       Review[]
-  wishlistItems WishlistItem[]
+  orders         Order[]
+  reviews        Review[]
+  wishlistItems  WishlistItem[]
+  repairRequests RepairRequest[]
+}
+
+// A private "ask a technician" request — separate from RepairGuide, which is
+// public how-to content. Requires a logged-in customer (see requireCustomerPage
+// in /account/repair-requests) rather than supporting guests like Order does,
+// since there's no guest-tracking page for this and the reply is only ever
+// shown in-account.
+model RepairRequest {
+  id         String              @id @default(uuid())
+  customerId String
+  brand      String?
+  modelName  String?
+  problem    String
+  imageUrl   String?
+  status     RepairRequestStatus @default(OPEN)
+  reply      String?
+  repliedAt  DateTime?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Review {

@@ -7,6 +7,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 // error rather than a leaked key at runtime.
 export const PRODUCT_IMAGES_BUCKET = 'product-images';
 export const TESTPOINT_DIAGRAMS_BUCKET = 'testpoint-diagrams';
+export const REPAIR_REQUEST_IMAGES_BUCKET = 'repair-request-images';
 
 // Lazily constructed: @supabase/supabase-js throws immediately on
 // `createClient()` if the URL is empty, so building this eagerly at module

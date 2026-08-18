@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ClipboardList, Heart, UserCircle } from 'lucide-react';
+import { ClipboardList, Heart, UserCircle, Wrench } from 'lucide-react';
 
 const TABS = [
   { href: '/account', label: 'Profile', icon: UserCircle },
   { href: '/account/orders', label: 'Orders', icon: ClipboardList },
   { href: '/account/wishlist', label: 'Wishlist', icon: Heart },
+  { href: '/account/repair-requests', label: 'Ask a Tech', icon: Wrench },
 ];
 
 export default function AccountNav() {
