@@ -37,6 +37,9 @@ export const metadata: Metadata = {
     "phone batteries Uganda",
   ],
   robots: { index: true, follow: true },
+  verification: {
+    google: "lxFN-wp1JS1uf1ZfydWYCxQttG9zfH4A20ipIz6Tj8g",
+  },
   openGraph: {
     type: "website",
     locale: "en_UG",
