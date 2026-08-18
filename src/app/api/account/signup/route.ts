@@ -8,6 +8,17 @@ import { REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 const USERNAME_PATTERN = /^[a-zA-Z0-9_.]{3,20}$/;
 const PHONE_PATTERN = /^\+?[\d\s-]{7,20}$/;
 
+const DUPLICATE_FIELD_MESSAGES = {
+  email: 'Email already registered',
+  username: 'Username not available',
+  phone: 'Phone number already registered',
+} as const;
+type DuplicateField = keyof typeof DUPLICATE_FIELD_MESSAGES;
+
+function duplicateResponse(field: DuplicateField) {
+  return NextResponse.json({ success: false, error: DUPLICATE_FIELD_MESSAGES[field], field }, { status: 409 });
+}
+
 export async function POST(req: Request) {
   const { allowed, retryAfterSeconds } = rateLimit(`account-signup:${getClientIp(req)}`, 5, 15 * 60 * 1000);
   if (!allowed) {
@@ -53,9 +64,8 @@ export async function POST(req: Request) {
     select: { email: true, username: true, phone: true },
   });
   if (existing) {
-    const field =
-      existing.email === email ? 'email' : existing.username === username ? 'username' : 'phone number';
-    return NextResponse.json({ success: false, error: `That ${field} is already registered` }, { status: 409 });
+    const field: DuplicateField = existing.email === email ? 'email' : existing.username === username ? 'username' : 'phone';
+    return duplicateResponse(field);
   }
 
   const supabase = await createSupabaseServerClient();
@@ -82,10 +92,16 @@ export async function POST(req: Request) {
     });
   } catch (createError) {
     if (createError instanceof Prisma.PrismaClientKnownRequestError && createError.code === 'P2002') {
-      return NextResponse.json(
-        { success: false, error: 'That username, phone number, or email was just taken — please try again' },
-        { status: 409 }
-      );
+      // meta.target is the offending column name(s) for a single-column
+      // unique constraint on Postgres — e.g. ['username'].
+      const target = createError.meta?.target;
+      const targetFields = Array.isArray(target) ? target : typeof target === 'string' ? [target] : [];
+      const field: DuplicateField = targetFields.includes('username')
+        ? 'username'
+        : targetFields.includes('phone')
+          ? 'phone'
+          : 'email';
+      return duplicateResponse(field);
     }
     throw createError;
   }

@@ -6,9 +6,19 @@ import { useRouter } from 'next/navigation';
 import { UserPlus, Loader2, MailCheck, Eye, EyeOff } from 'lucide-react';
 import { getPasswordStrength } from '@/lib/passwordStrength';
 import { REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import { COUNTRY_CODES, DEFAULT_COUNTRY_ISO2 } from '@/lib/countryCodes';
 
 const inputClass =
   'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500';
+const fieldErrorClass = 'mt-1 text-[10px] font-bold text-red-500';
+
+const DEFAULT_DIAL_CODE = COUNTRY_CODES.find((c) => c.iso2 === DEFAULT_COUNTRY_ISO2)?.dialCode ?? '+256';
+
+interface FieldErrors {
+  email?: string;
+  username?: string;
+  phone?: string;
+}
 
 function PasswordField({
   value,
@@ -54,22 +64,29 @@ export default function AccountSignupPage() {
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [dialCode, setDialCode] = useState(DEFAULT_DIAL_CODE);
+  const [localPhone, setLocalPhone] = useState('');
   const [referralSource, setReferralSource] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
 
   const strength = getPasswordStrength(password);
   const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
   const canSubmit =
-    !!email && !!username && !!phone && !!referralSource && password.length >= 8 && password === confirmPassword;
+    !!email && !!username && !!localPhone && !!referralSource && password.length >= 8 && password === confirmPassword;
+
+  function clearFieldError(field: keyof FieldErrors) {
+    setFieldErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev));
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -77,6 +94,7 @@ export default function AccountSignupPage() {
     }
 
     setIsSubmitting(true);
+    const phone = `${dialCode}${localPhone.replace(/\D/g, '')}`;
 
     try {
       const response = await fetch('/api/account/signup', {
@@ -87,7 +105,11 @@ export default function AccountSignupPage() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(data.error || 'Sign up failed');
+        if (data.field === 'email' || data.field === 'username' || data.field === 'phone') {
+          setFieldErrors({ [data.field]: data.error });
+        } else {
+          setError(data.error || 'Sign up failed');
+        }
         setIsSubmitting(false);
         return;
       }
@@ -149,29 +171,65 @@ export default function AccountSignupPage() {
             disabled={isSubmitting}
             className={inputClass}
           />
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            disabled={isSubmitting}
-            className={inputClass}
-          />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            disabled={isSubmitting}
-            className={inputClass}
-          />
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Phone Number (e.g. +256 7XX XXX XXX)"
-            disabled={isSubmitting}
-            className={inputClass}
-          />
+          <div>
+            <input
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                clearFieldError('username');
+              }}
+              placeholder="Username"
+              disabled={isSubmitting}
+              className={inputClass}
+            />
+            {fieldErrors.username && <p className={fieldErrorClass}>{fieldErrors.username}</p>}
+          </div>
+          <div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                clearFieldError('email');
+              }}
+              placeholder="Email"
+              disabled={isSubmitting}
+              className={inputClass}
+            />
+            {fieldErrors.email && <p className={fieldErrorClass}>{fieldErrors.email}</p>}
+          </div>
+          <div>
+            <div className="flex gap-2">
+              <select
+                value={dialCode}
+                onChange={(e) => {
+                  setDialCode(e.target.value);
+                  clearFieldError('phone');
+                }}
+                disabled={isSubmitting}
+                className={`${inputClass} w-28 shrink-0`}
+                aria-label="Country code"
+              >
+                {COUNTRY_CODES.map((c) => (
+                  <option key={c.iso2} value={c.dialCode}>
+                    {c.dialCode} {c.iso2}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                value={localPhone}
+                onChange={(e) => {
+                  setLocalPhone(e.target.value);
+                  clearFieldError('phone');
+                }}
+                placeholder="7XX XXX XXX"
+                disabled={isSubmitting}
+                className={inputClass}
+              />
+            </div>
+            {fieldErrors.phone && <p className={fieldErrorClass}>{fieldErrors.phone}</p>}
+          </div>
           <select
             value={referralSource}
             onChange={(e) => setReferralSource(e.target.value)}
@@ -219,7 +277,7 @@ export default function AccountSignupPage() {
               disabled={isSubmitting}
               autoComplete="new-password"
             />
-            {passwordsMismatch && <p className="mt-1 text-[10px] font-bold text-red-500">Passwords do not match</p>}
+            {passwordsMismatch && <p className={fieldErrorClass}>Passwords do not match</p>}
           </div>
         </div>
 
