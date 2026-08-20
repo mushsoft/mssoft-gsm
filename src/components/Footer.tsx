@@ -10,6 +10,7 @@ import {
   Sparkles,
   MessageCircle
 } from 'lucide-react';
+import SiteLogo from '@/components/SiteLogo';
 
 export default function Footer() {
   const whatsappNumber = '256773944288';
@@ -67,11 +68,8 @@ export default function Footer() {
           
           {/* Brand Info & Direct WhatsApp CTA */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black tracking-wider text-neutral-900 dark:text-white">
-                PHONE<span className="text-amber-500">HUB</span>
-              </span>
-            </div>
+            <SiteLogo size="lg" />
+
             <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-sm">
               Your trusted partner for genuine smartphone screens, UK used phones, brand new devices, accessories, and professional repair tools across East Africa.
             </p>

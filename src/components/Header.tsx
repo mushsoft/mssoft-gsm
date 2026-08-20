@@ -24,6 +24,7 @@ import {
   type LucideIcon
 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import SiteLogo from '@/components/SiteLogo';
 
 interface SubCategory {
   title: string;
@@ -157,18 +158,8 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
 
         {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center font-black text-black text-lg shadow-lg group-hover:scale-105 transition-transform">
-            PH
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-black tracking-wider text-neutral-900 dark:text-white leading-none">
-              MS SOFT<span className="text-amber-500">GSM</span>
-            </span>
-            <span className="text-[9px] font-bold text-neutral-500 dark:text-neutral-400 tracking-widest uppercase mt-0.5">
-              Spares & Phones
-            </span>
-          </div>
+        <Link href="/" className="group shrink-0">
+          <SiteLogo size="sm" />
         </Link>
 
         {/* SEARCH BAR (Desktop) */}
