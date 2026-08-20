@@ -26,19 +26,19 @@ export default function HeroContent() {
         className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-500"
       >
         <Sparkles className="h-3 w-3" />
-        Trusted by Technicians Across Kampala
+        Kampala&apos;s Trusted Phone &amp; Repair Shop
       </motion.div>
 
       <motion.h1 variants={item} className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-4xl">
-        The Parts Technicians Actually{' '}
+        Phones &amp; Parts You Can Actually{' '}
         <span className="bg-linear-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
           Trust
         </span>
       </motion.h1>
 
       <motion.p variants={item} className="mt-3 text-sm text-neutral-500 dark:text-neutral-400 sm:text-base">
-        Genuine screens, batteries, testpoint diagrams &amp; flashing tools &mdash; verified stock,
-        fast delivery, real WhatsApp support.
+        Brand new &amp; UK used phones, genuine screens, batteries &amp; repair tools &mdash; verified
+        stock, fast delivery, real WhatsApp support.
       </motion.p>
 
       <motion.form
