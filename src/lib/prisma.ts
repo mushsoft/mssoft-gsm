@@ -15,6 +15,20 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const pool = globalForPrisma.pgPool ?? new Pool({ connectionString });
+
+// A connection idling in the pool can be dropped by the server at any time
+// (e.g. Supabase's Supavisor pooler recycling it after a few idle minutes).
+// node-postgres surfaces that as an 'error' event on the Pool — with no
+// listener, Node treats it as an uncaught exception and crashes the whole
+// process, which is what surfaced as a bare "Internal Server Error" page.
+// Only attached once per Pool instance (not on every dev-mode Fast Refresh
+// reuse of the cached one) to avoid stacking duplicate listeners.
+if (!globalForPrisma.pgPool) {
+  pool.on("error", (err) => {
+    console.error("Unexpected error on idle Postgres client", err);
+  });
+}
+
 const adapter = new PrismaPg(pool);
 
 type PrismaClientCtor = new (options: { adapter: PrismaPg }) => unknown;
