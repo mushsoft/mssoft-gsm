@@ -45,7 +45,14 @@ const BRAND_TICKER = [
 ];
 
 const WHATSAPP_PHONE = '256773944288';
-const LATEST_TAKE = 4;
+// Roughly matches ScrollingRow's original 26s/4-item pacing (~6.5s per card)
+// so the scroll speed feels the same however many items a rail has.
+const SECONDS_PER_CARD = 6.5;
+const MIN_SCROLL_SECONDS = 14;
+
+function railDuration(itemCount: number): number {
+  return Math.max(itemCount * SECONDS_PER_CARD, MIN_SCROLL_SECONDS);
+}
 
 // Mirrors the shop/[category] page's own CATEGORY_MAP so "View All" always
 // lands on a page that actually shows more of the same products.
@@ -72,14 +79,12 @@ export default async function HomePage() {
   const productRails: ProductRailData[] = [];
   for (const rail of PRODUCT_RAILS) {
     const products = await prisma.product
-      .findMany({ where: rail.where, orderBy: { createdAt: 'desc' }, take: LATEST_TAKE })
+      .findMany({ where: rail.where, orderBy: { createdAt: 'desc' } })
       .catch(() => []);
     if (products.length > 0) productRails.push({ key: rail.key, label: rail.label, href: rail.href, products });
   }
 
-  const latestTestpoints = await prisma.testPoint
-    .findMany({ orderBy: { createdAt: 'desc' }, take: LATEST_TAKE })
-    .catch(() => []);
+  const latestTestpoints = await prisma.testPoint.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
 
   return (
     <main className="mx-auto max-w-7xl space-y-10 px-4 py-8">
@@ -129,7 +134,7 @@ export default async function HomePage() {
               View All →
             </Link>
           </Reveal>
-          <ScrollingRow>
+          <ScrollingRow durationSeconds={railDuration(latestTestpoints.length)}>
             {[...latestTestpoints, ...latestTestpoints].map((item, i) => {
               const waMessage = `Hello Phone Hub! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
               const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
@@ -172,7 +177,7 @@ function ProductRail({ rail }: { rail: ProductRailData }) {
           View All →
         </Link>
       </Reveal>
-      <ScrollingRow>
+      <ScrollingRow durationSeconds={railDuration(rail.products.length)}>
         {[...rail.products, ...rail.products].map((product, i) => (
           <div key={`${product.id}-${i}`} className="w-40 shrink-0 sm:w-48">
             <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
