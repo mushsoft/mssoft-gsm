@@ -5,13 +5,28 @@ import { Search, Sparkles } from 'lucide-react';
 
 const container: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+  visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
 };
 
 const item: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] } },
+  hidden: { opacity: 0, y: 16, scale: 0.98 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] } },
 };
+
+// Own (faster) stagger for the headline's words, nested inside `container`
+// above — a word-by-word reveal reads livelier than fading the whole line
+// in as one block.
+const wordContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.15 } },
+};
+
+const word: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] } },
+};
+
+const HEADLINE_WORDS = ['Phones', '&', 'Parts', 'You', 'Can', 'Actually'];
 
 export default function HeroContent() {
   return (
@@ -23,20 +38,37 @@ export default function HeroContent() {
     >
       <motion.div
         variants={item}
-        className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-500"
+        className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-500"
       >
-        <Sparkles className="h-3 w-3" />
+        <motion.span
+          className="inline-flex"
+          animate={{ rotate: [0, 15, -10, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+        >
+          <Sparkles className="h-3 w-3" />
+        </motion.span>
         Kampala&apos;s Trusted Phone &amp; Repair Shop
       </motion.div>
 
-      <motion.h1 variants={item} className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-4xl">
-        Phones &amp; Parts You Can Actually{' '}
-        <span className="bg-linear-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
+      <motion.h1
+        variants={wordContainer}
+        className="flex flex-wrap items-baseline justify-center gap-x-2 text-3xl font-black leading-tight tracking-tight text-neutral-900 dark:text-white sm:text-4xl"
+      >
+        {HEADLINE_WORDS.map((w, i) => (
+          <motion.span key={i} variants={word}>
+            {w}
+          </motion.span>
+        ))}
+        <motion.span
+          variants={word}
+          className="relative inline-block bg-clip-text text-transparent bg-size-[200%_100%] animate-[text-shimmer_3s_ease-in-out_infinite]"
+          style={{ backgroundImage: 'linear-gradient(110deg, #f59e0b 20%, #fde68a 50%, #f59e0b 80%)' }}
+        >
           Trust
-        </span>
+        </motion.span>
       </motion.h1>
 
-      <motion.p variants={item} className="mt-3 text-sm text-neutral-500 dark:text-neutral-400 sm:text-base">
+      <motion.p variants={item} className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 sm:text-base">
         Brand new &amp; UK used phones, genuine screens, batteries &amp; repair tools &mdash; verified
         stock, fast delivery, real WhatsApp support.
       </motion.p>
@@ -45,7 +77,7 @@ export default function HeroContent() {
         variants={item}
         action="/shop"
         method="GET"
-        className="mx-auto mt-6 flex max-w-lg items-stretch"
+        className="mx-auto mt-5 flex max-w-lg items-stretch"
       >
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 text-neutral-500" />

@@ -38,3 +38,15 @@ body {
     transform: translateX(-50%);
   }
 }
+
+/* Used by HeroContent.tsx — sweeps the gradient across the "Trust" text via
+   background-position, on a background-size wider than the text itself. */
+@keyframes text-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}

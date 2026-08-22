@@ -85,7 +85,7 @@ export default async function HomePage() {
     <main className="mx-auto max-w-7xl space-y-10 px-4 py-8">
       <AutoRefresh intervalMs={30000} />
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-6 sm:p-10">
+      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-5 sm:p-8">
         <GlowOrbs />
         <HeroContent />
       </div>
