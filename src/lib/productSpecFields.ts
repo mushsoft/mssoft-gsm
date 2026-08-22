@@ -1,3 +1,5 @@
+import { PRODUCT_BRANDS } from './brands';
+
 // Category (and, where defined, subcategory) spec field config for the admin
 // product form. Field `key`s are stored flat in Product.specs (a JSON object)
 // — chosen to match the keys already used by prisma/seed.ts so existing
@@ -71,6 +73,19 @@ const compatibilityField = (placeholder = 'SM-A546B, SM-A546U'): SpecFieldDef =>
   placeholder,
 });
 
+const PANEL_TYPE_OPTIONS = ['LCD', 'OLED', 'AMOLED', 'INCELL'];
+
+// Multiselect since a single screen listing (e.g. a universal/aftermarket
+// module) can genuinely fit devices across more than one brand — distinct
+// from compatibilityField()'s free-text specific model numbers.
+const panelTypeField = (): SpecFieldDef => ({ key: 'panelType', label: 'Panel Type', type: 'select', options: PANEL_TYPE_OPTIONS });
+const compatibleBrandsField = (): SpecFieldDef => ({
+  key: 'compatibleBrands',
+  label: 'Compatible Brands',
+  type: 'multiselect',
+  options: [...PRODUCT_BRANDS],
+});
+
 const RAM_OPTIONS = ['1GB', '2GB', '3GB', '4GB', '6GB', '8GB', '12GB', '16GB', '18GB'];
 const STORAGE_OPTIONS = ['8GB', '16GB', '32GB', '64GB', '128GB', '256GB', '512GB', '1TB'];
 
@@ -121,8 +136,10 @@ export const CATEGORY_SPEC_FIELDS: Record<ProductCategory, SpecFieldDef[]> = {
 export const SUBCATEGORY_SPEC_FIELDS: Record<string, SpecFieldDef[]> = {
   SCREEN: [
     qualityField(),
+    panelTypeField(),
     { key: 'size', label: 'Size', type: 'text', placeholder: '6.4"' },
     { key: 'resolution', label: 'Resolution', type: 'text', placeholder: '1080 x 2340 px' },
+    compatibleBrandsField(),
     compatibilityField(),
   ],
   BATTERY: [
