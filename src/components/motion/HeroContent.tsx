@@ -69,7 +69,7 @@ export default function HeroContent() {
       </motion.h1>
 
       <motion.p variants={item} className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 sm:text-base">
-        Brand new &amp; UK used phones, genuine screens, batteries &amp; repair tools &mdash; verified
+        Brand new &amp; UK used phones, genuine screens, batteries &amp; repair tools, verified
         stock, fast delivery, real WhatsApp support.
       </motion.p>
 
