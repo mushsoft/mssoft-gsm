@@ -1,7 +1,5 @@
 import Link from 'next/link';
 import {
-  CircuitBoard,
-  GraduationCap,
   Headphones,
   Layers,
   MessageCircle,
@@ -33,15 +31,6 @@ export const metadata = {
 // Featured products come from the live database — revalidate periodically
 // instead of freezing "Latest Arrivals" and stock levels at build time.
 export const revalidate = 60;
-
-const CATEGORY_TILES: { label: string; href: string; icon: LucideIcon; blurb: string }[] = [
-  { label: 'Phones', href: '/shop/phones', icon: Smartphone, blurb: 'Brand new & UK used' },
-  { label: 'Testpoints', href: '/shop/testpoints', icon: CircuitBoard, blurb: 'EDL / BROM / ISP' },
-  { label: 'Screens & Spares', href: '/shop/screens', icon: Layers, blurb: 'Batteries, flex, glass' },
-  { label: 'Repair Tools', href: '/shop/tools', icon: Wrench, blurb: 'Blowers, scopes, irons' },
-  { label: 'Accessories', href: '/shop/accessories', icon: Package, blurb: 'Chargers, cases, buds' },
-  { label: 'Learn to Repair', href: '/learn-to-repair', icon: GraduationCap, blurb: 'Free video guides' },
-];
 
 const CATEGORY_ICON: Record<string, LucideIcon> = {
   PHONE: Smartphone,
@@ -101,27 +90,6 @@ export default async function HomePage() {
       </div>
 
       <Marquee items={BRAND_TICKER} />
-
-      {/* Category Tiles */}
-      <div>
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Shop by Category</h2>
-        <StaggerGroup className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {CATEGORY_TILES.map(({ label, href, icon: Icon, blurb }) => (
-            <StaggerItem key={href}>
-              <Link
-                href={href}
-                className="group flex h-full flex-col items-center gap-2 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div className="text-xs font-bold text-neutral-800 dark:text-neutral-200">{label}</div>
-                <div className="text-[10px] text-neutral-500">{blurb}</div>
-              </Link>
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
-      </div>
 
       {/* Trust Strip */}
       <StaggerGroup className="grid grid-cols-2 gap-3 sm:grid-cols-4">
