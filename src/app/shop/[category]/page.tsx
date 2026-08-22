@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
   return {
     title: meta.label,
-    description: `Shop ${meta.label.toLowerCase()} at MS Soft GSM — genuine stock, competitive prices, fast delivery across Kampala & East Africa.`,
+    description: `Shop ${meta.label.toLowerCase()} at MS Soft GSM: genuine stock, competitive prices, fast delivery across Kampala & East Africa.`,
     alternates: { canonical: `/shop/${category}` },
   };
 }

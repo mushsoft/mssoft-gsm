@@ -95,7 +95,7 @@ export default async function AdminCouponsPage() {
 
         {coupons.length === 0 && (
           <div className="p-8 text-center text-xs text-neutral-500">
-            No coupons yet —{' '}
+            No coupons yet,{' '}
             <Link href="/admin/coupons/new" className="font-bold text-amber-500 hover:underline">
               create your first one
             </Link>

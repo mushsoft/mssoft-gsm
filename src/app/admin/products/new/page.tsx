@@ -23,7 +23,7 @@ export default async function NewProductPickerPage() {
         <div>
           <h1 className="text-lg font-black text-neutral-900 dark:text-white">New Product</h1>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Pick a category — each one has its own form with only the fields it needs.
+            Pick a category. Each one has its own form with only the fields it needs.
           </p>
         </div>
       </div>

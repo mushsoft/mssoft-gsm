@@ -32,7 +32,7 @@ export default async function AccountOrdersPage() {
 
       {orders.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-8 text-center text-xs text-neutral-500">
-          No orders yet —{' '}
+          No orders yet,{' '}
           <Link href="/shop" className="font-bold text-amber-500 hover:underline">
             start shopping
           </Link>

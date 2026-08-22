@@ -20,7 +20,7 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 const siteName = "MS Soft GSM";
 const title = "MS Soft GSM | Phones, Spare Parts & Technician Support Uganda";
 const description =
-  "Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp — fast delivery across Kampala & East Africa.";
+  "Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp, with fast delivery across Kampala & East Africa.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),

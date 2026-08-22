@@ -20,7 +20,7 @@ const PERKS = [
   {
     icon: MessageCircle,
     title: 'Direct Support Line',
-    description: 'A dedicated WhatsApp line for quotes, part sourcing requests, and order updates — no waiting in the general queue.',
+    description: 'A dedicated WhatsApp line for quotes, part sourcing requests, and order updates, with no waiting in the general queue.',
   },
   {
     icon: ShieldCheck,

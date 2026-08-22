@@ -152,7 +152,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
 
         {products.length === 0 && (
           <div className="p-8 text-center text-xs text-neutral-500">
-            No products in {activeTab.label.toLowerCase()} yet —{' '}
+            No products in {activeTab.label.toLowerCase()} yet,{' '}
             <Link href="/admin/products/new" className="font-bold text-amber-500 hover:underline">
               create one
             </Link>

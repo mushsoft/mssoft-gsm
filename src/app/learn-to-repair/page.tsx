@@ -12,7 +12,7 @@ interface LearnToRepairPageProps {
 export const metadata = {
   title: 'Learn to Repair',
   description:
-    'Free step-by-step phone repair guides and video tutorials — screen replacement, charging port fixes, battery swaps, and more.',
+    'Free step-by-step phone repair guides and video tutorials: screen replacement, charging port fixes, battery swaps, and more.',
 };
 
 export default async function LearnToRepairPage({ searchParams }: LearnToRepairPageProps) {
@@ -113,7 +113,7 @@ export default async function LearnToRepairPage({ searchParams }: LearnToRepairP
             </h3>
             <p className="mx-auto mt-1 max-w-sm text-xs text-neutral-500">
               {guides.length === 0
-                ? 'Add guides in Sanity Studio or check back soon — we publish new repair tutorials regularly.'
+                ? 'Add guides in Sanity Studio or check back soon. We publish new repair tutorials regularly.'
                 : 'Try a different search term or brand.'}
             </p>
           </div>

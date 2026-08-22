@@ -103,9 +103,9 @@ export default function PhoneAutoFill({
         Auto-Fill from Web
       </div>
       <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-        Sourced from MobileAPI.dev — review everything below before saving. RAM comes back as a list of
+        Sourced from MobileAPI.dev, so review everything below before saving. RAM comes back as a list of
         variants (e.g. &quot;128GB 4GB RAM, 128GB 8GB RAM&quot;) in Additional Info since devices ship in more
-        than one configuration — pick the exact one you&apos;re stocking.
+        than one configuration. Pick the exact one you&apos;re stocking.
       </p>
 
       <div className="flex flex-wrap items-end gap-2">
@@ -164,7 +164,7 @@ export default function PhoneAutoFill({
 
       {error && <p className="text-xs text-red-500">{error}</p>}
       {applied && !error && (
-        <p className="text-xs font-bold text-emerald-500">Specifications filled in below — review before saving.</p>
+        <p className="text-xs font-bold text-emerald-500">Specifications filled in below. Review before saving.</p>
       )}
     </div>
   );

@@ -88,7 +88,7 @@ export default async function AdminRepairGuidesPage() {
 
         {guides.length === 0 && (
           <div className="p-8 text-center text-xs text-neutral-500">
-            No repair guides yet —{' '}
+            No repair guides yet,{' '}
             <Link href="/admin/repair-guides/new" className="font-bold text-emerald-500 hover:underline">
               create your first one
             </Link>

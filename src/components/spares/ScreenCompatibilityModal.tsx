@@ -103,7 +103,7 @@ export const ScreenCompatibilityModal: React.FC<ScreenCompatibilityModalProps> =
               }}
               className="w-full py-3.5 px-4 rounded-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition flex items-center justify-center gap-2 text-sm shadow-lg shadow-emerald-500/20"
             >
-              Order Screen Assembly — {formatUGX(spare.priceUgx)}
+              Order Screen Assembly ({formatUGX(spare.priceUgx)})
             </button>
           </div>
         </div>

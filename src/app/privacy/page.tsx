@@ -67,9 +67,9 @@ export default function PrivacyPolicyPage() {
             running the site:
           </p>
           <ul className="ml-4 list-disc space-y-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            <li><strong>Flutterwave</strong> — processes mobile money and card payments; we never see or store your full card details.</li>
-            <li><strong>Supabase</strong> — hosts customer accounts and authentication, and stores uploaded images.</li>
-            <li><strong>Resend</strong> — delivers order and payment confirmation emails.</li>
+            <li><strong>Flutterwave</strong>: processes mobile money and card payments; we never see or store your full card details.</li>
+            <li><strong>Supabase</strong>: hosts customer accounts and authentication, and stores uploaded images.</li>
+            <li><strong>Resend</strong>: delivers order and payment confirmation emails.</li>
           </ul>
           <p className={bodyClass}>
             These providers are contractually restricted to using your data only to provide their service to us.

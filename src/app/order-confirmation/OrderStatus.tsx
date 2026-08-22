@@ -120,7 +120,7 @@ export default function OrderStatus() {
         icon={<XCircle className="h-8 w-8" />}
         iconClass="bg-red-500/10 text-red-400"
         title="Payment did not go through"
-        message="Your payment could not be confirmed. No charge should have been made — you can try again or reach out for help."
+        message="Your payment could not be confirmed. No charge should have been made. You can try again or reach out for help."
       >
         <OrderSummaryCard order={order} />
         <a
@@ -149,7 +149,7 @@ export default function OrderStatus() {
       message={
         stillPolling
           ? 'This usually takes a few seconds. This page will update automatically.'
-          : "This is taking longer than expected. Your payment may still be processing — we'll confirm via WhatsApp once it clears."
+          : "This is taking longer than expected. Your payment may still be processing. We'll confirm via WhatsApp once it clears."
       }
     >
       <OrderSummaryCard order={order} />

@@ -89,7 +89,7 @@ export default async function AdminTestPointsPage() {
 
         {testPoints.length === 0 && (
           <div className="p-8 text-center text-xs text-neutral-500">
-            No test points yet —{' '}
+            No test points yet,{' '}
             <Link href="/admin/testpoints/new" className="font-bold text-amber-500 hover:underline">
               create your first one
             </Link>

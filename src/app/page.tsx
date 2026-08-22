@@ -26,7 +26,7 @@ import { TESTPOINT_TYPES } from '@/lib/testPointTypes';
 export const metadata = {
   title: 'MS Soft GSM | Phones, Spare Parts & Technician Support Uganda',
   description:
-    'Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp — fast delivery across Kampala & East Africa.',
+    'Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp, with fast delivery across Kampala & East Africa.',
 };
 
 // Featured products come from the live database — revalidate periodically

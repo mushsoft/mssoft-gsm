@@ -110,7 +110,7 @@ export default function RepairRequestForm() {
             <Wrench className="h-6 w-6" />
           </div>
           <h1 className="mt-3 text-base font-black text-neutral-900 dark:text-white">Ask a Technician</h1>
-          <p className="mt-1 text-xs text-neutral-500">Describe the problem — a photo helps us diagnose it faster.</p>
+          <p className="mt-1 text-xs text-neutral-500">Describe the problem. A photo helps us diagnose it faster.</p>
         </div>
 
         <div className="space-y-3">

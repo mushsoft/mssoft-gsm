@@ -77,10 +77,10 @@ export async function sendOrderReceivedEmail(data: OrderEmailData): Promise<void
     "we've received your order and it's pending payment confirmation.",
     data
   );
-  await sendOrderEmail(`Order Received — ${data.txRef}`, html, data.customerEmail);
+  await sendOrderEmail(`Order Received (${data.txRef})`, html, data.customerEmail);
 }
 
 export async function sendPaymentConfirmedEmail(data: OrderEmailData): Promise<void> {
   const html = emailShell('Payment Confirmed', 'your payment has been confirmed. We’re preparing your order.', data);
-  await sendOrderEmail(`Payment Confirmed — ${data.txRef}`, html, data.customerEmail);
+  await sendOrderEmail(`Payment Confirmed (${data.txRef})`, html, data.customerEmail);
 }
