@@ -80,11 +80,22 @@ export default async function HomePage() {
   for (const rail of PRODUCT_RAILS) {
     const products = await prisma.product
       .findMany({ where: rail.where, orderBy: { createdAt: 'desc' } })
-      .catch(() => []);
+      .catch((error) => {
+        // A caught failure here silently renders as "no products in this
+        // category" rather than an error page — logging it is the only way
+        // to tell that apart from a genuinely empty category, especially
+        // since this page is ISR-cached (revalidate = 60) and would
+        // otherwise serve a blank rail to visitors for up to a minute.
+        console.error(`Homepage: failed to load "${rail.label}" rail`, error);
+        return [];
+      });
     if (products.length > 0) productRails.push({ key: rail.key, label: rail.label, href: rail.href, products });
   }
 
-  const latestTestpoints = await prisma.testPoint.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
+  const latestTestpoints = await prisma.testPoint.findMany({ orderBy: { createdAt: 'desc' } }).catch((error) => {
+    console.error('Homepage: failed to load testpoints rail', error);
+    return [];
+  });
 
   return (
     <main className="mx-auto max-w-7xl space-y-10 px-4 py-8">
