@@ -12,14 +12,17 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import CatalogProductCard from '@/components/cards/CatalogProductCard';
+import TestpointCard from '@/components/cards/TestpointCard';
 import GlowOrbs from '@/components/motion/GlowOrbs';
 import HeroContent from '@/components/motion/HeroContent';
 import Marquee from '@/components/motion/Marquee';
 import Reveal from '@/components/motion/Reveal';
 import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
+import { TESTPOINT_TYPES } from '@/lib/testPointTypes';
 
 export const metadata = {
   title: 'MS Soft GSM | Phones, Spare Parts & Technician Support Uganda',
@@ -52,10 +55,40 @@ const BRAND_TICKER = [
 ];
 
 const WHATSAPP_PHONE = '256773944288';
+const LATEST_TAKE = 4;
+
+// Mirrors the shop/[category] page's own CATEGORY_MAP so "View All" always
+// lands on a page that actually shows more of the same products.
+const PRODUCT_RAILS: { key: string; label: string; href: string; where: Prisma.ProductWhereInput }[] = [
+  { key: 'phones', label: 'Phones', href: '/shop/phones', where: { category: 'PHONE' } },
+  { key: 'screens', label: 'Screens', href: '/shop/screens', where: { category: 'SPARE_PART', subcategory: 'SCREEN' } },
+  { key: 'tools', label: 'Repair Tools', href: '/shop/tools', where: { category: 'REPAIR_TOOL' } },
+  { key: 'accessories', label: 'Accessories', href: '/shop/accessories', where: { category: 'ACCESSORY' } },
+  { key: 'spares', label: 'Other Spares', href: '/shop/spares', where: { category: 'SPARE_PART', NOT: { subcategory: 'SCREEN' } } },
+  { key: 'kids-tabs', label: 'Kids Tabs', href: '/shop/kids-tabs', where: { category: 'KIDS_TAB' } },
+];
+
+interface ProductRailData {
+  key: string;
+  label: string;
+  href: string;
+  products: Prisma.ProductGetPayload<object>[];
+}
 
 export default async function HomePage() {
-  const featuredProducts = await prisma.product
-    .findMany({ orderBy: { createdAt: 'desc' }, take: 8 })
+  // Sequential, not Promise.all — concurrent Prisma queries over the shared
+  // pooled connection have triggered a Postgres protocol error in this
+  // environment (see adminDashboard.ts).
+  const productRails: ProductRailData[] = [];
+  for (const rail of PRODUCT_RAILS) {
+    const products = await prisma.product
+      .findMany({ where: rail.where, orderBy: { createdAt: 'desc' }, take: LATEST_TAKE })
+      .catch(() => []);
+    if (products.length > 0) productRails.push({ key: rail.key, label: rail.label, href: rail.href, products });
+  }
+
+  const latestTestpoints = await prisma.testPoint
+    .findMany({ orderBy: { createdAt: 'desc' }, take: LATEST_TAKE })
     .catch(() => []);
 
   return (
@@ -112,29 +145,71 @@ export default async function HomePage() {
         ))}
       </StaggerGroup>
 
-      {/* Featured Products */}
-      {featuredProducts.length > 0 && (
+      {/* Latest Arrivals, grouped by category — Phones first, then Testpoints, then the rest */}
+      {productRails.find((r) => r.key === 'phones') && (
+        <ProductRail rail={productRails.find((r) => r.key === 'phones')!} />
+      )}
+
+      {latestTestpoints.length > 0 && (
         <div>
           <Reveal className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Latest Arrivals</h2>
-            <a
-              href={`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent('Hello Phone Hub! I want to see what is currently in stock.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-bold text-amber-500 hover:underline"
-            >
-              Ask What&apos;s In Stock →
-            </a>
+            <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              Latest in Testpoints
+            </h2>
+            <Link href="/shop/testpoints" className="text-xs font-bold text-amber-500 hover:underline">
+              View All →
+            </Link>
           </Reveal>
-          <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {featuredProducts.map((product) => (
-              <StaggerItem key={product.id}>
-                <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
-              </StaggerItem>
-            ))}
+          <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {latestTestpoints.map((item) => {
+              const waMessage = `Hello Phone Hub! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
+              const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
+              return (
+                <StaggerItem key={item.id}>
+                  <TestpointCard
+                    title={item.title}
+                    imageUrl={item.diagramUrl || undefined}
+                    brand={item.brand}
+                    modelName={item.modelName}
+                    chipset={item.chipset}
+                    pointTypeLabel={TESTPOINT_TYPES.find((t) => t.value === item.pointType)?.label}
+                    notes={item.notes}
+                    whatsappUrl={whatsappUrl}
+                  />
+                </StaggerItem>
+              );
+            })}
           </StaggerGroup>
         </div>
       )}
+
+      {productRails
+        .filter((r) => r.key !== 'phones')
+        .map((rail) => (
+          <ProductRail key={rail.key} rail={rail} />
+        ))}
     </main>
+  );
+}
+
+function ProductRail({ rail }: { rail: ProductRailData }) {
+  return (
+    <div>
+      <Reveal className="mb-4 flex items-center justify-between">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          Latest in {rail.label}
+        </h2>
+        <Link href={rail.href} className="text-xs font-bold text-amber-500 hover:underline">
+          View All →
+        </Link>
+      </Reveal>
+      <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {rail.products.map((product) => (
+          <StaggerItem key={product.id}>
+            <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
+          </StaggerItem>
+        ))}
+      </StaggerGroup>
+    </div>
   );
 }
