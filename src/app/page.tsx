@@ -19,6 +19,7 @@ import GlowOrbs from '@/components/motion/GlowOrbs';
 import HeroContent from '@/components/motion/HeroContent';
 import Marquee from '@/components/motion/Marquee';
 import Reveal from '@/components/motion/Reveal';
+import ScrollingRow from '@/components/motion/ScrollingRow';
 import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
 import { TESTPOINT_TYPES } from '@/lib/testPointTypes';
 
@@ -128,12 +129,12 @@ export default async function HomePage() {
               View All →
             </Link>
           </Reveal>
-          <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {latestTestpoints.map((item) => {
+          <ScrollingRow>
+            {[...latestTestpoints, ...latestTestpoints].map((item, i) => {
               const waMessage = `Hello Phone Hub! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
               const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
               return (
-                <StaggerItem key={item.id}>
+                <div key={`${item.id}-${i}`} className="w-40 shrink-0 sm:w-48">
                   <TestpointCard
                     title={item.title}
                     imageUrl={item.diagramUrl || undefined}
@@ -144,10 +145,10 @@ export default async function HomePage() {
                     notes={item.notes}
                     whatsappUrl={whatsappUrl}
                   />
-                </StaggerItem>
+                </div>
               );
             })}
-          </StaggerGroup>
+          </ScrollingRow>
         </div>
       )}
 
@@ -171,13 +172,13 @@ function ProductRail({ rail }: { rail: ProductRailData }) {
           View All →
         </Link>
       </Reveal>
-      <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {rail.products.map((product) => (
-          <StaggerItem key={product.id}>
+      <ScrollingRow>
+        {[...rail.products, ...rail.products].map((product, i) => (
+          <div key={`${product.id}-${i}`} className="w-40 shrink-0 sm:w-48">
             <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
-          </StaggerItem>
+          </div>
         ))}
-      </StaggerGroup>
+      </ScrollingRow>
     </div>
   );
 }
