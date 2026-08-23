@@ -20,7 +20,7 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-2 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+    <nav className="flex flex-wrap gap-2 border-b border-neutral-200 dark:border-neutral-800 pb-3">
       {TABS.map(({ href, label, icon: Icon }) => {
         const active = href === '/admin' ? pathname === href : pathname?.startsWith(href);
         return (
