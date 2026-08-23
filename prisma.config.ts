@@ -8,7 +8,14 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
+  // Deliberately NOT the same DATABASE_URL the running app uses (see
+  // src/lib/prisma.ts) — that one now points at Supabase's Transaction
+  // pooler so the app's frequent short-lived queries (AutoRefresh polling on
+  // many pages) don't blow past the Session pooler's much lower connection
+  // ceiling. `prisma migrate deploy` needs a session-scoped connection for
+  // its advisory lock (it hangs indefinitely under transaction pooling), so
+  // it gets its own URL here, used only briefly during each build.
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: process.env["MIGRATE_DATABASE_URL"],
   },
 });
