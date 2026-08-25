@@ -195,6 +195,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800 flex flex-col sm:flex-row justify-between items-center text-xs text-neutral-500 gap-4">
           <p>© {new Date().getFullYear()} PhoneHub East Africa. All rights reserved.</p>
           <div className="flex gap-6">
+            <Link href="/about" className="hover:text-neutral-700 dark:hover:text-neutral-400">About Us</Link>
             <Link href="/privacy" className="hover:text-neutral-700 dark:hover:text-neutral-400">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-neutral-700 dark:hover:text-neutral-400">Terms of Service</Link>
           </div>
