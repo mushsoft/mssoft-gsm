@@ -49,9 +49,27 @@ const WHATSAPP_PHONE = '256773944288';
 // so the scroll speed feels the same however many items a rail has.
 const SECONDS_PER_CARD = 6.5;
 const MIN_SCROLL_SECONDS = 14;
+// Below this, a scrolling row just looks like a few cards adrift in empty
+// space on a wide screen — a plain grid (cards stretch to fill their column)
+// reads far better for a lightly-stocked category than an auto-scroll would.
+const MIN_ITEMS_TO_SCROLL = 6;
 
 function railDuration(itemCount: number): number {
   return Math.max(itemCount * SECONDS_PER_CARD, MIN_SCROLL_SECONDS);
+}
+
+function testpointCardProps(item: Prisma.TestPointGetPayload<object>) {
+  const waMessage = `Hello Phone Hub! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
+  return {
+    title: item.title,
+    imageUrl: item.diagramUrl || undefined,
+    brand: item.brand,
+    modelName: item.modelName,
+    chipset: item.chipset,
+    pointTypeLabel: TESTPOINT_TYPES.find((t) => t.value === item.pointType)?.label,
+    notes: item.notes,
+    whatsappUrl: `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`,
+  };
 }
 
 // Mirrors the shop/[category] page's own CATEGORY_MAP so "View All" always
@@ -101,7 +119,7 @@ export default async function HomePage() {
     <main className="mx-auto max-w-7xl space-y-10 px-4 py-8">
       <AutoRefresh intervalMs={30000} />
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-5 sm:p-8">
+      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-5 sm:p-8 lg:p-14">
         <GlowOrbs />
         <HeroContent />
       </div>
@@ -145,26 +163,23 @@ export default async function HomePage() {
               View All →
             </Link>
           </Reveal>
-          <ScrollingRow durationSeconds={railDuration(latestTestpoints.length)}>
-            {[...latestTestpoints, ...latestTestpoints].map((item, i) => {
-              const waMessage = `Hello Phone Hub! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
-              const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
-              return (
-                <div key={`${item.id}-${i}`} className="w-40 shrink-0 sm:w-48">
-                  <TestpointCard
-                    title={item.title}
-                    imageUrl={item.diagramUrl || undefined}
-                    brand={item.brand}
-                    modelName={item.modelName}
-                    chipset={item.chipset}
-                    pointTypeLabel={TESTPOINT_TYPES.find((t) => t.value === item.pointType)?.label}
-                    notes={item.notes}
-                    whatsappUrl={whatsappUrl}
-                  />
+          {latestTestpoints.length >= MIN_ITEMS_TO_SCROLL ? (
+            <ScrollingRow durationSeconds={railDuration(latestTestpoints.length)}>
+              {[...latestTestpoints, ...latestTestpoints].map((item, i) => (
+                <div key={`${item.id}-${i}`} className="w-40 shrink-0 sm:w-48 lg:w-56">
+                  <TestpointCard {...testpointCardProps(item)} />
                 </div>
-              );
-            })}
-          </ScrollingRow>
+              ))}
+            </ScrollingRow>
+          ) : (
+            <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {latestTestpoints.map((item) => (
+                <StaggerItem key={item.id}>
+                  <TestpointCard {...testpointCardProps(item)} />
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
+          )}
         </div>
       )}
 
@@ -188,13 +203,23 @@ function ProductRail({ rail }: { rail: ProductRailData }) {
           View All →
         </Link>
       </Reveal>
-      <ScrollingRow durationSeconds={railDuration(rail.products.length)}>
-        {[...rail.products, ...rail.products].map((product, i) => (
-          <div key={`${product.id}-${i}`} className="w-40 shrink-0 sm:w-48">
-            <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
-          </div>
-        ))}
-      </ScrollingRow>
+      {rail.products.length >= MIN_ITEMS_TO_SCROLL ? (
+        <ScrollingRow durationSeconds={railDuration(rail.products.length)}>
+          {[...rail.products, ...rail.products].map((product, i) => (
+            <div key={`${product.id}-${i}`} className="w-40 shrink-0 sm:w-48 lg:w-56">
+              <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
+            </div>
+          ))}
+        </ScrollingRow>
+      ) : (
+        <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {rail.products.map((product) => (
+            <StaggerItem key={product.id}>
+              <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      )}
     </div>
   );
 }

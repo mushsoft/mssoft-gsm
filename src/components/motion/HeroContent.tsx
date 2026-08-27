@@ -34,7 +34,7 @@ export default function HeroContent() {
       initial="hidden"
       animate="visible"
       variants={container}
-      className="relative mx-auto max-w-2xl text-center"
+      className="relative mx-auto max-w-2xl text-center lg:max-w-3xl"
     >
       <motion.div
         variants={item}
@@ -52,7 +52,7 @@ export default function HeroContent() {
 
       <motion.h1
         variants={wordContainer}
-        className="flex flex-wrap items-baseline justify-center gap-x-2 text-3xl font-black leading-tight tracking-tight text-neutral-900 dark:text-white sm:text-4xl"
+        className="flex flex-wrap items-baseline justify-center gap-x-2 text-3xl font-black leading-tight tracking-tight text-neutral-900 dark:text-white sm:text-4xl lg:text-5xl"
       >
         {HEADLINE_WORDS.map((w, i) => (
           <motion.span key={i} variants={word}>
@@ -68,7 +68,7 @@ export default function HeroContent() {
         </motion.span>
       </motion.h1>
 
-      <motion.p variants={item} className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 sm:text-base">
+      <motion.p variants={item} className="mt-3 text-sm text-neutral-500 dark:text-neutral-400 sm:text-base lg:text-lg">
         Brand new &amp; UK used phones, genuine screens, batteries &amp; repair tools, verified
         stock, fast delivery, real WhatsApp support.
       </motion.p>
@@ -77,7 +77,7 @@ export default function HeroContent() {
         variants={item}
         action="/shop"
         method="GET"
-        className="mx-auto mt-5 flex max-w-lg items-stretch"
+        className="mx-auto mt-6 flex max-w-lg items-stretch lg:max-w-xl"
       >
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 text-neutral-500" />
