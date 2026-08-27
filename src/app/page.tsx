@@ -172,9 +172,9 @@ export default async function HomePage() {
               ))}
             </ScrollingRow>
           ) : (
-            <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <StaggerGroup className="flex flex-wrap gap-4">
               {latestTestpoints.map((item) => (
-                <StaggerItem key={item.id}>
+                <StaggerItem key={item.id} className="w-40 sm:w-48 lg:w-56">
                   <TestpointCard {...testpointCardProps(item)} />
                 </StaggerItem>
               ))}
@@ -212,9 +212,9 @@ function ProductRail({ rail }: { rail: ProductRailData }) {
           ))}
         </ScrollingRow>
       ) : (
-        <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <StaggerGroup className="flex flex-wrap gap-4">
           {rail.products.map((product) => (
-            <StaggerItem key={product.id}>
+            <StaggerItem key={product.id} className="w-40 sm:w-48 lg:w-56">
               <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
             </StaggerItem>
           ))}
