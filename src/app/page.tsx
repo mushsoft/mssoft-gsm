@@ -1,15 +1,5 @@
 import Link from 'next/link';
-import {
-  Headphones,
-  Layers,
-  MessageCircle,
-  Package,
-  ShieldCheck,
-  Smartphone,
-  Truck,
-  Wrench,
-  type LucideIcon,
-} from 'lucide-react';
+import { Layers, MessageCircle, Package, Smartphone, Stethoscope, Wrench, type LucideIcon } from 'lucide-react';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
@@ -74,20 +64,47 @@ function testpointCardProps(item: Prisma.TestPointGetPayload<object>) {
 
 // Mirrors the shop/[category] page's own CATEGORY_MAP so "View All" always
 // lands on a page that actually shows more of the same products.
-const PRODUCT_RAILS: { key: string; label: string; href: string; where: Prisma.ProductWhereInput }[] = [
-  { key: 'phones', label: 'Phones', href: '/shop/phones', where: { category: 'PHONE' } },
-  { key: 'screens', label: 'Screens', href: '/shop/screens', where: { category: 'SPARE_PART', subcategory: 'SCREEN' } },
-  { key: 'tools', label: 'Repair Tools', href: '/shop/tools', where: { category: 'REPAIR_TOOL' } },
-  { key: 'accessories', label: 'Accessories', href: '/shop/accessories', where: { category: 'ACCESSORY' } },
-  { key: 'spares', label: 'Other Spares', href: '/shop/spares', where: { category: 'SPARE_PART', NOT: { subcategory: 'SCREEN' } } },
-  { key: 'kids-tabs', label: 'Kids Tabs', href: '/shop/kids-tabs', where: { category: 'KIDS_TAB' } },
+const PRODUCT_RAILS: { key: string; label: string; eyebrow: string; href: string; where: Prisma.ProductWhereInput }[] = [
+  { key: 'phones', label: 'Phones', eyebrow: 'For the Counter', href: '/shop/phones', where: { category: 'PHONE' } },
+  {
+    key: 'screens',
+    label: 'Screens',
+    eyebrow: 'Screens & Displays',
+    href: '/shop/screens',
+    where: { category: 'SPARE_PART', subcategory: 'SCREEN' },
+  },
+  { key: 'tools', label: 'Repair Tools', eyebrow: 'For the Bench', href: '/shop/tools', where: { category: 'REPAIR_TOOL' } },
+  { key: 'accessories', label: 'Accessories', eyebrow: 'Everyday Carry', href: '/shop/accessories', where: { category: 'ACCESSORY' } },
+  {
+    key: 'spares',
+    label: 'Other Spares',
+    eyebrow: 'Spare Parts',
+    href: '/shop/spares',
+    where: { category: 'SPARE_PART', NOT: { subcategory: 'SCREEN' } },
+  },
+  { key: 'kids-tabs', label: 'Kids Tabs', eyebrow: 'For the Kids', href: '/shop/kids-tabs', where: { category: 'KIDS_TAB' } },
 ];
 
 interface ProductRailData {
   key: string;
   label: string;
+  eyebrow: string;
   href: string;
   products: Prisma.ProductGetPayload<object>[];
+}
+
+function RailHeader({ eyebrow, title, href }: { eyebrow: string; title: string; href: string }) {
+  return (
+    <Reveal className="mb-4 flex items-end justify-between gap-3">
+      <div>
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500">{eyebrow}</div>
+        <h2 className="mt-1 text-xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-2xl">{title}</h2>
+      </div>
+      <Link href={href} className="shrink-0 text-xs font-bold text-amber-500 hover:underline">
+        View All →
+      </Link>
+    </Reveal>
+  );
 }
 
 export default async function HomePage() {
@@ -107,7 +124,9 @@ export default async function HomePage() {
         console.error(`Homepage: failed to load "${rail.label}" rail`, error);
         return [];
       });
-    if (products.length > 0) productRails.push({ key: rail.key, label: rail.label, href: rail.href, products });
+    if (products.length > 0) {
+      productRails.push({ key: rail.key, label: rail.label, eyebrow: rail.eyebrow, href: rail.href, products });
+    }
   }
 
   const latestTestpoints = await prisma.testPoint.findMany({ orderBy: { createdAt: 'desc' } }).catch((error) => {
@@ -129,15 +148,15 @@ export default async function HomePage() {
       {/* Trust Strip */}
       <StaggerGroup className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { icon: ShieldCheck, title: 'Genuine Parts', blurb: 'Tech certified' },
-          { icon: Truck, title: 'Fast Delivery', blurb: 'Across East Africa' },
-          { icon: MessageCircle, title: 'WhatsApp Support', blurb: '24/7 response' },
-          { icon: Headphones, title: 'Repair Guidance', blurb: 'Free technician tips' },
-        ].map(({ icon: Icon, title, blurb }) => (
+          { number: '01', title: 'Genuine Parts', blurb: 'Sourced & verified' },
+          { number: '02', title: 'Fast Delivery', blurb: 'Across East Africa' },
+          { number: '03', title: 'WhatsApp Support', blurb: 'A technician replies' },
+          { number: '04', title: 'Repair Guidance', blurb: 'Free technician tips' },
+        ].map(({ number, title, blurb }) => (
           <StaggerItem key={title}>
             <div className="flex h-full items-center gap-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 p-4 transition-colors hover:border-neutral-300 dark:hover:border-neutral-700">
-              <div className="rounded-lg bg-amber-500/10 p-2.5 text-amber-500">
-                <Icon className="h-5 w-5" />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-amber-500/30 bg-amber-500/10 font-mono text-[10px] font-bold text-amber-500">
+                {number}
               </div>
               <div>
                 <div className="text-xs font-bold text-neutral-900 dark:text-white">{title}</div>
@@ -148,6 +167,40 @@ export default async function HomePage() {
         ))}
       </StaggerGroup>
 
+      {/* Technician Lane CTA */}
+      <Reveal className="overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 sm:p-8">
+        <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500">Technician Lane</div>
+            <h2 className="mt-1 text-xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-2xl">
+              Buying in bulk, or fixing a board?
+            </h2>
+            <p className="mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-400">
+              Get the right testpoint diagram, wholesale pricing, or a second pair of eyes on a stubborn
+              fault — talk to a real technician, not a chatbot.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-3">
+            <a
+              href={`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent('Hello! I have a technician question / bulk order.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-emerald-500"
+            >
+              <MessageCircle className="h-3.5 w-3.5 fill-current" />
+              WhatsApp the Bench
+            </a>
+            <Link
+              href="/account/repair-requests"
+              className="flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2.5 text-xs font-bold text-neutral-700 dark:text-neutral-200 transition-colors hover:border-amber-500/50 hover:text-amber-500"
+            >
+              <Stethoscope className="h-3.5 w-3.5" />
+              Ask a Technician
+            </Link>
+          </div>
+        </div>
+      </Reveal>
+
       {/* Latest Arrivals, grouped by category — Phones first, then Testpoints, then the rest */}
       {productRails.find((r) => r.key === 'phones') && (
         <ProductRail rail={productRails.find((r) => r.key === 'phones')!} />
@@ -155,14 +208,7 @@ export default async function HomePage() {
 
       {latestTestpoints.length > 0 && (
         <div>
-          <Reveal className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Latest in Testpoints
-            </h2>
-            <Link href="/shop/testpoints" className="text-xs font-bold text-amber-500 hover:underline">
-              View All →
-            </Link>
-          </Reveal>
+          <RailHeader eyebrow="Diagram Library" title="Latest in Testpoints" href="/shop/testpoints" />
           {latestTestpoints.length >= MIN_ITEMS_TO_SCROLL ? (
             <ScrollingRow durationSeconds={railDuration(latestTestpoints.length)}>
               {[...latestTestpoints, ...latestTestpoints].map((item, i) => (
@@ -195,14 +241,7 @@ export default async function HomePage() {
 function ProductRail({ rail }: { rail: ProductRailData }) {
   return (
     <div>
-      <Reveal className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Latest in {rail.label}
-        </h2>
-        <Link href={rail.href} className="text-xs font-bold text-amber-500 hover:underline">
-          View All →
-        </Link>
-      </Reveal>
+      <RailHeader eyebrow={rail.eyebrow} title={`Latest in ${rail.label}`} href={rail.href} />
       {rail.products.length >= MIN_ITEMS_TO_SCROLL ? (
         <ScrollingRow durationSeconds={railDuration(rail.products.length)}>
           {[...rail.products, ...rail.products].map((product, i) => (
