@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import SiteLogo from '@/components/SiteLogo';
+import CartIcon from '@/components/cart/CartIcon';
 
 interface SubCategory {
   title: string;
@@ -186,6 +187,10 @@ export default function Header() {
         {/* ACTIONS */}
         <div className="flex items-center gap-3">
           <ThemeToggle />
+
+          {/* Always visible (unlike the Account icon) — the cart is core to
+              commerce here, not something only a logged-in visitor needs. */}
+          <CartIcon />
 
           <Link
             href="/account"

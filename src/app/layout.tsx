@@ -5,6 +5,7 @@ import ConditionalHeader from "@/components/ConditionalHeader";
 import ConditionalFooter from "@/components/ConditionalFooter";
 import VisitTracker from "@/components/VisitTracker";
 import { THEME_INIT_SCRIPT } from "@/components/ThemeToggle";
+import { CartProvider } from "@/context/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -84,16 +85,18 @@ export default function RootLayout({
           Skip to content
         </a>
 
-        {/* Global Header (hidden on /studio, which renders full-screen) */}
-        <ConditionalHeader />
+        <CartProvider>
+          {/* Global Header (hidden on /studio, which renders full-screen) */}
+          <ConditionalHeader />
 
-        {/* Main Content Area */}
-        <div id="main-content" className="grow">
-          {children}
-        </div>
+          {/* Main Content Area */}
+          <div id="main-content" className="grow">
+            {children}
+          </div>
 
-        {/* Global Footer (hidden on /studio, which renders full-screen) */}
-        <ConditionalFooter />
+          {/* Global Footer (hidden on /studio, which renders full-screen) */}
+          <ConditionalFooter />
+        </CartProvider>
       </body>
     </html>
   );

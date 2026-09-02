@@ -10,6 +10,7 @@ import RelatedProducts from '@/components/product/RelatedProducts';
 import ReviewsSection from '@/components/product/ReviewsSection';
 import WishlistButton from '@/components/product/WishlistButton';
 import BuyNowButton from '@/components/checkout/BuyNowButton';
+import AddToCartButton from '@/components/cart/AddToCartButton';
 import { getSpecFields, type ProductCategory } from '@/lib/productSpecFields';
 import { getRelatedProducts } from '@/lib/relatedProducts';
 import { getOrCreateCustomer } from '@/lib/customerAuth';
@@ -176,6 +177,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
           <div className="space-y-2">
             <BuyNowButton productId={product.id} productTitle={product.title} price={product.price} inStock={inStock} />
+            <AddToCartButton productId={product.id} inStock={inStock} />
             <WishlistButton productId={product.id} initialWishlisted={!!wishlistItem} isLoggedIn={!!customer} />
             <a
               href={whatsappUrl}

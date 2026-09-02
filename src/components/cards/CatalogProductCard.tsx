@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Flame, MessageCircle, type LucideIcon } from 'lucide-react';
 import BuyNowButton from '@/components/checkout/BuyNowButton';
+import AddToCartButton from '@/components/cart/AddToCartButton';
 
 const WHATSAPP_PHONE = '256773944288';
 
@@ -90,15 +91,18 @@ export default function CatalogProductCard({
               price={product.price}
               inStock={inStock}
             />
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 px-3 py-1.5 text-[11px] font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-emerald-500/40 hover:text-emerald-400"
-            >
-              <MessageCircle className="h-3.5 w-3.5" />
-              Order Now
-            </a>
+            <div className="grid grid-cols-2 gap-1.5">
+              <AddToCartButton productId={product.id} inStock={inStock} compact />
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 px-3 py-1.5 text-[11px] font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-emerald-500/40 hover:text-emerald-400"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                Order Now
+              </a>
+            </div>
           </div>
         </div>
       </div>
