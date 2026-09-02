@@ -31,7 +31,7 @@ export default function CatalogProductCard({
   const discountPercent = hasDiscount
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
     : null;
-  const waMessage = `Hello Phone Hub! I want to inquire/order:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString()}`;
+  const waMessage = `Hello Phone Hub! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString()}`;
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
   return (
@@ -97,7 +97,7 @@ export default function CatalogProductCard({
               className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 px-3 py-1.5 text-[11px] font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-emerald-500/40 hover:text-emerald-400"
             >
               <MessageCircle className="h-3.5 w-3.5" />
-              Ask on WhatsApp
+              Order Now
             </a>
           </div>
         </div>
