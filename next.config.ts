@@ -22,6 +22,13 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https://cdn.sanity.io https://*.supabase.co",
   "font-src 'self' data:",
+  // Repair guide videos are either an uploaded file served from our own
+  // Supabase Storage bucket (media-src) or a pasted YouTube/Vimeo embed link
+  // (frame-src) — without these, both silently fail to render: an <iframe>
+  // to an external origin and a <video> pointed at *.supabase.co both fall
+  // back to default-src 'self' and get blocked with no visible error.
+  "media-src 'self' https://*.supabase.co",
+  "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
   "connect-src 'self' https://*.supabase.co https://*.sanity.io wss://*.sanity.io",
   "frame-ancestors 'none'",
   "form-action 'self'",

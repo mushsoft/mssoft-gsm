@@ -8,8 +8,6 @@ export type RepairGuideFormValues = {
   title: string;
   brand: string;
   modelName: string;
-  videoUrl: string;
-  thumbnail: string;
   content: string;
   toolsUsed: string[];
 };
@@ -49,12 +47,15 @@ export default function RepairGuideForm({
     setError(null);
     setIsSubmitting(true);
 
+    // thumbnail/videoUrl are intentionally omitted — they're managed
+    // exclusively by the dedicated uploaders on the edit page (see
+    // RepairGuideThumbnailUploader/RepairGuideVideoUploader), which write
+    // directly to their own endpoints. Sending them here would risk
+    // overwriting an already-uploaded photo/video with a stale value.
     const payload = {
       title: values.title,
       brand: values.brand,
       modelName: values.modelName,
-      videoUrl: values.videoUrl || null,
-      thumbnail: values.thumbnail,
       content: values.content,
       toolsUsed: values.toolsUsed,
     };
@@ -126,29 +127,6 @@ export default function RepairGuideForm({
             disabled={isSubmitting}
             className={inputClass}
             placeholder="Galaxy A54 5G"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-          <label className={labelClass}>Thumbnail Image URL</label>
-          <input
-            value={values.thumbnail}
-            onChange={(e) => update('thumbnail', e.target.value)}
-            disabled={isSubmitting}
-            className={inputClass}
-            placeholder="https://..."
-          />
-        </div>
-        <div>
-          <label className={labelClass}>Video Embed URL (optional)</label>
-          <input
-            value={values.videoUrl}
-            onChange={(e) => update('videoUrl', e.target.value)}
-            disabled={isSubmitting}
-            className={inputClass}
-            placeholder="https://www.youtube.com/embed/..."
           />
         </div>
       </div>

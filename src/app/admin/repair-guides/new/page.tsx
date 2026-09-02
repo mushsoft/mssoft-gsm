@@ -23,7 +23,7 @@ export default async function NewRepairGuidePage() {
         <div>
           <h1 className="text-lg font-black text-neutral-900 dark:text-white">New Repair Guide</h1>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Publish a new step-by-step tutorial for the Learn to Repair section.
+            Create the entry, then add its photo and video on the next screen.
           </p>
         </div>
       </div>
@@ -35,8 +35,6 @@ export default async function NewRepairGuidePage() {
             title: '',
             brand: '',
             modelName: '',
-            videoUrl: '',
-            thumbnail: '',
             content: '',
             toolsUsed: [],
           }}

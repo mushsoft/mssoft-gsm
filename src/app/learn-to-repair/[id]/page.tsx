@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, MessageCircle, Wrench } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import Reveal from '@/components/motion/Reveal';
+import { isDirectVideoFile } from '@/lib/repairGuideMedia';
 
 interface GuidePageProps {
   params: Promise<{ id: string }>;
@@ -42,18 +44,30 @@ export default async function RepairGuideDetailPage({ params }: GuidePageProps) 
         <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-3xl">{guide.title}</h1>
       </Reveal>
 
-      {guide.videoUrl && (
+      {guide.videoUrl ? (
         <Reveal delay={0.05}>
           <div className="aspect-video w-full overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-black">
-            <iframe
-              src={guide.videoUrl}
-              title={guide.title}
-              className="h-full w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            {isDirectVideoFile(guide.videoUrl) ? (
+              <video controls src={guide.videoUrl} className="h-full w-full" />
+            ) : (
+              <iframe
+                src={guide.videoUrl}
+                title={guide.title}
+                className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
           </div>
         </Reveal>
+      ) : (
+        guide.thumbnail && (
+          <Reveal delay={0.05}>
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950">
+              <Image src={guide.thumbnail} alt={guide.title} fill className="object-cover" />
+            </div>
+          </Reveal>
+        )
       )}
 
       {guide.toolsUsed.length > 0 && (

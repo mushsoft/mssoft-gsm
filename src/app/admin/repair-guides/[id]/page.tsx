@@ -5,6 +5,8 @@ import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import RepairGuideForm from '@/components/admin/RepairGuideForm';
 import DeleteRepairGuideButton from '@/components/admin/DeleteRepairGuideButton';
+import RepairGuideThumbnailUploader from '@/components/admin/RepairGuideThumbnailUploader';
+import RepairGuideVideoUploader from '@/components/admin/RepairGuideVideoUploader';
 
 export default async function EditRepairGuidePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -42,6 +44,16 @@ export default async function EditRepairGuidePage({ params }: { params: Promise<
       </div>
 
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">
+        <h2 className="mb-3 text-xs font-bold uppercase tracking-wide text-neutral-500">Cover Photo</h2>
+        <RepairGuideThumbnailUploader guideId={guide.id} thumbnail={guide.thumbnail} />
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">
+        <h2 className="mb-3 text-xs font-bold uppercase tracking-wide text-neutral-500">Video (optional)</h2>
+        <RepairGuideVideoUploader guideId={guide.id} videoUrl={guide.videoUrl} />
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">
         <RepairGuideForm
           mode="edit"
           guideId={guide.id}
@@ -49,8 +61,6 @@ export default async function EditRepairGuidePage({ params }: { params: Promise<
             title: guide.title,
             brand: guide.brand,
             modelName: guide.modelName,
-            videoUrl: guide.videoUrl ?? '',
-            thumbnail: guide.thumbnail,
             content: guide.content,
             toolsUsed: guide.toolsUsed,
           }}
