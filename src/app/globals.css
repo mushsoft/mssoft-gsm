@@ -27,18 +27,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Used by ScrollingRow.tsx (homepage product rails) — translates a row that
-   has been rendered twice back-to-back exactly half its own width, so the
-   loop point is invisible. */
-@keyframes product-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 /* Used by HeroContent.tsx — sweeps the gradient across the "Trust" text via
    background-position, on a background-size wider than the text itself. */
 @keyframes text-shimmer {

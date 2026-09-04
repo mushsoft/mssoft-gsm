@@ -5,11 +5,11 @@ import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import CatalogProductCard from '@/components/cards/CatalogProductCard';
 import TestpointCard from '@/components/cards/TestpointCard';
+import Carousel from '@/components/motion/Carousel';
 import GlowOrbs from '@/components/motion/GlowOrbs';
 import HeroContent from '@/components/motion/HeroContent';
 import Marquee from '@/components/motion/Marquee';
 import Reveal from '@/components/motion/Reveal';
-import ScrollingRow from '@/components/motion/ScrollingRow';
 import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
 import { TESTPOINT_TYPES } from '@/lib/testPointTypes';
 
@@ -35,18 +35,6 @@ const BRAND_TICKER = [
 ];
 
 const WHATSAPP_PHONE = '256773944288';
-// Roughly matches ScrollingRow's original 26s/4-item pacing (~6.5s per card)
-// so the scroll speed feels the same however many items a rail has.
-const SECONDS_PER_CARD = 6.5;
-const MIN_SCROLL_SECONDS = 14;
-// Below this, a scrolling row just looks like a few cards adrift in empty
-// space on a wide screen — a plain grid (cards stretch to fill their column)
-// reads far better for a lightly-stocked category than an auto-scroll would.
-const MIN_ITEMS_TO_SCROLL = 6;
-
-function railDuration(itemCount: number): number {
-  return Math.max(itemCount * SECONDS_PER_CARD, MIN_SCROLL_SECONDS);
-}
 
 function testpointCardProps(item: Prisma.TestPointGetPayload<object>) {
   const waMessage = `Hello Phone Hub! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
@@ -209,23 +197,11 @@ export default async function HomePage() {
       {latestTestpoints.length > 0 && (
         <div>
           <RailHeader eyebrow="Diagram Library" title="Latest in Testpoints" href="/shop/testpoints" />
-          {latestTestpoints.length >= MIN_ITEMS_TO_SCROLL ? (
-            <ScrollingRow durationSeconds={railDuration(latestTestpoints.length)}>
-              {[...latestTestpoints, ...latestTestpoints].map((item, i) => (
-                <div key={`${item.id}-${i}`} className="w-40 shrink-0 sm:w-48 lg:w-56">
-                  <TestpointCard {...testpointCardProps(item)} />
-                </div>
-              ))}
-            </ScrollingRow>
-          ) : (
-            <StaggerGroup className="flex flex-wrap justify-center gap-4">
-              {latestTestpoints.map((item) => (
-                <StaggerItem key={item.id} className="w-48 sm:w-56 lg:w-72">
-                  <TestpointCard {...testpointCardProps(item)} />
-                </StaggerItem>
-              ))}
-            </StaggerGroup>
-          )}
+          <Carousel>
+            {latestTestpoints.map((item) => (
+              <TestpointCard key={item.id} {...testpointCardProps(item)} />
+            ))}
+          </Carousel>
         </div>
       )}
 
@@ -242,23 +218,11 @@ function ProductRail({ rail }: { rail: ProductRailData }) {
   return (
     <div>
       <RailHeader eyebrow={rail.eyebrow} title={`Latest in ${rail.label}`} href={rail.href} />
-      {rail.products.length >= MIN_ITEMS_TO_SCROLL ? (
-        <ScrollingRow durationSeconds={railDuration(rail.products.length)}>
-          {[...rail.products, ...rail.products].map((product, i) => (
-            <div key={`${product.id}-${i}`} className="w-40 shrink-0 sm:w-48 lg:w-56">
-              <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
-            </div>
-          ))}
-        </ScrollingRow>
-      ) : (
-        <StaggerGroup className="flex flex-wrap justify-center gap-4">
-          {rail.products.map((product) => (
-            <StaggerItem key={product.id} className="w-48 sm:w-56 lg:w-72">
-              <CatalogProductCard product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
-      )}
+      <Carousel>
+        {rail.products.map((product) => (
+          <CatalogProductCard key={product.id} product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
+        ))}
+      </Carousel>
     </div>
   );
 }
