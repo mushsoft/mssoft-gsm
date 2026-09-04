@@ -55,6 +55,15 @@ const studioSafeHeaders = securityHeaders.filter(
 
 const nextConfig: NextConfig = {
   images: {
+    // Vercel's Image Optimization has a monthly quota of distinct source
+    // images; once it's exhausted, any URL the optimizer hasn't already
+    // cached (e.g. every newly-uploaded product photo) starts returning 402
+    // instead of the image — a real outage discovered on 2026-09-04 (see
+    // git history). Disabling optimization serves the original file
+    // directly from Supabase/Sanity instead, trading automatic resizing/
+    // WebP conversion for images that always actually load. Revert this
+    // once more Image Optimization usage is enabled on the Vercel plan.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
