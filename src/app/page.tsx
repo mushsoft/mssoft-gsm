@@ -3,7 +3,7 @@ import { Layers, MessageCircle, Package, Smartphone, Stethoscope, Wrench, type L
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
-import CatalogProductCard from '@/components/cards/CatalogProductCard';
+import FeaturedProductCard from '@/components/cards/FeaturedProductCard';
 import TestpointCard from '@/components/cards/TestpointCard';
 import Carousel from '@/components/motion/Carousel';
 import GlowOrbs from '@/components/motion/GlowOrbs';
@@ -218,9 +218,9 @@ function ProductRail({ rail }: { rail: ProductRailData }) {
   return (
     <div>
       <RailHeader eyebrow={rail.eyebrow} title={`Latest in ${rail.label}`} href={rail.href} />
-      <Carousel>
+      <Carousel slideClassName="w-48 sm:w-56 lg:w-72">
         {rail.products.map((product) => (
-          <CatalogProductCard key={product.id} product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
+          <FeaturedProductCard key={product.id} product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
         ))}
       </Carousel>
     </div>
