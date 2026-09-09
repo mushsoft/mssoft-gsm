@@ -44,3 +44,6 @@ next-env.d.ts
 /app/generated/prisma
 
 .env*
+
+# Bulk product-upload working data (images, manifests, run logs)
+upload-queue/

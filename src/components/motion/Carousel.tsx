@@ -8,18 +8,29 @@ const AUTO_ADVANCE_MS = 4000;
 // clutter the row — a plain counter reads better for a long rail.
 const MAX_DOTS = 8;
 
+// How each card sits relative to the one in front of it in the stack —
+// front card, then two visible layers fanned out behind and below it.
+const STACK = [
+  { y: 0, scale: 1, opacity: 1 },
+  { y: 18, scale: 0.94, opacity: 0.8 },
+  { y: 34, scale: 0.88, opacity: 0.55 },
+];
+// Anything deeper than STACK sits hidden behind the last visible layer.
+const BACK = { y: 40, scale: 0.85, opacity: 0 };
+
 /**
- * Shows exactly one child at a time — a spotlight carousel rather than
- * ScrollingRow's continuous multi-item marquee. Auto-advances on an
- * interval, pausing on hover (desktop) and briefly after a touch (mobile),
- * plus manual prev/next arrows and dots/counter for direct control.
+ * A stacked card deck — every child sits piled behind the front one, and each
+ * tick brings the next card to the front while the old front slides back into
+ * the pile. Auto-advances on an interval, pausing on hover (desktop) and
+ * briefly after a touch (mobile), plus manual prev/next arrows and
+ * dots/counter for direct control.
  */
 export default function Carousel({
   children,
   slideClassName = 'w-48 sm:w-56 lg:w-72',
 }: {
   children: ReactNode;
-  /** Width of the single visible slide — sizes the whole carousel. */
+  /** Width of the front card — sizes the whole deck. */
   slideClassName?: string;
 }) {
   const items = Children.toArray(children);
@@ -68,17 +79,26 @@ export default function Carousel({
       )}
 
       <div className={`${slideClassName} min-w-0`}>
-        <div className="overflow-hidden">
-          <div
-            className="flex transition-transform duration-500 ease-out"
-            style={{ transform: `translateX(-${index * 100}%)` }}
-          >
-            {items.map((item, i) => (
-              <div key={i} className="w-full shrink-0">
+        <div className="grid pb-10">
+          {items.map((item, i) => {
+            const offset = (i - index + count) % count;
+            const pose = STACK[offset] ?? BACK;
+            const isFront = offset === 0;
+            return (
+              <div
+                key={i}
+                inert={!isFront}
+                className="transition-[transform,opacity] duration-500 ease-out [grid-area:1/1] motion-reduce:transition-none"
+                style={{
+                  transform: `translateY(${pose.y}px) scale(${pose.scale})`,
+                  opacity: pose.opacity,
+                  zIndex: count - offset,
+                }}
+              >
                 {item}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
         {count > 1 && (
