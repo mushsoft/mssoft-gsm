@@ -75,10 +75,16 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   const meta = CATEGORY_MAP[category];
   if (!meta) return {};
 
+  const description = `Shop ${meta.label.toLowerCase()} at MS Soft GSM: genuine stock, competitive prices, fast delivery across Kampala & East Africa.`;
+
   return {
     title: meta.label,
-    description: `Shop ${meta.label.toLowerCase()} at MS Soft GSM: genuine stock, competitive prices, fast delivery across Kampala & East Africa.`,
+    description,
     alternates: { canonical: `/shop/${category}` },
+    ...(meta.banner && {
+      openGraph: { title: meta.label, description, images: [{ url: meta.banner }] },
+      twitter: { card: 'summary_large_image', title: meta.label, description, images: [meta.banner] },
+    }),
   };
 }
 
