@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -23,9 +24,16 @@ const CATEGORY_MAP: Record<
     icon: typeof Smartphone;
     subcategory?: string;
     excludeSubcategories?: string[];
+    banner?: string;
   }
 > = {
-  phones: { type: 'PHONE', label: 'Phones', icon: Smartphone },
+  phones: {
+    type: 'PHONE',
+    label: 'Phones',
+    icon: Smartphone,
+    banner:
+      'https://qppkqxucnqnkgtaeqaot.supabase.co/storage/v1/object/public/product-images/_site/shop-phones-banner.jpg',
+  },
   accessories: { type: 'ACCESSORY', label: 'Accessories', icon: Package },
   screens: { type: 'SPARE_PART', subcategory: 'SCREEN', label: 'Screens', icon: Layers },
   spares: { type: 'SPARE_PART', excludeSubcategories: ['SCREEN'], label: 'Spare Parts', icon: Layers },
@@ -126,6 +134,20 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           <span>Back to Home</span>
         </Link>
       </div>
+
+      {meta.banner && (
+        <div className="relative h-40 w-full overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 sm:h-56">
+          <Image
+            src={meta.banner}
+            alt={`${meta.label} in stock at MS Soft GSM`}
+            fill
+            priority
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 1024px"
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
+        </div>
+      )}
 
       <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-6 sm:p-8">
         <div
