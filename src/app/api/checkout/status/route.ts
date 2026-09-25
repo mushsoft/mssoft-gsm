@@ -27,6 +27,7 @@ export async function GET(req: Request) {
       order: {
         txRef: order.txRef,
         status: order.paymentStatus,
+        paymentMethod: order.paymentMethod,
         totalAmount: order.totalAmount,
         customerName: order.customerName,
         createdAt: order.createdAt,

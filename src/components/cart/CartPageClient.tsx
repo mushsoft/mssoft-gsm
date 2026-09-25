@@ -8,6 +8,7 @@ import { useCart } from '@/context/CartContext';
 import type { CartLine } from '@/lib/cart';
 import type { CatalogProduct } from '@/components/cards/CatalogProductCard';
 import CheckoutFields, { type CheckoutFieldValues, type PaymentMethod } from '@/components/checkout/CheckoutFields';
+import { isValidEmail } from '@/lib/validation';
 
 const WHATSAPP_PHONE = '256773944288';
 
@@ -29,6 +30,7 @@ export default function CartPageClient() {
     customerPhone: '',
     customerEmail: '',
     couponCode: '',
+    paymentReference: '',
   });
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MOBILE_MONEY');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,6 +108,14 @@ export default function CartPageClient() {
       setSubmitError('Your cart has no items available to check out.');
       return;
     }
+    if (!isValidEmail(fields.customerEmail)) {
+      setSubmitError('Enter a valid email address');
+      return;
+    }
+    if (paymentMethod === 'AIRTEL_MONEY' && !fields.paymentReference.trim()) {
+      setSubmitError('Enter your Airtel Money transaction ID');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -117,6 +127,7 @@ export default function CartPageClient() {
           customerPhone: fields.customerPhone,
           customerEmail: fields.customerEmail,
           paymentMethod,
+          paymentReference: paymentMethod === 'AIRTEL_MONEY' ? fields.paymentReference.trim() : null,
           items: checkoutable.map(({ product, quantity }) => ({ id: product.id, quantity })),
           couponCode: fields.couponCode.trim() || null,
         }),
@@ -131,7 +142,9 @@ export default function CartPageClient() {
 
       clear();
       queueMicrotask(() => {
-        window.location.href = data.paymentUrl;
+        // Airtel Money has no hosted payment page — go straight to
+        // order-confirmation, the same place Flutterwave's redirect lands.
+        window.location.href = data.paymentUrl || `/order-confirmation?tx_ref=${encodeURIComponent(data.txRef)}`;
       });
     } catch {
       setSubmitError('Network error. Please check your connection and try again.');
@@ -284,6 +297,7 @@ export default function CartPageClient() {
                 paymentMethod={paymentMethod}
                 onPaymentMethodChange={setPaymentMethod}
                 isSubmitting={isSubmitting}
+                amount={subtotal}
               />
 
               {submitError && (

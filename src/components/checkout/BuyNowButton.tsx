@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { Loader2, X } from 'lucide-react';
 import CheckoutFields, { type CheckoutFieldValues, type PaymentMethod } from '@/components/checkout/CheckoutFields';
+import { isValidEmail } from '@/lib/validation';
 
 type BuyNowButtonProps = {
   productId: string;
@@ -21,6 +22,7 @@ export default function BuyNowButton({ productId, productTitle, price, inStock }
     customerPhone: '',
     customerEmail: '',
     couponCode: '',
+    paymentReference: '',
   });
 
   function updateField(field: keyof CheckoutFieldValues, value: string) {
@@ -30,6 +32,16 @@ export default function BuyNowButton({ productId, productTitle, price, inStock }
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+
+    if (!isValidEmail(fields.customerEmail)) {
+      setError('Enter a valid email address');
+      return;
+    }
+    if (paymentMethod === 'AIRTEL_MONEY' && !fields.paymentReference.trim()) {
+      setError('Enter your Airtel Money transaction ID');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -41,6 +53,7 @@ export default function BuyNowButton({ productId, productTitle, price, inStock }
           customerPhone: fields.customerPhone,
           customerEmail: fields.customerEmail,
           paymentMethod,
+          paymentReference: paymentMethod === 'AIRTEL_MONEY' ? fields.paymentReference.trim() : null,
           items: [{ id: productId, quantity: 1 }],
           couponCode: fields.couponCode.trim() || null,
         }),
@@ -54,7 +67,10 @@ export default function BuyNowButton({ productId, productTitle, price, inStock }
         return;
       }
 
-      window.location.href = data.paymentUrl;
+      // Airtel Money has no hosted payment page to redirect to — go straight
+      // to the order-confirmation page, same destination Flutterwave's
+      // redirect_url points at, so it shows this order's (PENDING) status.
+      window.location.href = data.paymentUrl || `/order-confirmation?tx_ref=${encodeURIComponent(data.txRef)}`;
     } catch {
       setError('Network error. Please check your connection and try again.');
       setIsSubmitting(false);
@@ -117,6 +133,7 @@ export default function BuyNowButton({ productId, productTitle, price, inStock }
                 paymentMethod={paymentMethod}
                 onPaymentMethodChange={setPaymentMethod}
                 isSubmitting={isSubmitting}
+                amount={price}
               />
 
               {error && (

@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { UserPlus, Loader2, MailCheck, Eye, EyeOff } from 'lucide-react';
 import { getPasswordStrength } from '@/lib/passwordStrength';
 import { REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
-import { COUNTRY_CODES, DEFAULT_COUNTRY_ISO2 } from '@/lib/countryCodes';
+import { COUNTRY_CODES, DEFAULT_COUNTRY_ISO2, getPhoneLengthRange } from '@/lib/countryCodes';
+import { isValidFullName, isValidEmail, isValidPhoneForDialCode, digitsOnlyLocalPhone } from '@/lib/validation';
 
 const inputClass =
   'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500';
@@ -15,6 +16,7 @@ const fieldErrorClass = 'mt-1 text-[10px] font-bold text-red-500';
 const DEFAULT_DIAL_CODE = COUNTRY_CODES.find((c) => c.iso2 === DEFAULT_COUNTRY_ISO2)?.dialCode ?? '+256';
 
 interface FieldErrors {
+  name?: string;
   email?: string;
   username?: string;
   phone?: string;
@@ -76,8 +78,15 @@ export default function AccountSignupPage() {
 
   const strength = getPasswordStrength(password);
   const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+  const phoneDigitRange = getPhoneLengthRange(dialCode);
   const canSubmit =
-    !!email && !!username && !!localPhone && !!referralSource && password.length >= 8 && password === confirmPassword;
+    isValidFullName(name) &&
+    !!username &&
+    isValidEmail(email) &&
+    isValidPhoneForDialCode(dialCode, localPhone) &&
+    !!referralSource &&
+    password.length >= 8 &&
+    password === confirmPassword;
 
   function clearFieldError(field: keyof FieldErrors) {
     setFieldErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev));
@@ -92,20 +101,35 @@ export default function AccountSignupPage() {
       setError('Passwords do not match');
       return;
     }
+    if (!isValidFullName(name)) {
+      setFieldErrors({ name: 'Enter your full name using letters only' });
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setFieldErrors({ email: 'Enter a valid email address' });
+      return;
+    }
+    if (!isValidPhoneForDialCode(dialCode, localPhone)) {
+      const [min, max] = phoneDigitRange;
+      setFieldErrors({
+        phone: min === max ? `Phone number must be ${min} digits for this country` : `Phone number must be ${min}-${max} digits for this country`,
+      });
+      return;
+    }
 
     setIsSubmitting(true);
-    const phone = `${dialCode}${localPhone.replace(/\D/g, '')}`;
+    const phone = `${dialCode}${digitsOnlyLocalPhone(localPhone)}`;
 
     try {
       const response = await fetch('/api/account/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, username, email, phone, referralSource, password }),
+        body: JSON.stringify({ name: name.trim(), username, email: email.trim().toLowerCase(), phone, referralSource, password }),
       });
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        if (data.field === 'email' || data.field === 'username' || data.field === 'phone') {
+        if (data.field === 'name' || data.field === 'email' || data.field === 'username' || data.field === 'phone') {
           setFieldErrors({ [data.field]: data.error });
         } else {
           setError(data.error || 'Sign up failed');
@@ -163,14 +187,23 @@ export default function AccountSignupPage() {
         </div>
 
         <div className="space-y-3">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Full Name"
-            autoFocus
-            disabled={isSubmitting}
-            className={inputClass}
-          />
+          <div>
+            <input
+              value={name}
+              onChange={(e) => {
+                // Letters, spaces, hyphens, apostrophes and periods only — no digits.
+                setName(e.target.value.replace(/[^\p{L} '.-]/gu, ''));
+                clearFieldError('name');
+              }}
+              placeholder="Full Name"
+              autoFocus
+              autoComplete="name"
+              maxLength={80}
+              disabled={isSubmitting}
+              className={inputClass}
+            />
+            {fieldErrors.name && <p className={fieldErrorClass}>{fieldErrors.name}</p>}
+          </div>
           <div>
             <input
               value={username}
@@ -193,6 +226,8 @@ export default function AccountSignupPage() {
                 clearFieldError('email');
               }}
               placeholder="Email"
+              autoComplete="email"
+              maxLength={254}
               disabled={isSubmitting}
               className={inputClass}
             />
@@ -219,13 +254,21 @@ export default function AccountSignupPage() {
               type="tel"
               value={localPhone}
               onChange={(e) => {
-                setLocalPhone(e.target.value);
+                // Digits and inter-group spaces only, capped to this country's longest valid number.
+                const cleaned = e.target.value.replace(/[^\d\s]/g, '');
+                setLocalPhone(cleaned.replace(/\D/g, '').length > phoneDigitRange[1] ? localPhone : cleaned);
                 clearFieldError('phone');
               }}
               placeholder="Phone Number (e.g. 7XX XXX XXX)"
+              autoComplete="tel-national"
               disabled={isSubmitting}
               className={inputClass}
             />
+            <p className="text-[10px] text-neutral-400">
+              {phoneDigitRange[0] === phoneDigitRange[1]
+                ? `${phoneDigitRange[0]} digits after ${dialCode}`
+                : `${phoneDigitRange[0]}-${phoneDigitRange[1]} digits after ${dialCode}`}
+            </p>
             {fieldErrors.phone && <p className={fieldErrorClass}>{fieldErrors.phone}</p>}
           </div>
           <select

@@ -98,7 +98,12 @@ model Order {
   paymentStatus     PaymentStatus     @default(PENDING)
   fulfillmentStatus FulfillmentStatus @default(PROCESSING)
   txRef             String            @unique
-  paymentMethod     String            // "MOBILE_MONEY" or "CARD"
+  paymentMethod     String            // "MOBILE_MONEY", "CARD", or "AIRTEL_MONEY"
+  // Customer-supplied Airtel Money transaction code (AIRTEL_MONEY orders
+  // only) — there's no payment-gateway webhook for a direct-to-merchant-ID
+  // payment, so this is what an admin cross-checks against their Airtel
+  // Money SMS/app before manually marking the order paid.
+  paymentReference  String?
   items             OrderItem[]
   createdAt         DateTime          @default(now())
 

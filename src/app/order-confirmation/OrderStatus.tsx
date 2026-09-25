@@ -14,6 +14,7 @@ import {
 type OrderSummary = {
   txRef: string;
   status: 'PENDING' | 'SUCCESSFUL' | 'FAILED';
+  paymentMethod: string;
   totalAmount: number;
   customerName: string;
   createdAt: string;
@@ -138,18 +139,25 @@ export default function OrderStatus() {
     );
   }
 
-  // PENDING — still waiting on the Flutterwave webhook to confirm.
+  // PENDING — either still waiting on the Flutterwave webhook (seconds), or,
+  // for Airtel Money, waiting on an admin to manually cross-check the
+  // transaction ID and mark it paid (could be minutes to hours) — that's a
+  // genuinely different wait, so it gets its own honest copy instead of
+  // implying an imminent auto-update that Airtel Money orders don't get.
   const stillPolling = pollCount < MAX_POLLS;
+  const isAirtelMoney = order.paymentMethod === 'AIRTEL_MONEY';
 
   return (
     <StatusShell
       icon={<Loader2 className="h-8 w-8 animate-spin" />}
       iconClass="bg-amber-500/10 text-amber-400"
-      title="Confirming your payment..."
+      title={isAirtelMoney ? 'Verifying your Airtel Money payment...' : 'Confirming your payment...'}
       message={
-        stillPolling
-          ? 'This usually takes a few seconds. This page will update automatically.'
-          : "This is taking longer than expected. Your payment may still be processing. We'll confirm via WhatsApp once it clears."
+        isAirtelMoney
+          ? "We're checking your transaction ID against our Airtel Money account. This is manual, so it can take a little while — we'll confirm via email or WhatsApp once it's done."
+          : stillPolling
+            ? 'This usually takes a few seconds. This page will update automatically.'
+            : "This is taking longer than expected. Your payment may still be processing. We'll confirm via WhatsApp once it clears."
       }
     >
       <OrderSummaryCard order={order} />

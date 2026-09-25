@@ -126,6 +126,9 @@ export default async function AdminOrdersPage({
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <PaymentStatusBadge status={order.paymentStatus} />
+                  {order.paymentMethod === 'AIRTEL_MONEY' && order.paymentStatus === 'PENDING' && (
+                    <div className="mt-1 text-[10px] font-bold text-red-500 dark:text-red-400">Needs manual check</div>
+                  )}
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <FulfillmentStatusBadge status={order.fulfillmentStatus} />

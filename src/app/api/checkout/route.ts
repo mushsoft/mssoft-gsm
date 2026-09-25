@@ -6,6 +6,7 @@ import { getOrCreateCustomer } from "@/lib/customerAuth";
 import { sendOrderReceivedEmail } from "@/lib/email/orderEmails";
 import { markOrderFailed } from "@/lib/orderFulfillment";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { isValidEmail } from "@/lib/validation";
 
 type CheckoutItem = { id: string; quantity: number };
 
@@ -14,12 +15,18 @@ interface CheckoutRequestBody {
   customerPhone: string;
   customerEmail: string;
   paymentMethod: string;
+  paymentReference: string | null;
   items: CheckoutItem[];
   couponCode: string | null;
 }
 
-const ALLOWED_PAYMENT_METHODS = ["MOBILE_MONEY", "CARD"];
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ALLOWED_PAYMENT_METHODS = ["MOBILE_MONEY", "CARD", "AIRTEL_MONEY"];
+// Airtel Money transaction codes look like "MP250101.1234.A56789" — this is
+// deliberately loose (just a sane length band) since the exact format isn't
+// documented and an admin visually cross-checks it against their Airtel
+// Money SMS/app anyway; the point is to stop empty/garbage submissions, not
+// to fully validate Airtel's code format.
+const PAYMENT_REFERENCE_PATTERN = /^[A-Za-z0-9.-]{6,40}$/;
 const FETCH_TIMEOUT_MS = 15_000;
 
 class CheckoutValidationError extends Error {}
@@ -32,12 +39,13 @@ function parseCheckoutBody(body: unknown): CheckoutRequestBody {
 
   const customerName = typeof b.customerName === "string" ? b.customerName.trim() : "";
   const customerPhone = typeof b.customerPhone === "string" ? b.customerPhone.trim() : "";
-  const customerEmail = typeof b.customerEmail === "string" ? b.customerEmail.trim() : "";
+  const customerEmail = typeof b.customerEmail === "string" ? b.customerEmail.trim().toLowerCase() : "";
   const paymentMethod = typeof b.paymentMethod === "string" ? b.paymentMethod.trim() : "";
+  const paymentReferenceRaw = typeof b.paymentReference === "string" ? b.paymentReference.trim() : "";
 
   if (!customerName) throw new CheckoutValidationError("customerName is required");
   if (!customerPhone) throw new CheckoutValidationError("customerPhone is required");
-  if (!customerEmail || !EMAIL_PATTERN.test(customerEmail)) {
+  if (!isValidEmail(customerEmail)) {
     throw new CheckoutValidationError("A valid customerEmail is required");
   }
   if (!ALLOWED_PAYMENT_METHODS.includes(paymentMethod)) {
@@ -45,6 +53,10 @@ function parseCheckoutBody(body: unknown): CheckoutRequestBody {
       `paymentMethod must be one of: ${ALLOWED_PAYMENT_METHODS.join(", ")}`
     );
   }
+  if (paymentMethod === "AIRTEL_MONEY" && !PAYMENT_REFERENCE_PATTERN.test(paymentReferenceRaw)) {
+    throw new CheckoutValidationError("A valid Airtel Money transaction ID is required");
+  }
+  const paymentReference = paymentMethod === "AIRTEL_MONEY" ? paymentReferenceRaw : null;
   if (!Array.isArray(b.items) || b.items.length === 0) {
     throw new CheckoutValidationError("items must be a non-empty array");
   }
@@ -67,7 +79,7 @@ function parseCheckoutBody(body: unknown): CheckoutRequestBody {
 
   const couponCode = typeof b.couponCode === "string" && b.couponCode.trim() ? b.couponCode.trim().toUpperCase() : null;
 
-  return { customerName, customerPhone, customerEmail, paymentMethod, items, couponCode };
+  return { customerName, customerPhone, customerEmail, paymentMethod, paymentReference, items, couponCode };
 }
 
 function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
@@ -95,8 +107,12 @@ export async function POST(req: Request) {
 
   const flutterwaveSecretKey = process.env.FLUTTERWAVE_SECRET_KEY;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  // Airtel Money is a direct-to-merchant-ID payment with no gateway
+  // involved (see markOrderPaid / admin "Mark as Paid") — it doesn't need
+  // Flutterwave configured, so it shouldn't be blocked by it being down.
+  const needsFlutterwave = checkout.paymentMethod !== "AIRTEL_MONEY";
 
-  if (!flutterwaveSecretKey || !baseUrl) {
+  if (needsFlutterwave && (!flutterwaveSecretKey || !baseUrl)) {
     console.error("Checkout misconfigured: FLUTTERWAVE_SECRET_KEY or NEXT_PUBLIC_BASE_URL is missing");
     return NextResponse.json(
       { success: false, error: "Checkout is temporarily unavailable. Please try again later." },
@@ -179,6 +195,7 @@ export async function POST(req: Request) {
           customerEmail: checkout.customerEmail,
           totalAmount,
           paymentMethod: checkout.paymentMethod,
+          paymentReference: checkout.paymentReference,
           txRef,
           customerId: customer?.id ?? null,
           couponCode: appliedCouponCode,
@@ -217,6 +234,15 @@ export async function POST(req: Request) {
     discountAmount: order.discountAmount ?? 0,
     items: order.items.map((item) => ({ title: item.product.title, quantity: item.quantity, price: item.price })),
   }).catch((error) => console.error("Failed to send order-received email (order already created)", { txRef, error }));
+
+  // Airtel Money: nothing left to do here — the order sits PENDING until an
+  // admin cross-checks checkout.paymentReference against their Airtel Money
+  // SMS/app and clicks "Mark as Paid" (see markOrderPaid), same as any other
+  // off-platform payment. No paymentUrl means the client redirects straight
+  // to the order-confirmation page instead of a Flutterwave hosted page.
+  if (checkout.paymentMethod === "AIRTEL_MONEY") {
+    return NextResponse.json({ success: true, txRef });
+  }
 
   // Stock is only decremented once Flutterwave confirms payment via the
   // webhook (see /api/checkout/webhook) — never at initiation, otherwise an
