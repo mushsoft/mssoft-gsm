@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { AlertTriangle, LayoutDashboard, Package, TrendingUp } from 'lucide-react';
+import { AlertTriangle, FileText, LayoutDashboard, Package, TrendingUp } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { getDashboardData } from '@/lib/adminDashboard';
 import AutoRefresh from '@/components/AutoRefresh';
@@ -35,7 +35,16 @@ export default async function AdminDashboardPage() {
             <p className="text-xs text-neutral-500 dark:text-neutral-400">Last 30 days</p>
           </div>
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/receipts"
+            className="flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-black transition-colors hover:bg-amber-400"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Make a Private Receipt
+          </Link>
+          <LogoutButton />
+        </div>
       </div>
 
       <AdminNav />
