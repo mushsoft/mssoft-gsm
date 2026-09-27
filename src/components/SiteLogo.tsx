@@ -5,7 +5,7 @@ const SIZES = {
   lg: { badge: 'h-11 w-11', icon: 'h-6 w-6', accent: 'h-[18px] w-[18px] -bottom-1 -right-1', accentIcon: 'h-3 w-3', word: 'text-2xl', tagline: 'text-[10px]' },
 } as const;
 
-/** Icon mark (phone + wrench, hinting at both product lines) + "PhoneHub" wordmark with the "MS Soft GSM" tagline — used in Header.tsx and Footer.tsx. */
+/** Icon mark (phone + wrench, hinting at both product lines) + "MS Soft GSM" wordmark — used in Header.tsx and Footer.tsx. */
 export default function SiteLogo({ size = 'sm' }: { size?: keyof typeof SIZES }) {
   const s = SIZES[size];
 
@@ -23,10 +23,10 @@ export default function SiteLogo({ size = 'sm' }: { size?: keyof typeof SIZES })
       </div>
       <div className="flex flex-col">
         <span className={`${s.word} font-black tracking-wider leading-none text-neutral-900 dark:text-white`}>
-          Phone<span className="text-amber-500">Hub</span>
+          MS Soft <span className="text-amber-500">GSM</span>
         </span>
         <span className={`${s.tagline} mt-0.5 font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400`}>
-          MS Soft GSM
+          Phones, Spares &amp; Repairs
         </span>
       </div>
     </div>

@@ -1,14 +1,14 @@
 import { Product } from '@/types/product';
 import { formatUGX } from '@/lib/formatters';
 
-// Replace with PhoneHub's primary business WhatsApp number (with country code)
-const PHONEHUB_WHATSAPP_NUMBER = '256773944288'; 
+// Replace with MS Soft GSM's primary business WhatsApp number (with country code)
+const PHONEHUB_WHATSAPP_NUMBER = '256773944288';
 
 export const generateWhatsAppLink = (product: Product, userNote?: string): string => {
   const lineBreak = '\n';
   
   const message = [
-    `📱 *NEW ORDER REQUEST — PHONEHUB*`,
+    `📱 *NEW ORDER REQUEST — MS SOFT GSM*`,
     `-----------------------------------`,
     `• *Item:* ${product.name}`,
     `• *Brand:* ${product.brand}`,

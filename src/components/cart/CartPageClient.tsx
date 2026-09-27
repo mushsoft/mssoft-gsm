@@ -154,7 +154,7 @@ export default function CartPageClient() {
 
   const whatsappMessage =
     checkoutable.length > 0
-      ? `Hello Phone Hub! I want to ORDER these items:\n\n${checkoutable
+      ? `Hello MS Soft GSM! I want to ORDER these items:\n\n${checkoutable
           .map(
             ({ product, quantity }) =>
               `📌 *${product.title}* ×${quantity} — UGX ${(product.price * quantity).toLocaleString()}`

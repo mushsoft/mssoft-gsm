@@ -6,7 +6,7 @@ import CatalogProductCard from '@/components/cards/CatalogProductCard';
 
 export const metadata = {
   title: 'New Arrivals',
-  description: 'The newest phones, spares, accessories, and tools just added to Phone Hub.',
+  description: 'The newest phones, spares, accessories, and tools just added to MS Soft GSM.',
 };
 
 export const revalidate = 60;

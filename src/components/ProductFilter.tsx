@@ -75,6 +75,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
         <div className="relative">
           <input
             type="text"
+            aria-label="Search model, chipset"
             placeholder="Search model, chipset..."
             value={filters.searchQuery}
             onChange={(e) =>

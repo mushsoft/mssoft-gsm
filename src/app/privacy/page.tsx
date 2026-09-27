@@ -3,7 +3,7 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react';
 
 export const metadata = {
   title: 'Privacy Policy',
-  description: 'How Phone Hub collects, uses, and protects your personal information.',
+  description: 'How MS Soft GSM collects, uses, and protects your personal information.',
 };
 
 const sectionClass = 'space-y-2';
@@ -34,7 +34,7 @@ export default function PrivacyPolicyPage() {
       <div className="space-y-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6">
         <div className={sectionClass}>
           <p className={bodyClass}>
-            Phone Hub (&quot;we&quot;, &quot;us&quot;) operates this website to sell phones, spare parts,
+            MS Soft GSM (&quot;we&quot;, &quot;us&quot;) operates this website to sell phones, spare parts,
             accessories, and repair tools, and to support technicians and customers across Uganda and East
             Africa. This policy explains what information we collect, why, and how we protect it.
           </p>

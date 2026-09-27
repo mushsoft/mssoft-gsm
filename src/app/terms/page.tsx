@@ -3,7 +3,7 @@ import { ArrowLeft, FileText } from 'lucide-react';
 
 export const metadata = {
   title: 'Terms of Service',
-  description: 'The terms that apply when you buy from or use the Phone Hub website.',
+  description: 'The terms that apply when you buy from or use the MS Soft GSM website.',
 };
 
 const sectionClass = 'space-y-2';
@@ -34,7 +34,7 @@ export default function TermsOfServicePage() {
       <div className="space-y-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6">
         <div className={sectionClass}>
           <p className={bodyClass}>
-            These terms apply whenever you browse, order from, or otherwise use the Phone Hub website. By placing
+            These terms apply whenever you browse, order from, or otherwise use the MS Soft GSM website. By placing
             an order or creating an account, you agree to them.
           </p>
         </div>

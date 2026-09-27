@@ -19,7 +19,7 @@ export default async function RepairGuideDetailPage({ params }: GuidePageProps) 
     notFound();
   }
 
-  const waMessage = `Hello Phone Hub! I followed your "${guide.title}" guide but would like professional help.`;
+  const waMessage = `Hello MS Soft GSM! I followed your "${guide.title}" guide but would like professional help.`;
   const whatsappUrl = `https://wa.me/256773944288?text=${encodeURIComponent(waMessage)}`;
 
   return (

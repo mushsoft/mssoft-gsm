@@ -17,6 +17,7 @@ export const metadata = {
   title: 'MS Soft GSM | Phones, Spare Parts & Technician Support Uganda',
   description:
     'Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp, with fast delivery across Kampala & East Africa.',
+  alternates: { canonical: '/' },
 };
 
 // Featured products come from the live database — revalidate periodically
@@ -37,7 +38,7 @@ const BRAND_TICKER = [
 const WHATSAPP_PHONE = '256773944288';
 
 function testpointCardProps(item: Prisma.TestPointGetPayload<object>) {
-  const waMessage = `Hello Phone Hub! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
+  const waMessage = `Hello MS Soft GSM! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
   return {
     title: item.title,
     imageUrl: item.diagramUrl || undefined,
@@ -122,8 +123,35 @@ export default async function HomePage() {
     return [];
   });
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const localBusinessJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'MS Soft GSM',
+    url: baseUrl,
+    telephone: '+256755754880',
+    image: `${baseUrl}/opengraph-image`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Kampala Centre Point, AC 19, opposite ABSA Bank',
+      addressLocality: 'Kampala',
+      addressCountry: 'UG',
+    },
+    sameAs: [
+      'https://www.tiktok.com/@mushsoft',
+      'https://www.instagram.com/mush_soft',
+      'https://www.threads.net/@mush_soft',
+      'https://x.com/mushpro_ug',
+    ],
+  };
+
   return (
     <main className="mx-auto max-w-7xl space-y-10 px-4 py-8">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
       <AutoRefresh intervalMs={30000} />
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-5 sm:p-8 lg:p-14">

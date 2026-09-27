@@ -54,6 +54,7 @@ const studioSafeHeaders = securityHeaders.filter(
 );
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   images: {
     // Vercel's Image Optimization has a monthly quota of distinct source
     // images; once it's exhausted, any URL the optimizer hasn't already
@@ -75,6 +76,18 @@ const nextConfig: NextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
     ],
+  },
+  async redirects() {
+    // These four routes predate the /shop/[category] catalog (some still
+    // read from Sanity or hardcoded sample data instead of the real Prisma
+    // catalog) and were left reachable alongside their replacements —
+    // duplicate content at two URLs, one of them stale.
+    return [
+      { source: '/screens', destination: '/shop/screens', permanent: true },
+      { source: '/spares', destination: '/shop/spares', permanent: true },
+      { source: '/accessories', destination: '/shop/accessories', permanent: true },
+      { source: '/tools', destination: '/shop/tools', permanent: true },
+    ];
   },
   async headers() {
     return [

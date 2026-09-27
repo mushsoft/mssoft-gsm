@@ -17,7 +17,7 @@ import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
 export const metadata = {
   title: 'About Us',
   description:
-    "The story behind MS Soft GSM (PhoneHub) — from electrician to phone repair specialist to software engineer, now dealing in genuine phones, repairs, and spares in Kampala, Uganda.",
+    "The story behind MS Soft GSM — from electrician to phone repair specialist to software engineer, now dealing in genuine phones, repairs, and spares in Kampala, Uganda.",
 };
 
 const TIMELINE = [

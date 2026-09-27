@@ -23,12 +23,14 @@ interface FieldErrors {
 }
 
 function PasswordField({
+  id,
   value,
   onChange,
   placeholder,
   disabled,
   autoComplete,
 }: {
+  id?: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
@@ -40,10 +42,13 @@ function PasswordField({
   return (
     <div className="relative">
       <input
+        id={id}
         type={visible ? 'text' : 'password'}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        minLength={8}
+        required
         disabled={disabled}
         autoComplete={autoComplete}
         className={`${inputClass} pr-10`}
@@ -188,7 +193,11 @@ export default function AccountSignupPage() {
 
         <div className="space-y-3">
           <div>
+            <label htmlFor="signup-name" className="sr-only">
+              Full Name
+            </label>
             <input
+              id="signup-name"
               value={name}
               onChange={(e) => {
                 // Letters, spaces, hyphens, apostrophes and periods only — no digits.
@@ -199,26 +208,37 @@ export default function AccountSignupPage() {
               autoFocus
               autoComplete="name"
               maxLength={80}
+              required
               disabled={isSubmitting}
               className={inputClass}
             />
             {fieldErrors.name && <p className={fieldErrorClass}>{fieldErrors.name}</p>}
           </div>
           <div>
+            <label htmlFor="signup-username" className="sr-only">
+              Username
+            </label>
             <input
+              id="signup-username"
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value);
                 clearFieldError('username');
               }}
               placeholder="Username"
+              autoComplete="username"
+              required
               disabled={isSubmitting}
               className={inputClass}
             />
             {fieldErrors.username && <p className={fieldErrorClass}>{fieldErrors.username}</p>}
           </div>
           <div>
+            <label htmlFor="signup-email" className="sr-only">
+              Email
+            </label>
             <input
+              id="signup-email"
               type="email"
               value={email}
               onChange={(e) => {
@@ -228,6 +248,7 @@ export default function AccountSignupPage() {
               placeholder="Email"
               autoComplete="email"
               maxLength={254}
+              required
               disabled={isSubmitting}
               className={inputClass}
             />
@@ -250,7 +271,11 @@ export default function AccountSignupPage() {
                 </option>
               ))}
             </select>
+            <label htmlFor="signup-phone" className="sr-only">
+              Phone Number
+            </label>
             <input
+              id="signup-phone"
               type="tel"
               value={localPhone}
               onChange={(e) => {
@@ -261,6 +286,7 @@ export default function AccountSignupPage() {
               }}
               placeholder="Phone Number (e.g. 7XX XXX XXX)"
               autoComplete="tel-national"
+              required
               disabled={isSubmitting}
               className={inputClass}
             />
@@ -271,9 +297,14 @@ export default function AccountSignupPage() {
             </p>
             {fieldErrors.phone && <p className={fieldErrorClass}>{fieldErrors.phone}</p>}
           </div>
+          <label htmlFor="signup-referral" className="sr-only">
+            How did you hear about us?
+          </label>
           <select
+            id="signup-referral"
             value={referralSource}
             onChange={(e) => setReferralSource(e.target.value)}
+            required
             disabled={isSubmitting}
             className={inputClass}
           >
@@ -288,7 +319,11 @@ export default function AccountSignupPage() {
           </select>
 
           <div>
+            <label htmlFor="signup-password" className="sr-only">
+              Password
+            </label>
             <PasswordField
+              id="signup-password"
               value={password}
               onChange={setPassword}
               placeholder="Password (min 8 characters)"
@@ -311,7 +346,11 @@ export default function AccountSignupPage() {
           </div>
 
           <div>
+            <label htmlFor="signup-confirm-password" className="sr-only">
+              Confirm Password
+            </label>
             <PasswordField
+              id="signup-confirm-password"
               value={confirmPassword}
               onChange={setConfirmPassword}
               placeholder="Confirm Password"
@@ -321,6 +360,18 @@ export default function AccountSignupPage() {
             {passwordsMismatch && <p className={fieldErrorClass}>Passwords do not match</p>}
           </div>
         </div>
+
+        <p className="mt-3 text-center text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">
+          By creating an account you agree to our{' '}
+          <Link href="/terms" className="font-semibold text-amber-500 hover:underline">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="font-semibold text-amber-500 hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
 
         {error && (
           <div className="mt-3 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-600 dark:text-red-300">

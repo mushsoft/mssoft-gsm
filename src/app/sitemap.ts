@@ -5,16 +5,21 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 const routes = [
   '',
-  'spares',
-  'accessories',
-  'screens',
-  'tools',
+  'about',
+  'contact',
+  'privacy',
+  'terms',
+  'learn-to-repair',
+  'wholesale',
+  'new-arrivals',
   'deals',
   'shop/phones',
   'shop/accessories',
   'shop/screens',
+  'shop/spares',
   'shop/tools',
   'shop/testpoints',
+  'shop/kids-tabs',
 ];
 
 // Product pages are the actual catalog — without them here, Google has to

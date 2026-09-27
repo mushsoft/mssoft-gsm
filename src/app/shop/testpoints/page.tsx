@@ -4,6 +4,12 @@ import TestpointCard from '@/components/cards/TestpointCard';
 import { prisma } from '@/lib/prisma';
 import { TESTPOINT_SLUG_MAP, TESTPOINT_TYPES } from '@/lib/testPointTypes';
 
+export const metadata = {
+  title: 'EDL Testpoint Diagrams',
+  description: 'EDL/EDL9008 testpoint diagrams for phone repair technicians — find the exact testpoint for your device model at MS Soft GSM.',
+  alternates: { canonical: '/shop/testpoints' },
+};
+
 export default async function TestpointsPage({
   searchParams,
 }: {
@@ -95,7 +101,7 @@ export default async function TestpointsPage({
           </div>
           <a
             href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(
-              'Hello Phone Hub! I am looking for a specific testpoint diagram.'
+              'Hello MS Soft GSM! I am looking for a specific testpoint diagram.'
             )}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -108,7 +114,7 @@ export default async function TestpointsPage({
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {testpoints.map((item) => {
-            const waMessage = `Hello Phone Hub! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
+            const waMessage = `Hello MS Soft GSM! I have a question about this testpoint diagram:\n\n📌 *${item.title}*`;
             const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(waMessage)}`;
 
             return (

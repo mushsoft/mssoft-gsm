@@ -267,7 +267,7 @@ export async function POST(req: Request) {
             name: checkout.customerName,
           },
           customizations: {
-            title: "Phone Hub Purchase",
+            title: "MS Soft GSM Purchase",
             description: "Payment for phones/spares/tools",
           },
         }),

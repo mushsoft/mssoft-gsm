@@ -6,6 +6,12 @@ import CatalogProductCard from '@/components/cards/CatalogProductCard';
 
 export const revalidate = 60;
 
+export const metadata = {
+  title: 'Hot Deals on Phones and Spares',
+  description: 'Discounted genuine phones, screens, batteries, and repair tools at MS Soft GSM — limited-time pricing, updated live.',
+  alternates: { canonical: '/deals' },
+};
+
 export default async function DealsPage() {
   const hotDeals = await prisma.product
     .findMany({ where: { isHotDeal: true }, orderBy: { createdAt: 'desc' } })

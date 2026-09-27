@@ -170,6 +170,7 @@ export default function Header() {
         >
           <input
             type="text"
+            aria-label="Search products"
             placeholder="Search EDL testpoints, blowers, screens, UK used phones..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -226,6 +227,7 @@ export default function Header() {
         <form onSubmit={handleSearch} className="relative flex items-center">
           <input
             type="text"
+            aria-label="Search products"
             placeholder="Search testpoints, blowers, screens..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

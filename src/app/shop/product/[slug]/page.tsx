@@ -75,7 +75,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
     : null;
 
-  const waMessage = `Hello Phone Hub! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString()}`;
+  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString()}`;
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
   const specFields = getSpecFields(product.category as ProductCategory, product.subcategory);
