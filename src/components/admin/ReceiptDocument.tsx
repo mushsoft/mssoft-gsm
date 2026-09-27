@@ -84,7 +84,13 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
   const [customerPhone, setCustomerPhone] = useState(order?.customerPhone ?? '');
   const [customerEmail, setCustomerEmail] = useState(order?.customerEmail ?? '');
   const [deliveryAddress, setDeliveryAddress] = useState('');
+  // Defaults to the real current date/time the document is generated —
+  // editable in case an admin is printing this for an earlier sale.
   const [documentDate, setDocumentDate] = useState(() => new Date(order?.createdAt ?? Date.now()).toISOString().slice(0, 10));
+  const [documentTime, setDocumentTime] = useState(() => {
+    const d = new Date(order?.createdAt ?? Date.now());
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  });
   // Editable on the document itself — lets an admin fix a typo, add a line
   // (e.g. a delivery fee) or drop one, without that changing the real order
   // (or, for a walk-in sale with no order at all, build the item list from
@@ -203,6 +209,12 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
                   type="date"
                   value={documentDate}
                   onChange={(e) => setDocumentDate(e.target.value)}
+                  className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-xs"
+                />
+                <input
+                  type="time"
+                  value={documentTime}
+                  onChange={(e) => setDocumentTime(e.target.value)}
                   className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-xs"
                 />
               </div>

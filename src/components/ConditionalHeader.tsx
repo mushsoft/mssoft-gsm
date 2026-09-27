@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 export default function ConditionalHeader() {
   const pathname = usePathname();
 
-  if (pathname?.startsWith('/studio')) {
+  if (pathname?.startsWith('/studio') || pathname?.startsWith('/admin')) {
     return null;
   }
 
