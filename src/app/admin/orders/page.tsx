@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Prisma } from '@prisma/client';
-import { ClipboardList, Pencil } from 'lucide-react';
+import { ClipboardList, FileText, Pencil } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
@@ -137,13 +137,23 @@ export default async function AdminOrdersPage({
                   {order.createdAt.toLocaleDateString()}
                 </td>
                 <td className="px-4 py-3 align-middle">
-                  <Link
-                    href={`/admin/orders/${order.id}`}
-                    className="flex w-fit items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/40 hover:text-amber-500"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    View
-                  </Link>
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="flex w-fit items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/40 hover:text-amber-500"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      View
+                    </Link>
+                    <Link
+                      href={`/admin/orders/${order.id}/receipt`}
+                      title="Invoice / Receipt / Delivery Note / Quotation"
+                      className="flex w-fit items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/40 hover:text-amber-500"
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      Receipt
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}
