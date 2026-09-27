@@ -20,7 +20,6 @@ export interface ParsedReceipt {
   paymentMethod: string;
   paymentReference: string;
   notes: string;
-  _debugLines?: string[];
 }
 
 const DOC_TYPE_LABELS: Record<DocType, string> = {
@@ -42,8 +41,16 @@ function toNumber(raw: string): number {
  * round-trips a PDF that was exported from this same system. Anything it
  * can't confidently find is left blank for the admin to fill in — this is
  * meant to save re-typing, not to be trusted blindly.
+ *
+ * Chrome's print-to-PDF text layer drops whitespace between adjacent table
+ * cells that have no literal space character between them (padding/margin
+ * only), so a row like "Screen Assembly | 2 | 45000 | UGX 90,000" comes out
+ * as "Screen Assembly245000UGX 90,000". Quantity and unit price end up as
+ * one undivided digit run; the only way to split it correctly is to try
+ * each split point and keep the one whose qty * price equals the row's own
+ * total (which IS delimited, by the literal "UGX").
  */
-export async function parseReceiptPdf(buffer: Buffer, opts: { debug?: boolean } = {}): Promise<ParsedReceipt> {
+export async function parseReceiptPdf(buffer: Buffer): Promise<ParsedReceipt> {
   const result = await pdfParse(buffer);
   const text = result.text.replace(/\r\n/g, '\n');
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -63,7 +70,7 @@ export async function parseReceiptPdf(buffer: Buffer, opts: { debug?: boolean } 
   const documentDate = dateMatch ? `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}` : new Date().toISOString().slice(0, 10);
 
   // "BILL TO" / "DELIVER TO" is followed by name, then phone, then email (or
-  // the literal placeholder "Email" when it was blank at export time).
+  // nothing, when those fields were blank at export time).
   let customerName = '';
   let customerPhone = '';
   let customerEmail = '';
@@ -76,45 +83,79 @@ export async function parseReceiptPdf(buffer: Buffer, opts: { debug?: boolean } 
     customerEmail = /@/.test(maybeEmail) ? maybeEmail : '';
   }
 
-  // Item rows sit between the table header and "Subtotal". Invoice/Receipt/
-  // Quotation rows are "<name> <qty> <price> UGX <total>"; Delivery Note
-  // rows have no price columns, just "<name> <qty>".
-  const items: { title: string; quantity: number; price: number }[] = [];
-  const headerIndex = lines.findIndex((l) => /^ITEM\s+QTY/i.test(l));
+  // Item rows sit between the table header and whatever comes next
+  // ("Subtotal" for priced doc types, the signature block for Delivery
+  // Note). Invoice/Receipt/Quotation rows are "<name><qty><price>UGX
+  // <total>" (no spaces between the name/qty/price cells — see note
+  // above); Delivery Note rows have no price columns, just "<name><qty>".
   const subtotalIndex = lines.findIndex((l) => /^Subtotal/i.test(l));
+  const totalIndex = lines.findIndex((l) => /^Total/i.test(l));
+  const signatureIndex = lines.findIndex((l) => /Received by/i.test(l));
+  const itemsEndCandidates = [subtotalIndex, signatureIndex, totalIndex].filter((i) => i !== -1);
+  const itemsEnd = itemsEndCandidates.length ? Math.min(...itemsEndCandidates) : lines.length;
+
+  const items: { title: string; quantity: number; price: number }[] = [];
+  const headerIndex = lines.findIndex((l) => /^ITEM\s*QTY/i.test(l));
   if (headerIndex !== -1) {
-    const end = subtotalIndex !== -1 ? subtotalIndex : lines.length;
-    for (const line of lines.slice(headerIndex + 1, end)) {
-      const withPrice = line.match(/^(.+?)\s+(\d+)\s+([\d,]+)\s+UGX\s*([\d,]+)$/i);
+    for (const line of lines.slice(headerIndex + 1, itemsEnd)) {
+      const withPrice = line.match(/^(.+?)(\d+)UGX\s*([\d,]+)$/i);
       if (withPrice) {
-        items.push({ title: withPrice[1].trim(), quantity: toNumber(withPrice[2]), price: toNumber(withPrice[3]) });
+        const title = withPrice[1].trim();
+        const digits = withPrice[2];
+        const total = toNumber(withPrice[3]);
+        let quantity = Number(digits[0]) || 1;
+        let price = Number(digits.slice(1)) || total;
+        for (let split = 1; split < digits.length; split++) {
+          const q = Number(digits.slice(0, split));
+          const p = Number(digits.slice(split));
+          if (q > 0 && q * p === total) {
+            quantity = q;
+            price = p;
+            break;
+          }
+        }
+        items.push({ title, quantity, price });
         continue;
       }
-      const qtyOnly = line.match(/^(.+?)\s+(\d+)$/);
+      const qtyOnly = line.match(/^(.+?)(\d+)$/);
       if (qtyOnly) {
         items.push({ title: qtyOnly[1].trim(), quantity: toNumber(qtyOnly[2]), price: 0 });
       }
     }
   }
 
-  const discountMatch = text.match(/Discount\s+(?:UGX\s*)?([\d,]+)/i);
+  const discountMatch = text.match(/Discount\s*(?:UGX\s*)?([\d,]+)/i);
   const discountAmount = discountMatch ? toNumber(discountMatch[1]) : 0;
 
-  const paidMatch = text.match(/PAID|PAYMENT PENDING/i);
-  const paymentStatus: 'PENDING' | 'SUCCESSFUL' = paidMatch && /^PAID$/i.test(paidMatch[0]) ? 'SUCCESSFUL' : 'PENDING';
-  const methodMatch = text.match(/via\s+([A-Za-z][A-Za-z\s]*)/i);
-  const paymentMethod = methodMatch ? methodMatch[1].trim() : 'Cash';
-  const payRefMatch = text.match(/via\s+[A-Za-z\s]+\(([^)]+)\)/i);
-  const paymentReference = payRefMatch ? payRefMatch[1].trim() : '';
-
-  // Whatever's left between the payment line and the end of the extracted
-  // text is the closest approximation of the notes/terms field — genuinely
-  // best-effort, since there's no explicit end marker for it.
-  let notes = '';
   const paymentLineIndex = lines.findIndex((l) => /PAID|PAYMENT PENDING/i.test(l));
+  const paymentLine = paymentLineIndex !== -1 ? lines[paymentLineIndex] : '';
+  const paidMatch = paymentLine.match(/PAID|PAYMENT PENDING/i);
+  const paymentStatus: 'PENDING' | 'SUCCESSFUL' = paidMatch && /^PAID$/i.test(paidMatch[0]) ? 'SUCCESSFUL' : 'PENDING';
+  const methodMatch = paymentLine.match(/via([A-Za-z][A-Za-z\s]*)$/i);
+  const paymentMethod = methodMatch ? methodMatch[1].trim() : 'Cash';
+
+  // The reference field (Invoice/Receipt only) prints as its own line right
+  // after the payment status/method line — a transaction code or phone
+  // number, so always a single token with no spaces, unlike the free-text
+  // notes that may follow it. Quotation/Delivery Note have no payment
+  // section at all, so notes there start right after the totals ("Total")
+  // or the signature block, whichever this document has.
+  let paymentReference = '';
+  let notesStartIndex = -1;
   if (paymentLineIndex !== -1) {
-    notes = lines.slice(paymentLineIndex + 1, paymentLineIndex + 3).join(' ').trim();
+    const refCandidate = lines[paymentLineIndex + 1];
+    if (refCandidate && /^[A-Za-z0-9-]+$/.test(refCandidate)) {
+      paymentReference = refCandidate;
+      notesStartIndex = paymentLineIndex + 2;
+    } else {
+      notesStartIndex = paymentLineIndex + 1;
+    }
+  } else if (totalIndex !== -1) {
+    notesStartIndex = totalIndex + 1;
+  } else if (signatureIndex !== -1) {
+    notesStartIndex = signatureIndex + 1;
   }
+  const notes = notesStartIndex !== -1 ? lines.slice(notesStartIndex).join(' ').trim() : '';
 
   return {
     docType,
@@ -129,6 +170,5 @@ export async function parseReceiptPdf(buffer: Buffer, opts: { debug?: boolean } 
     paymentMethod,
     paymentReference,
     notes,
-    ...(opts.debug ? { _debugLines: lines } : {}),
   };
 }

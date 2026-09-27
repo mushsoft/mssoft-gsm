@@ -24,8 +24,7 @@ export async function POST(req: Request) {
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const debug = new URL(req.url).searchParams.get('debug') === '1';
-    const parsed = await parseReceiptPdf(buffer, { debug });
+    const parsed = await parseReceiptPdf(buffer);
     return NextResponse.json({ success: true, parsed });
   } catch (error) {
     console.error('Failed to parse imported receipt PDF', error);

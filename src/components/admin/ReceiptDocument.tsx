@@ -219,6 +219,9 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
             background: transparent !important;
             color: #000 !important;
           }
+          .receipt-field::placeholder {
+            visibility: hidden !important;
+          }
         }
       `}</style>
 
