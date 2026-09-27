@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, CircuitBoard, ClipboardList, GraduationCap, LayoutDashboard, Package, Percent, Users, Wrench } from 'lucide-react';
+import { Activity, CircuitBoard, ClipboardList, GraduationCap, LayoutDashboard, Package, Percent, Settings, Users, Wrench } from 'lucide-react';
 
 const TABS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -14,6 +14,7 @@ const TABS = [
   { href: '/admin/repair-requests', label: 'Ask a Tech', icon: Wrench },
   { href: '/admin/testpoints', label: 'Test Points', icon: CircuitBoard },
   { href: '/admin/analytics', label: 'Analytics', icon: Activity },
+  { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function AdminNav() {

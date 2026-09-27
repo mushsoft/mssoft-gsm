@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ClipboardList, MessageCircle, Package } from 'lucide-react';
+import { ArrowLeft, ClipboardList, FileText, MessageCircle, Package } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
@@ -34,20 +34,29 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         <span>Back to Orders</span>
       </Link>
 
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
-          <ClipboardList className="h-5 w-5" />
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-black text-neutral-900 dark:text-white">{order.customerName}</h1>
-            <PaymentStatusBadge status={order.paymentStatus} />
-            <FulfillmentStatusBadge status={order.fulfillmentStatus} />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
+            <ClipboardList className="h-5 w-5" />
           </div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Ordered {order.createdAt.toLocaleString()}
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-black text-neutral-900 dark:text-white">{order.customerName}</h1>
+              <PaymentStatusBadge status={order.paymentStatus} />
+              <FulfillmentStatusBadge status={order.fulfillmentStatus} />
+            </div>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              Ordered {order.createdAt.toLocaleString()}
+            </p>
+          </div>
         </div>
+        <Link
+          href={`/admin/orders/${order.id}/receipt`}
+          className="flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/40 hover:text-amber-500"
+        >
+          <FileText className="h-3.5 w-3.5" />
+          Receipts
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

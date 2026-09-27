@@ -261,3 +261,22 @@ model AdminSession {
 
   @@index([expiresAt])
 }
+
+// Singleton (one row) — the shop's own details stamped on generated
+// documents (invoices, receipts, delivery notes, quotations) and edited via
+// /admin/settings. Not used for storefront display (Footer.tsx/layout.tsx
+// still own that) to keep this change scoped to the new documents feature.
+model ShopProfile {
+  id           String   @id @default(uuid())
+  businessName String   @default("MS Soft GSM")
+  phone        String?
+  whatsapp     String?
+  email        String?
+  website      String?
+  tiktok       String?
+  instagram    String?
+  facebook     String?
+  address      String?
+  tinNumber    String? // Uganda Tax Identification Number — optional, shown on invoices if set
+  updatedAt    DateTime @updatedAt
+}
