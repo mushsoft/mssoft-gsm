@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Loader2, Plus, Printer, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, FileUp, Loader2, Plus, Printer, Save, Trash2 } from 'lucide-react';
 import ProductPicker from './ProductPicker';
-
-export type DocType = 'INVOICE' | 'RECEIPT' | 'DELIVERY_NOTE' | 'QUOTATION';
+import { DOC_TYPES, type DocType } from '@/lib/receiptDocTypes';
 
 export type ReceiptInitialData = {
   receiptId: string | null; // null = not yet saved
@@ -40,37 +39,6 @@ type ShopProfileData = {
   tinNumber: string | null;
 };
 
-const DOC_TYPES: { key: DocType; label: string; prefix: string; showPrices: boolean; defaultNotes: string }[] = [
-  {
-    key: 'INVOICE',
-    label: 'Invoice',
-    prefix: 'INV',
-    showPrices: true,
-    defaultNotes: 'Payment due upon receipt. Thank you for your business!',
-  },
-  {
-    key: 'RECEIPT',
-    label: 'Sales Receipt',
-    prefix: 'RCT',
-    showPrices: true,
-    defaultNotes: 'Thank you for shopping with us!',
-  },
-  {
-    key: 'DELIVERY_NOTE',
-    label: 'Delivery Note',
-    prefix: 'DN',
-    showPrices: false,
-    defaultNotes: '',
-  },
-  {
-    key: 'QUOTATION',
-    label: 'Quotation',
-    prefix: 'QT',
-    showPrices: true,
-    defaultNotes: 'This quotation is valid for 7 days from the date above. Prices are subject to change thereafter.',
-  },
-];
-
 function documentNumber(prefix: string, reference: string): string {
   const short = reference.replace(/^PH-/, '').replace(/-/g, '').slice(0, 8).toUpperCase();
   return `${prefix}-${short}`;
@@ -81,6 +49,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
   const [receiptId, setReceiptId] = useState(initial.receiptId);
   const [docType, setDocType] = useState<DocType>(initial.docType);
   const config = DOC_TYPES.find((d) => d.key === docType)!;
+  const [reference, setReference] = useState(initial.reference);
 
   const [customerName, setCustomerName] = useState(initial.customerName);
   const [customerPhone, setCustomerPhone] = useState(initial.customerPhone);
@@ -98,6 +67,9 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function updateItem(index: number, patch: Partial<{ title: string; quantity: number; price: number }>) {
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
@@ -130,7 +102,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
 
     const payload = {
       docType,
-      reference: initial.reference,
+      reference,
       orderId: initial.orderId,
       documentDate: new Date(`${documentDate}T${documentTime || '00:00'}`).toISOString(),
       customerName,
@@ -173,6 +145,67 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
     }
   }
 
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file next time
+    if (!file) return;
+
+    setIsImporting(true);
+    setImportError(null);
+
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const response = await fetch('/api/admin/receipts/parse-pdf', { method: 'POST', body: form });
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setImportError(data.error || 'Could not read that PDF.');
+        setIsImporting(false);
+        return;
+      }
+
+      const parsed = data.parsed as {
+        docType: DocType;
+        reference: string;
+        documentDate: string;
+        customerName: string;
+        customerPhone: string;
+        customerEmail: string;
+        items: { title: string; quantity: number; price: number }[];
+        discountAmount: number;
+        paymentStatus: string;
+        paymentMethod: string;
+        paymentReference: string;
+        notes: string;
+      };
+
+      setDocType(parsed.docType);
+      setReference(parsed.reference);
+      setDocumentDate(parsed.documentDate);
+      setCustomerName(parsed.customerName);
+      setCustomerPhone(parsed.customerPhone);
+      setCustomerEmail(parsed.customerEmail);
+      setItems(parsed.items.length > 0 ? parsed.items : [{ title: '', quantity: 1, price: 0 }]);
+      setDiscountAmount(parsed.discountAmount);
+      setPaymentStatus(parsed.paymentStatus);
+      setPaymentMethod(parsed.paymentMethod);
+      setPaymentReference(parsed.paymentReference);
+      if (parsed.notes) {
+        setNotesByType((prev) => ({ ...prev, [parsed.docType]: parsed.notes }));
+      }
+      // This is a freshly-parsed, unsaved document even if it started life
+      // as a saved receipt someone printed — importing shouldn't silently
+      // overwrite whatever's currently saved under the old id.
+      setReceiptId(null);
+      setJustSaved(false);
+      setIsImporting(false);
+    } catch {
+      setImportError('Network error. Please try again.');
+      setIsImporting(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-8">
       <style>{`
@@ -197,7 +230,17 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
           <ArrowLeft className="h-4 w-4" />
           {initial.orderId ? 'Back to Order' : 'Back to Receipts'}
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <input ref={fileInputRef} type="file" accept="application/pdf" onChange={handleImportFile} className="hidden" />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 dark:border-neutral-800 px-4 py-2 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/40 hover:text-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isImporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileUp className="h-3.5 w-3.5" />}
+            Import from PDF
+          </button>
           <button
             type="button"
             onClick={handleSave}
@@ -211,7 +254,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
             ) : (
               <Save className="h-3.5 w-3.5" />
             )}
-            {receiptId ? 'Save Changes' : 'Save'}
+            Save to System
           </button>
           <button
             type="button"
@@ -219,7 +262,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
             className="flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-black transition-colors hover:bg-amber-400"
           >
             <Printer className="h-3.5 w-3.5" />
-            Print / Save as PDF
+            Export to PDF / Print
           </button>
         </div>
       </div>
@@ -227,6 +270,11 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
       {saveError && (
         <div className="no-print rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-600 dark:text-red-300">
           {saveError}
+        </div>
+      )}
+      {importError && (
+        <div className="no-print rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-600 dark:text-red-300">
+          {importError}
         </div>
       )}
 
@@ -267,7 +315,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
           <div className="text-right">
             <div className="text-lg font-black uppercase tracking-wide">{config.label}</div>
             <div className="mt-1 text-xs text-neutral-700">
-              <div>No. {documentNumber(config.prefix, initial.reference)}</div>
+              <div>No. {documentNumber(config.prefix, reference)}</div>
               <div className="mt-1 flex items-center justify-end gap-1.5">
                 <span>Date:</span>
                 <input
@@ -289,7 +337,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
                   className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-xs"
                 />
               </div>
-              <div className="mt-1 font-mono">Ref: {initial.reference}</div>
+              <div className="mt-1 font-mono">Ref: {reference}</div>
             </div>
           </div>
         </div>
@@ -526,4 +574,3 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
   );
 }
 
-export { DOC_TYPES };

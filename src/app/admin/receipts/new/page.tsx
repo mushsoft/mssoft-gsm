@@ -1,6 +1,7 @@
 import { requireAdminPage } from '@/lib/adminAuth';
 import { getShopProfile } from '@/lib/shopProfile';
-import ReceiptDocument, { DOC_TYPES, type DocType } from '@/components/admin/ReceiptDocument';
+import ReceiptDocument from '@/components/admin/ReceiptDocument';
+import { DOC_TYPES, type DocType } from '@/lib/receiptDocTypes';
 
 export default async function NewReceiptPage() {
   await requireAdminPage();

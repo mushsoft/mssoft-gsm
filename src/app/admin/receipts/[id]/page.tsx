@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
-import ReceiptDocument, { DOC_TYPES, type DocType } from '@/components/admin/ReceiptDocument';
+import ReceiptDocument from '@/components/admin/ReceiptDocument';
+import { DOC_TYPES, type DocType } from '@/lib/receiptDocTypes';
 
 export default async function EditReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
