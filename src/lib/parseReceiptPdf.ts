@@ -1,4 +1,10 @@
-import { PDFParse } from 'pdf-parse';
+// Import the internal lib file directly, NOT the package root — pdf-parse's
+// index.js runs a `!module.parent` debug-mode check at import time that
+// reads a bundled test fixture (test/data/05-versions-space.pdf); bundlers
+// (Turbopack/webpack) don't preserve `module.parent`, so that check trips
+// true in any bundled build and crashes with ENOENT for a file that isn't
+// deployed. lib/pdf-parse.js is the actual implementation, with none of that.
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import { DOC_TYPES, type DocType } from './receiptDocTypes';
 
 export interface ParsedReceipt {
@@ -37,9 +43,7 @@ function toNumber(raw: string): number {
  * meant to save re-typing, not to be trusted blindly.
  */
 export async function parseReceiptPdf(buffer: Buffer): Promise<ParsedReceipt> {
-  const parser = new PDFParse({ data: buffer });
-  const result = await parser.getText();
-  await parser.destroy();
+  const result = await pdfParse(buffer);
   const text = result.text.replace(/\r\n/g, '\n');
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
 
