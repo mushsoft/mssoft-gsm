@@ -20,6 +20,7 @@ export interface ParsedReceipt {
   paymentMethod: string;
   paymentReference: string;
   notes: string;
+  _debugLines?: string[];
 }
 
 const DOC_TYPE_LABELS: Record<DocType, string> = {
@@ -42,7 +43,7 @@ function toNumber(raw: string): number {
  * can't confidently find is left blank for the admin to fill in — this is
  * meant to save re-typing, not to be trusted blindly.
  */
-export async function parseReceiptPdf(buffer: Buffer): Promise<ParsedReceipt> {
+export async function parseReceiptPdf(buffer: Buffer, opts: { debug?: boolean } = {}): Promise<ParsedReceipt> {
   const result = await pdfParse(buffer);
   const text = result.text.replace(/\r\n/g, '\n');
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -128,5 +129,6 @@ export async function parseReceiptPdf(buffer: Buffer): Promise<ParsedReceipt> {
     paymentMethod,
     paymentReference,
     notes,
+    ...(opts.debug ? { _debugLines: lines } : {}),
   };
 }
