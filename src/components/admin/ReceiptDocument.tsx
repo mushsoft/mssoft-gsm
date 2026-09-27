@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Plus, Printer, Trash2 } from 'lucide-react';
 
 type OrderData = {
   id: string;
@@ -79,12 +79,27 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
   const [customerEmail, setCustomerEmail] = useState(order.customerEmail);
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [documentDate, setDocumentDate] = useState(() => new Date(order.createdAt).toISOString().slice(0, 10));
+  // Editable on the document itself — lets an admin fix a typo, add a line
+  // (e.g. a delivery fee) or drop one, without that changing the real order.
+  const [items, setItems] = useState(() => order.items.map((item) => ({ ...item })));
+  const [discountAmount, setDiscountAmount] = useState(order.discountAmount);
   // Per-type so switching tabs doesn't lose edits made on another tab.
   const [notesByType, setNotesByType] = useState<Record<DocType, string>>(() =>
     Object.fromEntries(DOC_TYPES.map((d) => [d.key, d.defaultNotes])) as Record<DocType, string>
   );
 
-  const subtotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  function updateItem(index: number, patch: Partial<{ title: string; quantity: number; price: number }>) {
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
+  }
+  function removeItem(index: number) {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  }
+  function addItem() {
+    setItems((prev) => [...prev, { title: '', quantity: 1, price: 0 }]);
+  }
+
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const grandTotal = Math.max(0, subtotal - discountAmount);
   const socials = [
     shopProfile.tiktok && `TikTok: ${shopProfile.tiktok}`,
     shopProfile.instagram && `Instagram: ${shopProfile.instagram}`,
@@ -228,40 +243,90 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
                   <th className="py-1.5 text-right font-bold uppercase">Total</th>
                 </>
               )}
+              <th className="no-print py-1.5"></th>
             </tr>
           </thead>
           <tbody>
-            {order.items.map((item, i) => (
+            {items.map((item, i) => (
               <tr key={i} className="border-b border-neutral-200">
-                <td className="py-1.5">{item.title}</td>
-                <td className="py-1.5 text-right">{item.quantity}</td>
+                <td className="py-1.5 pr-2">
+                  <input
+                    value={item.title}
+                    onChange={(e) => updateItem(i, { title: e.target.value })}
+                    className="receipt-field w-full rounded border border-neutral-300 px-1.5 py-1"
+                    placeholder="Item name"
+                  />
+                </td>
+                <td className="py-1.5 pr-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={item.quantity}
+                    onChange={(e) => updateItem(i, { quantity: Number(e.target.value) })}
+                    className="receipt-field w-16 rounded border border-neutral-300 px-1.5 py-1 text-right"
+                  />
+                </td>
                 {config.showPrices && (
                   <>
-                    <td className="py-1.5 text-right">UGX {item.price.toLocaleString()}</td>
+                    <td className="py-1.5 pr-2">
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={item.price}
+                        onChange={(e) => updateItem(i, { price: Number(e.target.value) })}
+                        className="receipt-field w-24 rounded border border-neutral-300 px-1.5 py-1 text-right"
+                      />
+                    </td>
                     <td className="py-1.5 text-right">UGX {(item.price * item.quantity).toLocaleString()}</td>
                   </>
                 )}
+                <td className="no-print py-1.5 pl-1">
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    aria-label="Remove item"
+                    className="rounded p-1 text-neutral-400 hover:bg-red-500/10 hover:text-red-500"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
+        <button
+          type="button"
+          onClick={addItem}
+          className="no-print mt-2 flex items-center gap-1.5 rounded-lg border border-dashed border-neutral-300 px-3 py-1.5 text-xs font-bold text-neutral-500 hover:border-amber-500/40 hover:text-amber-500"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Add Item
+        </button>
+
         {config.showPrices && (
           <div className="mt-3 flex justify-end">
-            <div className="w-full max-w-[220px] space-y-1 text-xs">
-              <div className="flex justify-between">
+            <div className="w-full max-w-60 space-y-1 text-xs">
+              <div className="flex items-center justify-between">
                 <span className="text-neutral-600">Subtotal</span>
                 <span>UGX {subtotal.toLocaleString()}</span>
               </div>
-              {order.discountAmount > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-neutral-600">Discount</span>
-                  <span>-UGX {order.discountAmount.toLocaleString()}</span>
-                </div>
-              )}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-neutral-600">Discount</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={discountAmount}
+                  onChange={(e) => setDiscountAmount(Number(e.target.value))}
+                  className="receipt-field w-24 rounded border border-neutral-300 px-1.5 py-0.5 text-right"
+                />
+              </div>
               <div className="flex justify-between border-t-2 border-black pt-1 text-sm font-black">
                 <span>Total</span>
-                <span>UGX {order.totalAmount.toLocaleString()}</span>
+                <span>UGX {grandTotal.toLocaleString()}</span>
               </div>
             </div>
           </div>
