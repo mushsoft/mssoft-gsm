@@ -79,7 +79,11 @@ export default function AccountLoginPage() {
         )}
 
         <div className="space-y-3">
+          <label htmlFor="account-email" className="sr-only">
+            Email
+          </label>
           <input
+            id="account-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -87,19 +91,31 @@ export default function AccountLoginPage() {
             autoFocus
             autoComplete="email"
             maxLength={254}
+            required
             disabled={isSubmitting}
             className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500"
           />
+          <label htmlFor="account-password" className="sr-only">
+            Password
+          </label>
           <input
+            id="account-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             autoComplete="current-password"
+            required
             disabled={isSubmitting}
             className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500"
           />
         </div>
+
+        <p className="mt-2 text-right text-xs">
+          <Link href="/account/forgot-password" className="font-semibold text-neutral-500 hover:text-amber-500 dark:text-neutral-400">
+            Forgot password?
+          </Link>
+        </p>
 
         {error && (
           <div className="mt-3 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-600 dark:text-red-300">

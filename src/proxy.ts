@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { updateSupabaseSession } from '@/lib/supabase/proxy';
-import { isSessionTokenValid, ADMIN_COOKIE_NAME } from '@/lib/adminAuth';
 
 // The real, unconditional line of defense for /admin/** and /account/**.
 //
@@ -16,7 +15,10 @@ import { isSessionTokenValid, ADMIN_COOKIE_NAME } from '@/lib/adminAuth';
 // 200. Proxy runs before any rendering starts, so its redirect is always a
 // real HTTP 307, no matter what happens further down the render tree.
 const ADMIN_PUBLIC_PATHS = new Set(['/admin/login']);
-const ACCOUNT_PUBLIC_PATHS = new Set(['/account/login', '/account/signup']);
+// Reachable with just a password-verified (aal1) session — these are the
+// MFA enrollment/verification steps themselves, so they can't require aal2.
+const ADMIN_AAL1_PATHS = new Set(['/admin/mfa-setup', '/admin/mfa-verify']);
+const ACCOUNT_PUBLIC_PATHS = new Set(['/account/login', '/account/signup', '/account/forgot-password', '/account/reset-password']);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -25,12 +27,20 @@ export async function proxy(request: NextRequest) {
     if (ADMIN_PUBLIC_PATHS.has(pathname)) {
       return NextResponse.next();
     }
-    const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
-    const valid = await isSessionTokenValid(token);
-    if (!valid) {
+
+    const { response, user, aal, mfaEnrolled } = await updateSupabaseSession(request);
+    const isAdmin = user?.app_metadata?.role === 'admin';
+    if (!isAdmin) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
-    return NextResponse.next();
+    if (ADMIN_AAL1_PATHS.has(pathname)) {
+      return response;
+    }
+    if (aal !== 'aal2') {
+      const nextStep = mfaEnrolled ? '/admin/mfa-verify' : '/admin/mfa-setup';
+      return NextResponse.redirect(new URL(nextStep, request.url));
+    }
+    return response;
   }
 
   // Every other route still needs its Supabase session cookie refreshed

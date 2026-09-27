@@ -247,12 +247,12 @@ model PageView {
   @@index([productId])
 }
 
-// Real, revocable admin sessions — replaces a prior design where the cookie
-// was a deterministic HMAC of a fixed message keyed by ADMIN_PASSWORD (same
-// value every login, no expiry, and "logout" only cleared the cookie
-// client-side — a captured token stayed valid forever). The cookie now holds
-// a random opaque id; this table is the source of truth for whether it's
-// still valid, so logout and expiry are real.
+// Admin auth moved to Supabase Auth (named accounts, app_metadata.role,
+// TOTP MFA) — this table is no longer written to or read by the app. Left
+// in place rather than dropped: the migration to drop it needs someone to
+// run it directly (a schema-only DROP TABLE was blocked by this session's
+// permission classifier as a "mass delete" risk). Safe to drop by hand
+// whenever convenient — it holds no data of value, only expired session ids.
 model AdminSession {
   id        String    @id @default(uuid())
   expiresAt DateTime

@@ -30,5 +30,19 @@ export async function updateSupabaseSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return { response, user };
+  // Only meaningful for /admin — getAuthenticatorAssuranceLevel() just reads
+  // the current session's already-verified AMR claims (no extra network
+  // call), so it's cheap to always compute alongside the user lookup above.
+  // `nextLevel` is the highest level reachable given enrolled factors: equal
+  // to `currentLevel` means no MFA factor is enrolled at all (aal2 isn't
+  // reachable this session no matter what), higher means a factor exists
+  // but this session hasn't verified it yet.
+  const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+  return {
+    response,
+    user,
+    aal: aalData?.currentLevel ?? null,
+    mfaEnrolled: aalData ? aalData.nextLevel === 'aal2' : false,
+  };
 }
