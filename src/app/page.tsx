@@ -100,10 +100,17 @@ export default async function HomePage() {
   // Sequential, not Promise.all — concurrent Prisma queries over the shared
   // pooled connection have triggered a Postgres protocol error in this
   // environment (see adminDashboard.ts).
+  // Each rail is a "latest N" preview with its own "View all" link to the
+  // full category page — previously fetched with no limit at all, which on
+  // a category with hundreds of products (Phones ran to 65+ slides) meant
+  // shipping the whole catalog's worth of cards/images in a single scroller
+  // no phone visitor was ever going to scroll through.
+  const RAIL_PREVIEW_LIMIT = 12;
+
   const productRails: ProductRailData[] = [];
   for (const rail of PRODUCT_RAILS) {
     const products = await prisma.product
-      .findMany({ where: rail.where, orderBy: { createdAt: 'desc' } })
+      .findMany({ where: rail.where, orderBy: { createdAt: 'desc' }, take: RAIL_PREVIEW_LIMIT })
       .catch((error) => {
         // A caught failure here silently renders as "no products in this
         // category" rather than an error page — logging it is the only way
@@ -118,7 +125,9 @@ export default async function HomePage() {
     }
   }
 
-  const latestTestpoints = await prisma.testPoint.findMany({ orderBy: { createdAt: 'desc' } }).catch((error) => {
+  const latestTestpoints = await prisma.testPoint
+    .findMany({ orderBy: { createdAt: 'desc' }, take: RAIL_PREVIEW_LIMIT })
+    .catch((error) => {
     console.error('Homepage: failed to load testpoints rail', error);
     return [];
   });

@@ -21,6 +21,7 @@ export default async function ShopSearchPage({ searchParams }: ShopSearchPagePro
           ],
         },
         orderBy: { createdAt: 'desc' },
+        take: 60,
       })
     : [];
 

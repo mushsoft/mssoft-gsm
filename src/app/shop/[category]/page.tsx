@@ -3,6 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
   Cpu,
   Layers,
   Package,
@@ -65,9 +67,11 @@ const CONDITION_SLUG_MAP: Record<string, string> = {
   uk_used: 'UK Used',
 };
 
+const PAGE_SIZE = 24;
+
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ sub?: string; brand?: string; condition?: string }>;
+  searchParams: Promise<{ sub?: string; brand?: string; condition?: string; page?: string }>;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
@@ -90,7 +94,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { category } = await params;
-  const { sub, brand, condition } = await searchParams;
+  const { sub, brand, condition, page } = await searchParams;
   const meta = CATEGORY_MAP[category];
 
   if (!meta) {
@@ -121,10 +125,25 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     mappedSub && CATEGORY_SUBCATEGORIES[meta.type]?.find((s) => s.value === mappedSub)?.label;
   const pageLabel = activeSubcategoryLabel ?? meta.label;
 
+  const currentPage = Math.max(1, Number(page) || 1);
+  const totalCount = await prisma.product.count({ where });
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const products = await prisma.product.findMany({
     where,
     orderBy: { createdAt: 'desc' },
+    skip: (currentPage - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
   });
+
+  const pageHref = (targetPage: number) => {
+    const qs = new URLSearchParams();
+    if (sub) qs.set('sub', sub);
+    if (brand) qs.set('brand', brand);
+    if (condition) qs.set('condition', condition);
+    if (targetPage > 1) qs.set('page', String(targetPage));
+    const query = qs.toString();
+    return `/shop/${category}${query ? `?${query}` : ''}`;
+  };
 
   const Icon = meta.icon;
 
@@ -174,7 +193,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             </div>
             <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-3xl">{pageLabel}</h1>
             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
-              {products.length} item{products.length === 1 ? '' : 's'} available &mdash; pay instantly or order via WhatsApp.
+              {totalCount} item{totalCount === 1 ? '' : 's'} available &mdash; pay instantly or order via WhatsApp.
             </p>
           </div>
         </div>
@@ -185,11 +204,41 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           No items listed under {pageLabel.toLowerCase()} yet.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {products.map((product) => (
-            <CatalogProductCard key={product.id} product={product} fallbackIcon={Icon} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <CatalogProductCard key={product.id} product={product} fallbackIcon={Icon} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <Link
+                href={pageHref(currentPage - 1)}
+                aria-disabled={currentPage <= 1}
+                className={`flex items-center gap-1 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-bold text-neutral-600 transition-colors dark:border-neutral-800 dark:text-neutral-300 ${
+                  currentPage <= 1 ? 'pointer-events-none opacity-40' : 'hover:border-amber-500/50 hover:text-amber-500'
+                }`}
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                Prev
+              </Link>
+              <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Link
+                href={pageHref(currentPage + 1)}
+                aria-disabled={currentPage >= totalPages}
+                className={`flex items-center gap-1 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-bold text-neutral-600 transition-colors dark:border-neutral-800 dark:text-neutral-300 ${
+                  currentPage >= totalPages ? 'pointer-events-none opacity-40' : 'hover:border-amber-500/50 hover:text-amber-500'
+                }`}
+              >
+                Next
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          )}
+        </>
       )}
     </main>
   );
