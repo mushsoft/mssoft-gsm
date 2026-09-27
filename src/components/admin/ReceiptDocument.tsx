@@ -2,22 +2,29 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Printer, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Check, Loader2, Plus, Printer, Save, Trash2 } from 'lucide-react';
 import ProductPicker from './ProductPicker';
 
-type OrderData = {
-  id: string;
-  txRef: string;
+export type DocType = 'INVOICE' | 'RECEIPT' | 'DELIVERY_NOTE' | 'QUOTATION';
+
+export type ReceiptInitialData = {
+  receiptId: string | null; // null = not yet saved
+  orderId: string | null; // set when this document was generated from (or is linked to) a real order
+  docType: DocType;
+  reference: string;
   customerName: string;
   customerPhone: string;
   customerEmail: string;
-  totalAmount: number;
+  deliveryAddress: string;
+  documentDate: string; // YYYY-MM-DD
+  documentTime: string; // HH:mm
+  items: { title: string; quantity: number; price: number }[];
   discountAmount: number;
   paymentStatus: string;
   paymentMethod: string;
-  paymentReference: string | null;
-  createdAt: string;
-  items: { title: string; quantity: number; price: number }[];
+  paymentReference: string;
+  notesByType: Record<DocType, string>;
 };
 
 type ShopProfileData = {
@@ -32,8 +39,6 @@ type ShopProfileData = {
   address: string | null;
   tinNumber: string | null;
 };
-
-type DocType = 'INVOICE' | 'RECEIPT' | 'DELIVERY_NOTE' | 'QUOTATION';
 
 const DOC_TYPES: { key: DocType; label: string; prefix: string; showPrices: boolean; defaultNotes: string }[] = [
   {
@@ -66,70 +71,107 @@ const DOC_TYPES: { key: DocType; label: string; prefix: string; showPrices: bool
   },
 ];
 
-function documentNumber(prefix: string, txRef: string): string {
-  const short = txRef.replace(/^PH-/, '').replace(/-/g, '').slice(0, 8).toUpperCase();
+function documentNumber(prefix: string, reference: string): string {
+  const short = reference.replace(/^PH-/, '').replace(/-/g, '').slice(0, 8).toUpperCase();
   return `${prefix}-${short}`;
 }
 
-export default function ReceiptDocument({ order, shopProfile }: { order: OrderData | null; shopProfile: ShopProfileData }) {
-  const isStandalone = order === null;
-  const [docType, setDocType] = useState<DocType>('INVOICE');
+export default function ReceiptDocument({ initial, shopProfile }: { initial: ReceiptInitialData; shopProfile: ShopProfileData }) {
+  const router = useRouter();
+  const [receiptId, setReceiptId] = useState(initial.receiptId);
+  const [docType, setDocType] = useState<DocType>(initial.docType);
   const config = DOC_TYPES.find((d) => d.key === docType)!;
 
-  // A walk-in / ad-hoc receipt has no real order to number itself after —
-  // generate a stable stand-in reference once, on mount.
-  const [txRef] = useState(() => order?.txRef ?? `WALKIN-${Date.now().toString(36).toUpperCase()}`);
+  const [customerName, setCustomerName] = useState(initial.customerName);
+  const [customerPhone, setCustomerPhone] = useState(initial.customerPhone);
+  const [customerEmail, setCustomerEmail] = useState(initial.customerEmail);
+  const [deliveryAddress, setDeliveryAddress] = useState(initial.deliveryAddress);
+  const [documentDate, setDocumentDate] = useState(initial.documentDate);
+  const [documentTime, setDocumentTime] = useState(initial.documentTime);
+  const [items, setItems] = useState(() => initial.items.map((item) => ({ ...item })));
+  const [discountAmount, setDiscountAmount] = useState(initial.discountAmount);
+  const [paymentStatus, setPaymentStatus] = useState(initial.paymentStatus);
+  const [paymentMethod, setPaymentMethod] = useState(initial.paymentMethod);
+  const [paymentReference, setPaymentReference] = useState(initial.paymentReference);
+  const [notesByType, setNotesByType] = useState<Record<DocType, string>>(initial.notesByType);
 
-  const [customerName, setCustomerName] = useState(order?.customerName ?? '');
-  const [customerPhone, setCustomerPhone] = useState(order?.customerPhone ?? '');
-  const [customerEmail, setCustomerEmail] = useState(order?.customerEmail ?? '');
-  const [deliveryAddress, setDeliveryAddress] = useState('');
-  // Defaults to the real current date/time the document is generated —
-  // editable in case an admin is printing this for an earlier sale.
-  const [documentDate, setDocumentDate] = useState(() => new Date(order?.createdAt ?? Date.now()).toISOString().slice(0, 10));
-  const [documentTime, setDocumentTime] = useState(() => {
-    const d = new Date(order?.createdAt ?? Date.now());
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  });
-  // Editable on the document itself — lets an admin fix a typo, add a line
-  // (e.g. a delivery fee) or drop one, without that changing the real order
-  // (or, for a walk-in sale with no order at all, build the item list from
-  // scratch via the product picker / "Add Item").
-  const [items, setItems] = useState(() => order?.items.map((item) => ({ ...item })) ?? []);
-  const [discountAmount, setDiscountAmount] = useState(order?.discountAmount ?? 0);
-  // Only used when there's no real order behind the document — an actual
-  // order's payment status/method/reference come from the order itself and
-  // stay read-only (see the payment stamp below).
-  const [manualPaymentStatus, setManualPaymentStatus] = useState<'SUCCESSFUL' | 'PENDING'>('PENDING');
-  const [manualPaymentMethod, setManualPaymentMethod] = useState('Cash');
-  // Per-type so switching tabs doesn't lose edits made on another tab.
-  const [notesByType, setNotesByType] = useState<Record<DocType, string>>(() =>
-    Object.fromEntries(DOC_TYPES.map((d) => [d.key, d.defaultNotes])) as Record<DocType, string>
-  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
 
   function updateItem(index: number, patch: Partial<{ title: string; quantity: number; price: number }>) {
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
+    setJustSaved(false);
   }
   function removeItem(index: number) {
     setItems((prev) => prev.filter((_, i) => i !== index));
+    setJustSaved(false);
   }
   function addItem() {
     setItems((prev) => [...prev, { title: '', quantity: 1, price: 0 }]);
+    setJustSaved(false);
   }
   function addProduct(product: { title: string; price: number }) {
     setItems((prev) => [...prev, { title: product.title, quantity: 1, price: product.price }]);
+    setJustSaved(false);
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const grandTotal = Math.max(0, subtotal - discountAmount);
-  const paymentStatus = order?.paymentStatus ?? manualPaymentStatus;
-  const paymentMethod = order?.paymentMethod ?? manualPaymentMethod;
-  const paymentReference = order?.paymentReference ?? null;
   const socials = [
     shopProfile.tiktok && `TikTok: ${shopProfile.tiktok}`,
     shopProfile.instagram && `Instagram: ${shopProfile.instagram}`,
     shopProfile.facebook && `Facebook: ${shopProfile.facebook}`,
   ].filter(Boolean);
+
+  async function handleSave() {
+    setIsSaving(true);
+    setSaveError(null);
+
+    const payload = {
+      docType,
+      reference: initial.reference,
+      orderId: initial.orderId,
+      documentDate: new Date(`${documentDate}T${documentTime || '00:00'}`).toISOString(),
+      customerName,
+      customerPhone,
+      customerEmail,
+      deliveryAddress: deliveryAddress || null,
+      items,
+      discountAmount,
+      paymentStatus,
+      paymentMethod,
+      paymentReference: paymentReference || null,
+      notes: notesByType,
+    };
+
+    try {
+      const url = receiptId ? `/api/admin/receipts/${receiptId}` : '/api/admin/receipts';
+      const method = receiptId ? 'PATCH' : 'POST';
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setSaveError(data.error || 'Something went wrong. Please try again.');
+        setIsSaving(false);
+        return;
+      }
+
+      if (!receiptId) {
+        setReceiptId(data.receipt.id);
+        router.replace(`/admin/receipts/${data.receipt.id}`);
+      }
+      setJustSaved(true);
+      setIsSaving(false);
+    } catch {
+      setSaveError('Network error. Please try again.');
+      setIsSaving(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-8">
@@ -149,21 +191,44 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
 
       <div className="no-print flex items-center justify-between gap-3">
         <Link
-          href={order ? `/admin/orders/${order.id}` : '/admin/orders'}
+          href={initial.orderId ? `/admin/orders/${initial.orderId}` : '/admin/receipts'}
           className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"
         >
           <ArrowLeft className="h-4 w-4" />
-          {order ? 'Back to Order' : 'Back to Orders'}
+          {initial.orderId ? 'Back to Order' : 'Back to Receipts'}
         </Link>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-black transition-colors hover:bg-amber-400"
-        >
-          <Printer className="h-3.5 w-3.5" />
-          Print / Save as PDF
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 dark:border-neutral-800 px-4 py-2 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/40 hover:text-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSaving ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : justSaved ? (
+              <Check className="h-3.5 w-3.5 text-emerald-500" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
+            {receiptId ? 'Save Changes' : 'Save'}
+          </button>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-black transition-colors hover:bg-amber-400"
+          >
+            <Printer className="h-3.5 w-3.5" />
+            Print / Save as PDF
+          </button>
+        </div>
       </div>
+
+      {saveError && (
+        <div className="no-print rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-600 dark:text-red-300">
+          {saveError}
+        </div>
+      )}
 
       <div className="no-print flex flex-wrap gap-2">
         {DOC_TYPES.map((d) => (
@@ -202,23 +267,29 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
           <div className="text-right">
             <div className="text-lg font-black uppercase tracking-wide">{config.label}</div>
             <div className="mt-1 text-xs text-neutral-700">
-              <div>No. {documentNumber(config.prefix, txRef)}</div>
+              <div>No. {documentNumber(config.prefix, initial.reference)}</div>
               <div className="mt-1 flex items-center justify-end gap-1.5">
                 <span>Date:</span>
                 <input
                   type="date"
                   value={documentDate}
-                  onChange={(e) => setDocumentDate(e.target.value)}
+                  onChange={(e) => {
+                    setDocumentDate(e.target.value);
+                    setJustSaved(false);
+                  }}
                   className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-xs"
                 />
                 <input
                   type="time"
                   value={documentTime}
-                  onChange={(e) => setDocumentTime(e.target.value)}
+                  onChange={(e) => {
+                    setDocumentTime(e.target.value);
+                    setJustSaved(false);
+                  }}
                   className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-xs"
                 />
               </div>
-              <div className="mt-1 font-mono">Ref: {txRef}</div>
+              <div className="mt-1 font-mono">Ref: {initial.reference}</div>
             </div>
           </div>
         </div>
@@ -230,19 +301,28 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
             </div>
             <input
               value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
+              onChange={(e) => {
+                setCustomerName(e.target.value);
+                setJustSaved(false);
+              }}
               className="receipt-field w-full rounded border border-neutral-300 px-2 py-1 text-sm font-bold"
               placeholder="Customer name"
             />
             <input
               value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
+              onChange={(e) => {
+                setCustomerPhone(e.target.value);
+                setJustSaved(false);
+              }}
               className="receipt-field mt-1 w-full rounded border border-neutral-300 px-2 py-1 text-xs"
               placeholder="Phone"
             />
             <input
               value={customerEmail}
-              onChange={(e) => setCustomerEmail(e.target.value)}
+              onChange={(e) => {
+                setCustomerEmail(e.target.value);
+                setJustSaved(false);
+              }}
               className="receipt-field mt-1 w-full rounded border border-neutral-300 px-2 py-1 text-xs"
               placeholder="Email"
             />
@@ -254,7 +334,10 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
               </div>
               <textarea
                 value={deliveryAddress}
-                onChange={(e) => setDeliveryAddress(e.target.value)}
+                onChange={(e) => {
+                  setDeliveryAddress(e.target.value);
+                  setJustSaved(false);
+                }}
                 rows={3}
                 className="receipt-field w-full resize-none rounded border border-neutral-300 px-2 py-1 text-xs"
                 placeholder="Enter the delivery address..."
@@ -355,7 +438,10 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
                   min="0"
                   step="1"
                   value={discountAmount}
-                  onChange={(e) => setDiscountAmount(Number(e.target.value))}
+                  onChange={(e) => {
+                    setDiscountAmount(Number(e.target.value));
+                    setJustSaved(false);
+                  }}
                   className="receipt-field w-24 rounded border border-neutral-300 px-1.5 py-0.5 text-right"
                 />
               </div>
@@ -369,45 +455,44 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
 
         {(docType === 'INVOICE' || docType === 'RECEIPT') && (
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-            {isStandalone ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setManualPaymentStatus((s) => (s === 'SUCCESSFUL' ? 'PENDING' : 'SUCCESSFUL'))}
-                  className={`no-print rounded-md px-2 py-0.5 font-black uppercase tracking-wide ${
-                    paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                  }`}
-                >
-                  {paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'} (click to toggle)
-                </button>
-                <span
-                  className={`hidden rounded-md px-2 py-0.5 font-black uppercase tracking-wide print:inline ${
-                    paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                  }`}
-                >
-                  {paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'}
-                </span>
-                <span className="text-neutral-600">via</span>
-                <input
-                  value={manualPaymentMethod}
-                  onChange={(e) => setManualPaymentMethod(e.target.value)}
-                  className="receipt-field w-28 rounded border border-neutral-300 px-1.5 py-0.5"
-                  placeholder="Cash, Mobile Money..."
-                />
-              </>
-            ) : (
-              <>
-                <span
-                  className={`rounded-md px-2 py-0.5 font-black uppercase tracking-wide ${
-                    paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                  }`}
-                >
-                  {paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'}
-                </span>
-                <span className="text-neutral-600">via {paymentMethod.replace('_', ' ')}</span>
-                {paymentReference && <span className="font-mono text-neutral-500">({paymentReference})</span>}
-              </>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentStatus((s) => (s === 'SUCCESSFUL' ? 'PENDING' : 'SUCCESSFUL'));
+                setJustSaved(false);
+              }}
+              className={`no-print rounded-md px-2 py-0.5 font-black uppercase tracking-wide ${
+                paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+              }`}
+            >
+              {paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'} (click to toggle)
+            </button>
+            <span
+              className={`hidden rounded-md px-2 py-0.5 font-black uppercase tracking-wide print:inline ${
+                paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+              }`}
+            >
+              {paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'}
+            </span>
+            <span className="text-neutral-600">via</span>
+            <input
+              value={paymentMethod}
+              onChange={(e) => {
+                setPaymentMethod(e.target.value);
+                setJustSaved(false);
+              }}
+              className="receipt-field w-28 rounded border border-neutral-300 px-1.5 py-0.5"
+              placeholder="Cash, Mobile Money..."
+            />
+            <input
+              value={paymentReference}
+              onChange={(e) => {
+                setPaymentReference(e.target.value);
+                setJustSaved(false);
+              }}
+              className="receipt-field w-32 rounded border border-neutral-300 px-1.5 py-0.5 font-mono text-[11px]"
+              placeholder="Ref (optional)"
+            />
           </div>
         )}
 
@@ -427,7 +512,10 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
         <div className="mt-6 border-t border-neutral-200 pt-3">
           <textarea
             value={notesByType[docType]}
-            onChange={(e) => setNotesByType((prev) => ({ ...prev, [docType]: e.target.value }))}
+            onChange={(e) => {
+              setNotesByType((prev) => ({ ...prev, [docType]: e.target.value }));
+              setJustSaved(false);
+            }}
             rows={2}
             className="receipt-field w-full resize-none rounded border border-neutral-300 px-2 py-1 text-[11px] text-neutral-600"
             placeholder="Notes / terms (optional)"
@@ -437,3 +525,5 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
     </div>
   );
 }
+
+export { DOC_TYPES };

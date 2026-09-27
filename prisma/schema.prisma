@@ -280,3 +280,33 @@ model ShopProfile {
   tinNumber    String? // Uganda Tax Identification Number — optional, shown on invoices if set
   updatedAt    DateTime @updatedAt
 }
+
+// A saved snapshot of a generated document (invoice/sales receipt/delivery
+// note/quotation) — created when an admin hits "Save" on /admin/receipts/new,
+// /admin/receipts/[id], or /admin/orders/[id]/receipt. Deliberately a
+// point-in-time copy, not a live view: editing it later never touches the
+// linked Order (if any), and a change to that Order never touches this row.
+// No formal Prisma relation to Order — orderId is just a soft reference so a
+// receipt can outlive a deleted order without a cascade/constraint to manage.
+model Receipt {
+  id               String   @id @default(uuid())
+  docType          String // INVOICE | RECEIPT | DELIVERY_NOTE | QUOTATION — the tab selected at last save
+  reference        String // frozen at first save (the order's txRef, or a generated walk-in ref) — the document number is derived from this and must not change on later edits
+  orderId          String? // set when generated from a real order; null for a walk-in/ad-hoc receipt
+  documentDate     DateTime
+  customerName     String
+  customerPhone    String
+  customerEmail    String
+  deliveryAddress  String?
+  items            Json // [{ title, quantity, price }]
+  discountAmount   Int      @default(0)
+  paymentStatus    String // PENDING | SUCCESSFUL — a snapshot, independent of the linked order's current status
+  paymentMethod    String
+  paymentReference String?
+  notes            Json? // { [docType]: string } — per-type notes, so switching tabs keeps each type's text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([createdAt])
+}
