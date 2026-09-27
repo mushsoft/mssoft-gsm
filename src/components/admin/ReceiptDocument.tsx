@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Plus, Printer, Trash2 } from 'lucide-react';
+import ProductPicker from './ProductPicker';
 
 type OrderData = {
   id: string;
@@ -70,19 +71,31 @@ function documentNumber(prefix: string, txRef: string): string {
   return `${prefix}-${short}`;
 }
 
-export default function ReceiptDocument({ order, shopProfile }: { order: OrderData; shopProfile: ShopProfileData }) {
+export default function ReceiptDocument({ order, shopProfile }: { order: OrderData | null; shopProfile: ShopProfileData }) {
+  const isStandalone = order === null;
   const [docType, setDocType] = useState<DocType>('INVOICE');
   const config = DOC_TYPES.find((d) => d.key === docType)!;
 
-  const [customerName, setCustomerName] = useState(order.customerName);
-  const [customerPhone, setCustomerPhone] = useState(order.customerPhone);
-  const [customerEmail, setCustomerEmail] = useState(order.customerEmail);
+  // A walk-in / ad-hoc receipt has no real order to number itself after —
+  // generate a stable stand-in reference once, on mount.
+  const [txRef] = useState(() => order?.txRef ?? `WALKIN-${Date.now().toString(36).toUpperCase()}`);
+
+  const [customerName, setCustomerName] = useState(order?.customerName ?? '');
+  const [customerPhone, setCustomerPhone] = useState(order?.customerPhone ?? '');
+  const [customerEmail, setCustomerEmail] = useState(order?.customerEmail ?? '');
   const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [documentDate, setDocumentDate] = useState(() => new Date(order.createdAt).toISOString().slice(0, 10));
+  const [documentDate, setDocumentDate] = useState(() => new Date(order?.createdAt ?? Date.now()).toISOString().slice(0, 10));
   // Editable on the document itself — lets an admin fix a typo, add a line
-  // (e.g. a delivery fee) or drop one, without that changing the real order.
-  const [items, setItems] = useState(() => order.items.map((item) => ({ ...item })));
-  const [discountAmount, setDiscountAmount] = useState(order.discountAmount);
+  // (e.g. a delivery fee) or drop one, without that changing the real order
+  // (or, for a walk-in sale with no order at all, build the item list from
+  // scratch via the product picker / "Add Item").
+  const [items, setItems] = useState(() => order?.items.map((item) => ({ ...item })) ?? []);
+  const [discountAmount, setDiscountAmount] = useState(order?.discountAmount ?? 0);
+  // Only used when there's no real order behind the document — an actual
+  // order's payment status/method/reference come from the order itself and
+  // stay read-only (see the payment stamp below).
+  const [manualPaymentStatus, setManualPaymentStatus] = useState<'SUCCESSFUL' | 'PENDING'>('PENDING');
+  const [manualPaymentMethod, setManualPaymentMethod] = useState('Cash');
   // Per-type so switching tabs doesn't lose edits made on another tab.
   const [notesByType, setNotesByType] = useState<Record<DocType, string>>(() =>
     Object.fromEntries(DOC_TYPES.map((d) => [d.key, d.defaultNotes])) as Record<DocType, string>
@@ -97,9 +110,15 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
   function addItem() {
     setItems((prev) => [...prev, { title: '', quantity: 1, price: 0 }]);
   }
+  function addProduct(product: { title: string; price: number }) {
+    setItems((prev) => [...prev, { title: product.title, quantity: 1, price: product.price }]);
+  }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const grandTotal = Math.max(0, subtotal - discountAmount);
+  const paymentStatus = order?.paymentStatus ?? manualPaymentStatus;
+  const paymentMethod = order?.paymentMethod ?? manualPaymentMethod;
+  const paymentReference = order?.paymentReference ?? null;
   const socials = [
     shopProfile.tiktok && `TikTok: ${shopProfile.tiktok}`,
     shopProfile.instagram && `Instagram: ${shopProfile.instagram}`,
@@ -124,11 +143,11 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
 
       <div className="no-print flex items-center justify-between gap-3">
         <Link
-          href={`/admin/orders/${order.id}`}
+          href={order ? `/admin/orders/${order.id}` : '/admin/orders'}
           className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Order
+          {order ? 'Back to Order' : 'Back to Orders'}
         </Link>
         <button
           type="button"
@@ -177,7 +196,7 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
           <div className="text-right">
             <div className="text-lg font-black uppercase tracking-wide">{config.label}</div>
             <div className="mt-1 text-xs text-neutral-700">
-              <div>No. {documentNumber(config.prefix, order.txRef)}</div>
+              <div>No. {documentNumber(config.prefix, txRef)}</div>
               <div className="mt-1 flex items-center justify-end gap-1.5">
                 <span>Date:</span>
                 <input
@@ -187,7 +206,7 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
                   className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-xs"
                 />
               </div>
-              <div className="mt-1 font-mono">Order Ref: {order.txRef}</div>
+              <div className="mt-1 font-mono">Ref: {txRef}</div>
             </div>
           </div>
         </div>
@@ -232,7 +251,11 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
           )}
         </div>
 
-        <table className="mt-6 w-full text-left text-xs">
+        <div className="no-print mt-6">
+          <ProductPicker onSelect={addProduct} />
+        </div>
+
+        <table className="mt-3 w-full text-left text-xs">
           <thead>
             <tr className="border-b-2 border-black">
               <th className="py-1.5 font-bold uppercase">Item</th>
@@ -333,18 +356,46 @@ export default function ReceiptDocument({ order, shopProfile }: { order: OrderDa
         )}
 
         {(docType === 'INVOICE' || docType === 'RECEIPT') && (
-          <div className="mt-4 flex items-center gap-2 text-xs">
-            <span
-              className={`rounded-md px-2 py-0.5 font-black uppercase tracking-wide ${
-                order.paymentStatus === 'SUCCESSFUL'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-amber-100 text-amber-700'
-              }`}
-            >
-              {order.paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'}
-            </span>
-            <span className="text-neutral-600">via {order.paymentMethod.replace('_', ' ')}</span>
-            {order.paymentReference && <span className="font-mono text-neutral-500">({order.paymentReference})</span>}
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+            {isStandalone ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setManualPaymentStatus((s) => (s === 'SUCCESSFUL' ? 'PENDING' : 'SUCCESSFUL'))}
+                  className={`no-print rounded-md px-2 py-0.5 font-black uppercase tracking-wide ${
+                    paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}
+                >
+                  {paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'} (click to toggle)
+                </button>
+                <span
+                  className={`hidden rounded-md px-2 py-0.5 font-black uppercase tracking-wide print:inline ${
+                    paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}
+                >
+                  {paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'}
+                </span>
+                <span className="text-neutral-600">via</span>
+                <input
+                  value={manualPaymentMethod}
+                  onChange={(e) => setManualPaymentMethod(e.target.value)}
+                  className="receipt-field w-28 rounded border border-neutral-300 px-1.5 py-0.5"
+                  placeholder="Cash, Mobile Money..."
+                />
+              </>
+            ) : (
+              <>
+                <span
+                  className={`rounded-md px-2 py-0.5 font-black uppercase tracking-wide ${
+                    paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}
+                >
+                  {paymentStatus === 'SUCCESSFUL' ? 'Paid' : 'Payment Pending'}
+                </span>
+                <span className="text-neutral-600">via {paymentMethod.replace('_', ' ')}</span>
+                {paymentReference && <span className="font-mono text-neutral-500">({paymentReference})</span>}
+              </>
+            )}
           </div>
         )}
 

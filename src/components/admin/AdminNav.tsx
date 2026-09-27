@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, CircuitBoard, ClipboardList, GraduationCap, LayoutDashboard, Package, Percent, Settings, Users, Wrench } from 'lucide-react';
+import { Activity, CircuitBoard, ClipboardList, FileText, GraduationCap, LayoutDashboard, Package, Percent, Settings, Users, Wrench } from 'lucide-react';
 
 const TABS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
+  { href: '/admin/receipts', label: 'Receipts', icon: FileText },
   { href: '/admin/customers', label: 'Customers', icon: Users },
   { href: '/admin/coupons', label: 'Coupons', icon: Percent },
   { href: '/admin/repair-guides', label: 'Repair Guides', icon: GraduationCap },
