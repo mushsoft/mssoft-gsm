@@ -6,10 +6,9 @@ import { Loader2, KeyRound } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 // Landing page for both the customer "forgot password" email link and the
-// admin initial-password-set link — Supabase's browser client auto-detects
-// the recovery token in the URL and turns it into a real (but password-
-// recovery-only) session before this component even mounts, firing a
-// PASSWORD_RECOVERY auth event once that's done.
+// admin initial-password-set link. Manually parses the recovery token out
+// of the URL hash and calls setSession() directly — see the comment in the
+// effect below for why this app's browser client doesn't auto-detect it.
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
@@ -20,17 +19,53 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setReady(true);
-    });
-    // If the link was already consumed on a prior render (e.g. fast refresh),
-    // a session may already exist without the event firing again.
+    const expiredMessage = 'This link has expired or was already used. Request a new one.';
+
+    // Two link formats can land here depending on how it was issued:
+    // - PKCE ("?code=...", what this app's own resetPasswordForEmail()
+    //   produces, matching account/login's ?code= confirm-signup handling)
+    // - implicit ("#access_token=...&refresh_token=...", what Supabase's
+    //   admin generateLink() still returns, used for the initial admin
+    //   password-set link)
+    // This app's browser client doesn't auto-detect either from the URL on
+    // its own, so both are handled explicitly rather than relying on
+    // detectSessionInUrl.
+    const code = new URLSearchParams(window.location.search).get('code');
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error: sessionError }) => {
+        if (data.session && !sessionError) {
+          window.history.replaceState({}, '', window.location.pathname);
+          setReady(true);
+        } else {
+          setError(expiredMessage);
+        }
+      });
+      return;
+    }
+
+    if (accessToken && refreshToken) {
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ data, error: sessionError }) => {
+        if (data.session && !sessionError) {
+          window.history.replaceState({}, '', window.location.pathname);
+          setReady(true);
+        } else {
+          setError(expiredMessage);
+        }
+      });
+      return;
+    }
+
+    // Fallback: a session may already exist (e.g. fast refresh re-running
+    // this effect after setSession()/exchangeCodeForSession() already
+    // succeeded once, so neither token is in the URL anymore).
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) setReady(true);
+      else setError(expiredMessage);
     });
-    return () => subscription.unsubscribe();
   }, []);
 
   async function handleSubmit(e: FormEvent) {
@@ -70,7 +105,11 @@ export default function ResetPasswordPage() {
           <h1 className="mt-3 text-base font-black text-neutral-900 dark:text-white">Set a new password</h1>
         </div>
 
-        {!ready ? (
+        {!ready && error ? (
+          <div className="rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-600 dark:text-red-300">
+            {error}
+          </div>
+        ) : !ready ? (
           <div className="flex justify-center py-6">
             <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
           </div>
