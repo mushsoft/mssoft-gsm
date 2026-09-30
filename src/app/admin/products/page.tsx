@@ -14,6 +14,7 @@ const PRODUCT_TABS: { key: string; label: string; where: Prisma.ProductWhereInpu
   { key: 'screens', label: 'Screens', where: { category: 'SPARE_PART', subcategory: 'SCREEN' } },
   { key: 'accessories', label: 'Accessories', where: { category: 'ACCESSORY' } },
   { key: 'kids-tabs', label: 'Kids Tabs', where: { category: 'KIDS_TAB' } },
+  { key: 'laptops', label: 'Laptops', where: { category: 'LAPTOP' } },
   {
     key: 'spares-tools',
     label: 'Spares & Tools',

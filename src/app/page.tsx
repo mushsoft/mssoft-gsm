@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Layers, MessageCircle, Package, Smartphone, Stethoscope, Wrench, type LucideIcon } from 'lucide-react';
+import { Laptop, Layers, MessageCircle, Package, Smartphone, Stethoscope, Wrench, type LucideIcon } from 'lucide-react';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
@@ -29,6 +29,7 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
   ACCESSORY: Package,
   SPARE_PART: Layers,
   REPAIR_TOOL: Wrench,
+  LAPTOP: Laptop,
 };
 
 const BRAND_TICKER = [
@@ -72,6 +73,7 @@ const PRODUCT_RAILS: { key: string; label: string; eyebrow: string; href: string
     where: { category: 'SPARE_PART', NOT: { subcategory: 'SCREEN' } },
   },
   { key: 'kids-tabs', label: 'Kids Tabs', eyebrow: 'For the Kids', href: '/shop/kids-tabs', where: { category: 'KIDS_TAB' } },
+  { key: 'laptops', label: 'Laptops', eyebrow: 'For the Office', href: '/shop/laptops', where: { category: 'LAPTOP' } },
 ];
 
 interface ProductRailData {

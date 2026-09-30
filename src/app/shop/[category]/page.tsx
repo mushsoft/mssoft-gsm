@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Cpu,
+  Laptop,
   Layers,
   Package,
   Smartphone,
@@ -41,6 +42,7 @@ const CATEGORY_MAP: Record<
   spares: { type: 'SPARE_PART', excludeSubcategories: ['SCREEN'], label: 'Spare Parts', icon: Layers },
   tools: { type: 'REPAIR_TOOL', label: 'Repair Tools', icon: Wrench },
   'kids-tabs': { type: 'KIDS_TAB', label: 'Kids Tabs', icon: Cpu },
+  laptops: { type: 'LAPTOP', label: 'Laptops', icon: Laptop },
 };
 
 // Matches the ?sub= slugs already emitted by Header.tsx's nav dropdowns.

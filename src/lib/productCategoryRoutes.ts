@@ -1,4 +1,4 @@
-import { Smartphone, Layers, Headphones, Wrench, Cpu, type LucideIcon } from 'lucide-react';
+import { Smartphone, Layers, Headphones, Wrench, Cpu, Laptop, type LucideIcon } from 'lucide-react';
 import type { ProductCategory } from './productSpecFields';
 
 export interface CategoryRouteDef {
@@ -35,6 +35,7 @@ export const PRODUCT_CATEGORY_ROUTES: CategoryRouteDef[] = [
     icon: Wrench,
   },
   { slug: 'kids-tab', category: 'KIDS_TAB', label: 'Kids Tab', description: 'Educational tablets for children.', icon: Cpu },
+  { slug: 'laptop', category: 'LAPTOP', label: 'Laptop', description: 'UK used and refurbished laptops.', icon: Laptop },
 ];
 
 export function getCategoryRoute(slug: string): CategoryRouteDef | undefined {

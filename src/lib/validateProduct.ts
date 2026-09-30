@@ -1,6 +1,6 @@
 import { CATEGORY_SUBCATEGORIES } from './productSpecFields';
 
-const CATEGORIES = ['PHONE', 'ACCESSORY', 'SPARE_PART', 'REPAIR_TOOL', 'KIDS_TAB'] as const;
+const CATEGORIES = ['PHONE', 'ACCESSORY', 'SPARE_PART', 'REPAIR_TOOL', 'KIDS_TAB', 'LAPTOP'] as const;
 
 export class ProductValidationError extends Error {}
 

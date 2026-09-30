@@ -13,6 +13,7 @@ const CATEGORIES = [
   { value: 'SPARE_PART', label: 'Spare Part' },
   { value: 'REPAIR_TOOL', label: 'Repair Tool' },
   { value: 'KIDS_TAB', label: 'Kids Tab' },
+  { value: 'LAPTOP', label: 'Laptop' },
 ] as const;
 
 const OTHER_BRAND = 'Other';
@@ -46,6 +47,11 @@ const CATEGORY_PLACEHOLDERS: Record<
     title: 'Kids Educational Tablet 7" (32GB)',
     slug: 'kids-tablet-7-32gb',
     description: 'Durable kids tablet with parental controls and pre-loaded learning apps.',
+  },
+  LAPTOP: {
+    title: 'HP EliteBook 840 G5 (Intel i5, 8GB/256GB) - UK Used',
+    slug: 'hp-elitebook-840-g5-i5-8gb-256gb',
+    description: 'UK used business laptop, clean and fully tested, battery and keyboard in good condition.',
   },
 };
 

@@ -12,6 +12,7 @@ enum CategoryType {
   SPARE_PART
   REPAIR_TOOL
   KIDS_TAB
+  LAPTOP
 }
 
 enum PaymentStatus {

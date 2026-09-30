@@ -21,6 +21,7 @@ import {
   GraduationCap,
   Stethoscope,
   UserCircle,
+  Laptop,
   type LucideIcon
 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -108,6 +109,14 @@ const CATEGORIES: CategoryMenu[] = [
     mainHref: '/shop/kids-tabs',
     subcategories: [
       { title: 'Educational Tabs', href: '/shop/kids-tabs?sub=android' },
+    ]
+  },
+  {
+    title: 'LAPTOPS',
+    icon: Laptop,
+    mainHref: '/shop/laptops',
+    subcategories: [
+      { title: 'UK Used Laptops', href: '/shop/laptops?condition=uk_used' },
     ]
   }
 ];

@@ -1,4 +1,4 @@
-import { Cpu, Layers, Package, Smartphone, Wrench, type LucideIcon } from 'lucide-react';
+import { Cpu, Laptop, Layers, Package, Smartphone, Wrench, type LucideIcon } from 'lucide-react';
 
 export const CATEGORY_ICON: Record<string, LucideIcon> = {
   PHONE: Smartphone,
@@ -6,4 +6,5 @@ export const CATEGORY_ICON: Record<string, LucideIcon> = {
   SPARE_PART: Layers,
   REPAIR_TOOL: Wrench,
   KIDS_TAB: Cpu,
+  LAPTOP: Laptop,
 };

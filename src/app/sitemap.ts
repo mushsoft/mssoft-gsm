@@ -20,6 +20,7 @@ const routes = [
   'shop/tools',
   'shop/testpoints',
   'shop/kids-tabs',
+  'shop/laptops',
 ];
 
 // Product pages are the actual catalog — without them here, Google has to

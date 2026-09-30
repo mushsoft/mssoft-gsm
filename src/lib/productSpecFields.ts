@@ -18,14 +18,14 @@ export interface SpecFieldDef {
   placeholder?: string;
 }
 
-export type ProductCategory = 'PHONE' | 'ACCESSORY' | 'SPARE_PART' | 'REPAIR_TOOL' | 'KIDS_TAB';
+export type ProductCategory = 'PHONE' | 'ACCESSORY' | 'SPARE_PART' | 'REPAIR_TOOL' | 'KIDS_TAB' | 'LAPTOP';
 
 export interface SubcategoryDef {
   value: string;
   label: string;
 }
 
-/** Which categories offer a subcategory picker, and its options. PHONE and KIDS_TAB have none. */
+/** Which categories offer a subcategory picker, and its options. PHONE, KIDS_TAB, and LAPTOP have none. */
 export const CATEGORY_SUBCATEGORIES: Partial<Record<ProductCategory, SubcategoryDef[]>> = {
   SPARE_PART: [
     { value: 'SCREEN', label: 'Screens' },
@@ -98,7 +98,7 @@ const storageField = (): SpecFieldDef => ({ key: 'storage', label: 'Storage', ty
 const screenSizeField = (): SpecFieldDef => ({ key: 'screenSize', label: 'Screen Size', type: 'text', placeholder: '6.78"' });
 const resolutionField = (): SpecFieldDef => ({ key: 'resolution', label: 'Screen Resolution', type: 'text', placeholder: '1080 x 2340 px' });
 
-/** Category-level fallback fields — used when no subcategory is picked yet, and always for PHONE/KIDS_TAB/REPAIR_TOOL. */
+/** Category-level fallback fields — used when no subcategory is picked yet, and always for PHONE/KIDS_TAB/REPAIR_TOOL/LAPTOP. */
 export const CATEGORY_SPEC_FIELDS: Record<ProductCategory, SpecFieldDef[]> = {
   PHONE: [
     { key: 'condition', label: 'Condition', type: 'select', options: ['Brand New', 'UK Used', 'Open Box'] },
@@ -129,6 +129,15 @@ export const CATEGORY_SPEC_FIELDS: Record<ProductCategory, SpecFieldDef[]> = {
     ramField(),
     { key: 'battery', label: 'Battery', type: 'text', placeholder: '3000 mAh' },
     { key: 'ageRange', label: 'Recommended Age', type: 'text', placeholder: '3-8 years' },
+  ],
+  LAPTOP: [
+    { key: 'condition', label: 'Condition', type: 'select', options: ['Brand New', 'UK Used', 'Refurbished'] },
+    { key: 'processor', label: 'Processor', type: 'text', placeholder: 'Intel Core i5-8350U' },
+    ramField(),
+    storageField(),
+    screenSizeField(),
+    { key: 'battery', label: 'Battery Health', type: 'text', placeholder: '85%' },
+    { key: 'os', label: 'Operating System', type: 'text', placeholder: 'Windows 11' },
   ],
 };
 
