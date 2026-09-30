@@ -47,3 +47,7 @@ next-env.d.ts
 
 # Bulk product-upload working data (images, manifests, run logs)
 upload-queue/
+
+# Live admin session cookie, hand-created locally for one-off scripted
+# catalog work — never commit, never write via a tool call.
+scripts/session.env.txt
