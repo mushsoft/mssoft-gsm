@@ -17,6 +17,7 @@ export interface ProductInput {
   isHotDeal: boolean;
   stock: number;
   specs?: object;
+  images?: string[];
 }
 
 export function parseProductInput(body: unknown): ProductInput {
@@ -44,6 +45,13 @@ export function parseProductInput(body: unknown): ProductInput {
         : Number(originalPriceRaw);
   const specs =
     typeof b.specs === 'object' && b.specs !== null && !Array.isArray(b.specs) ? b.specs : undefined;
+  const images =
+    Array.isArray(b.images) && b.images.every((url) => typeof url === 'string' && url.trim())
+      ? (b.images as string[])
+      : undefined;
+  if ('images' in b && images === undefined) {
+    throw new ProductValidationError('images must be an array of non-empty strings');
+  }
 
   if (!title) throw new ProductValidationError('Title is required');
   if (!slug || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
@@ -89,5 +97,6 @@ export function parseProductInput(body: unknown): ProductInput {
     isHotDeal,
     stock,
     specs,
+    images,
   };
 }
