@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { parseProductInput, ProductValidationError } from '@/lib/validateProduct';
+import { revalidateStorefront } from '@/lib/revalidateStorefront';
 
 function isUniqueConstraintError(error: unknown): boolean {
   return error instanceof Error && 'code' in error && (error as { code: string }).code === 'P2002';
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
 
   try {
     const product = await prisma.product.create({ data: { ...input, images: [] } });
+    revalidateStorefront();
     return NextResponse.json({ success: true, product });
   } catch (error) {
     if (isUniqueConstraintError(error)) {

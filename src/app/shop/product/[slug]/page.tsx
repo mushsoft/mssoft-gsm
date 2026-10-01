@@ -85,16 +85,21 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       ? (product.specs as Record<string, unknown>)
       : {};
   const specEntries = Object.entries(rawSpecs).filter(([, v]) => v !== null && v !== undefined && v !== '');
-  const relatedProducts = await getRelatedProducts(product);
 
-  const customer = await getOrCreateCustomer();
+  // These three are independent of each other — run them concurrently
+  // instead of serially awaiting each one (the customer lookup alone costs a
+  // live Supabase auth round-trip).
+  const [relatedProducts, customer, reviewStats] = await Promise.all([
+    getRelatedProducts(product),
+    getOrCreateCustomer(),
+    prisma.review.aggregate({ where: { productId: product.id }, _avg: { rating: true }, _count: true }),
+  ]);
+
   const wishlistItem = customer
     ? await prisma.wishlistItem.findUnique({
         where: { customerId_productId: { customerId: customer.id, productId: product.id } },
       })
     : null;
-
-  const reviewStats = await prisma.review.aggregate({ where: { productId: product.id }, _avg: { rating: true }, _count: true });
   const conditionValue = typeof rawSpecs.condition === 'string' ? rawSpecs.condition : undefined;
 
   const jsonLd = {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { PRODUCT_IMAGES_BUCKET, getSupabaseAdmin, isSupabaseConfigured, pathFromPublicUrl } from '@/lib/supabaseAdmin';
+import { revalidateStorefront } from '@/lib/revalidateStorefront';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -57,6 +58,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     select: { images: true },
   });
 
+  revalidateStorefront();
   return NextResponse.json({ success: true, url: publicUrlData.publicUrl, images: updated.images });
 }
 
@@ -97,5 +99,6 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     select: { images: true },
   });
 
+  revalidateStorefront();
   return NextResponse.json({ success: true, images: updated.images });
 }

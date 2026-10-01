@@ -3,6 +3,7 @@ import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { parseProductInput, ProductValidationError } from '@/lib/validateProduct';
 import { PRODUCT_IMAGES_BUCKET, getSupabaseAdmin, isSupabaseConfigured, pathFromPublicUrl } from '@/lib/supabaseAdmin';
+import { revalidateStorefront } from '@/lib/revalidateStorefront';
 
 function isUniqueConstraintError(error: unknown): boolean {
   return error instanceof Error && 'code' in error && (error as { code: string }).code === 'P2002';
@@ -46,6 +47,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   try {
     const product = await prisma.product.update({ where: { id }, data: input });
+    revalidateStorefront();
     return NextResponse.json({ success: true, product });
   } catch (error) {
     if (isNotFoundError(error)) {
@@ -76,6 +78,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
   try {
     await prisma.product.delete({ where: { id } });
+    revalidateStorefront();
   } catch (error) {
     if (isForeignKeyConstraintError(error)) {
       return NextResponse.json(
