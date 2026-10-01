@@ -1,79 +1,30 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  Cpu,
-  Laptop,
-  Layers,
-  Package,
-  Smartphone,
-  Sparkles,
-  Wrench,
-} from 'lucide-react';
-import type { Prisma } from '@prisma/client';
+import { ArrowLeft, Cpu, Laptop, Layers, Package, Smartphone, Sparkles, Wrench, type LucideIcon } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
-import CatalogProductCard from '@/components/cards/CatalogProductCard';
-import { CATEGORY_SUBCATEGORIES, type ProductCategory } from '@/lib/productSpecFields';
+import CategoryProductGrid from '@/components/shop/CategoryProductGrid';
+import { CATEGORY_SUBCATEGORIES } from '@/lib/productSpecFields';
+import { CATEGORY_MAP, buildCategoryWhere } from '@/lib/categoryProductFilter';
 
-const CATEGORY_MAP: Record<
-  string,
-  {
-    type: ProductCategory;
-    label: string;
-    icon: typeof Smartphone;
-    subcategory?: string;
-    excludeSubcategories?: string[];
-    banner?: string;
-  }
-> = {
-  phones: {
-    type: 'PHONE',
-    label: 'Phones',
-    icon: Smartphone,
-    banner:
-      'https://qppkqxucnqnkgtaeqaot.supabase.co/storage/v1/object/public/product-images/_site/shop-phones-banner.jpg',
-  },
-  accessories: { type: 'ACCESSORY', label: 'Accessories', icon: Package },
-  screens: { type: 'SPARE_PART', subcategory: 'SCREEN', label: 'Screens', icon: Layers },
-  spares: { type: 'SPARE_PART', excludeSubcategories: ['SCREEN'], label: 'Spare Parts', icon: Layers },
-  tools: { type: 'REPAIR_TOOL', label: 'Repair Tools', icon: Wrench },
-  'kids-tabs': { type: 'KIDS_TAB', label: 'Kids Tabs', icon: Cpu },
-  laptops: { type: 'LAPTOP', label: 'Laptops', icon: Laptop },
-};
-
-// Matches the ?sub= slugs already emitted by Header.tsx's nav dropdowns.
-const SUB_SLUG_MAP: Record<string, string> = {
-  chargers: 'CHARGER',
-  housings: 'HOUSING',
-  blowers: 'BLOWER',
-  separators: 'SEPARATOR',
-  'power-supply': 'POWER_SUPPLY',
-  microscopes: 'MICROSCOPE',
-  multimeters: 'MULTIMETER',
-  'soldering-guns': 'SOLDERING',
-  laminators: 'LAMINATOR',
-};
-
-// Matches the ?brand=/?condition= slugs Header.tsx's PHONES dropdown emits.
-const BRAND_SLUG_MAP: Record<string, string> = {
-  apple: 'Apple',
-  samsung: 'Samsung',
-  tecno: 'Tecno',
-};
-const CONDITION_SLUG_MAP: Record<string, string> = {
-  brand_new: 'Brand New',
-  uk_used: 'UK Used',
+// Icons are a page-only presentation concern, kept separate from
+// categoryProductFilter's query-building source of truth.
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  phones: Smartphone,
+  accessories: Package,
+  screens: Layers,
+  spares: Layers,
+  tools: Wrench,
+  'kids-tabs': Cpu,
+  laptops: Laptop,
 };
 
 const PAGE_SIZE = 24;
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ sub?: string; brand?: string; condition?: string; page?: string }>;
+  searchParams: Promise<{ sub?: string; brand?: string; condition?: string }>;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
@@ -96,10 +47,11 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { category } = await params;
-  const { sub, brand, condition, page } = await searchParams;
-  const meta = CATEGORY_MAP[category];
+  const { sub, brand, condition } = await searchParams;
 
-  if (!meta) {
+  const built = buildCategoryWhere(category, { sub, brand, condition });
+
+  if (!built) {
     return (
       <main className="mx-auto max-w-7xl px-4 py-8">
         <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-12 text-center text-neutral-500 dark:text-neutral-400">
@@ -108,46 +60,34 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       </main>
     );
   }
+  const { meta, where, mappedSub } = built;
 
-  const mappedSub = sub ? SUB_SLUG_MAP[sub] : undefined;
-  const where: Prisma.ProductWhereInput = { category: meta.type };
-  if (mappedSub) {
-    where.subcategory = mappedSub;
-  } else if (meta.subcategory) {
-    where.subcategory = meta.subcategory;
-  } else if (meta.excludeSubcategories) {
-    where.subcategory = { notIn: meta.excludeSubcategories };
-  }
-  const mappedBrand = brand ? BRAND_SLUG_MAP[brand] : undefined;
-  if (mappedBrand) where.brand = { equals: mappedBrand, mode: 'insensitive' };
-  const mappedCondition = condition ? CONDITION_SLUG_MAP[condition] : undefined;
-  if (mappedCondition) where.specs = { path: ['condition'], equals: mappedCondition };
-
-  const activeSubcategoryLabel =
-    mappedSub && CATEGORY_SUBCATEGORIES[meta.type]?.find((s) => s.value === mappedSub)?.label;
+  const activeSubcategoryLabel = mappedSub && CATEGORY_SUBCATEGORIES[meta.type]?.find((s) => s.value === mappedSub)?.label;
   const pageLabel = activeSubcategoryLabel ?? meta.label;
 
-  const currentPage = Math.max(1, Number(page) || 1);
-  const totalCount = await prisma.product.count({ where });
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const products = await prisma.product.findMany({
-    where,
-    orderBy: { createdAt: 'desc' },
-    skip: (currentPage - 1) * PAGE_SIZE,
-    take: PAGE_SIZE,
-  });
+  const [totalCount, products] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: PAGE_SIZE,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        brand: true,
+        modelName: true,
+        price: true,
+        originalPrice: true,
+        isHotDeal: true,
+        stock: true,
+        images: true,
+        category: true,
+      },
+    }),
+  ]);
 
-  const pageHref = (targetPage: number) => {
-    const qs = new URLSearchParams();
-    if (sub) qs.set('sub', sub);
-    if (brand) qs.set('brand', brand);
-    if (condition) qs.set('condition', condition);
-    if (targetPage > 1) qs.set('page', String(targetPage));
-    const query = qs.toString();
-    return `/shop/${category}${query ? `?${query}` : ''}`;
-  };
-
-  const Icon = meta.icon;
+  const Icon = CATEGORY_ICON[category] ?? Package;
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 px-4 py-8">
@@ -206,41 +146,15 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           No items listed under {pageLabel.toLowerCase()} yet.
         </div>
       ) : (
-        <>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {products.map((product) => (
-              <CatalogProductCard key={product.id} product={product} fallbackIcon={Icon} />
-            ))}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-2">
-              <Link
-                href={pageHref(currentPage - 1)}
-                aria-disabled={currentPage <= 1}
-                className={`flex items-center gap-1 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-bold text-neutral-600 transition-colors dark:border-neutral-800 dark:text-neutral-300 ${
-                  currentPage <= 1 ? 'pointer-events-none opacity-40' : 'hover:border-amber-500/50 hover:text-amber-500'
-                }`}
-              >
-                <ChevronLeft className="h-3.5 w-3.5" />
-                Prev
-              </Link>
-              <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Link
-                href={pageHref(currentPage + 1)}
-                aria-disabled={currentPage >= totalPages}
-                className={`flex items-center gap-1 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-bold text-neutral-600 transition-colors dark:border-neutral-800 dark:text-neutral-300 ${
-                  currentPage >= totalPages ? 'pointer-events-none opacity-40' : 'hover:border-amber-500/50 hover:text-amber-500'
-                }`}
-              >
-                Next
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          )}
-        </>
+        <CategoryProductGrid
+          initialProducts={products}
+          initialHasMore={PAGE_SIZE < totalCount}
+          category={category}
+          sub={sub}
+          brand={brand}
+          condition={condition}
+          fallbackIcon={Icon}
+        />
       )}
     </main>
   );
