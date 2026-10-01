@@ -153,7 +153,6 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           sub={sub}
           brand={brand}
           condition={condition}
-          fallbackIcon={Icon}
         />
       )}
     </main>

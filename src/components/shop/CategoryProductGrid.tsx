@@ -1,14 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Package } from 'lucide-react';
 import CatalogProductCard, { type CatalogProduct } from '@/components/cards/CatalogProductCard';
 import { CATEGORY_ICON } from '@/lib/categoryIcons';
-import type { LucideIcon } from 'lucide-react';
-import { Package } from 'lucide-react';
 
 type ProductWithCategory = CatalogProduct & { category: string };
 
+// fallbackIcon is a React component reference, which can't cross the
+// Server->Client prop boundary (not serializable) — each card resolves its
+// own icon client-side from the product's own category field instead, with
+// Package as the final fallback if that lookup ever misses.
 export default function CategoryProductGrid({
   initialProducts,
   initialHasMore,
@@ -16,7 +18,6 @@ export default function CategoryProductGrid({
   sub,
   brand,
   condition,
-  fallbackIcon,
 }: {
   initialProducts: ProductWithCategory[];
   initialHasMore: boolean;
@@ -24,7 +25,6 @@ export default function CategoryProductGrid({
   sub?: string;
   brand?: string;
   condition?: string;
-  fallbackIcon: LucideIcon;
 }) {
   const [products, setProducts] = useState(initialProducts);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -54,7 +54,7 @@ export default function CategoryProductGrid({
     <>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => (
-          <CatalogProductCard key={product.id} product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? fallbackIcon ?? Package} />
+          <CatalogProductCard key={product.id} product={product} fallbackIcon={CATEGORY_ICON[product.category] ?? Package} />
         ))}
       </div>
 
