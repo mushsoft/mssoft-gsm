@@ -1,25 +1,25 @@
-import { Smartphone, Wrench } from 'lucide-react';
+import Image from 'next/image';
 
+// The source mark has fine gradient linework that turns to mush much below
+// ~40px (it was cropped from a flattened business-card photo, not a vector),
+// so these badges run a bit larger than the old icon-based ones did.
 const SIZES = {
-  sm: { badge: 'h-9 w-9', icon: 'h-5 w-5', accent: 'h-4 w-4 -bottom-1 -right-1', accentIcon: 'h-2.5 w-2.5', word: 'text-xl', tagline: 'text-[9px]' },
-  lg: { badge: 'h-11 w-11', icon: 'h-6 w-6', accent: 'h-[18px] w-[18px] -bottom-1 -right-1', accentIcon: 'h-3 w-3', word: 'text-2xl', tagline: 'text-[10px]' },
+  sm: { badge: 'h-12 w-12', img: 40, word: 'text-xl', tagline: 'text-[9px]' },
+  lg: { badge: 'h-16 w-16', img: 56, word: 'text-2xl', tagline: 'text-[10px]' },
 } as const;
 
-/** Icon mark (phone + wrench, hinting at both product lines) + "MS Soft GSM" wordmark — used in Header.tsx and Footer.tsx. */
+/** Logo mark (public/logo-mark.png, cropped from the official business card) + "MS Soft GSM" wordmark — used in Header.tsx and Footer.tsx. */
 export default function SiteLogo({ size = 'sm' }: { size?: keyof typeof SIZES }) {
   const s = SIZES[size];
 
   return (
     <div className="flex items-center gap-2.5">
       <div
-        className={`relative flex ${s.badge} shrink-0 items-center justify-center rounded-xl bg-amber-500 shadow-lg transition-transform group-hover:scale-105`}
+        // Always a light backdrop (not dark-mode-swapped) — the mark's navy
+        // tones need a light surface to read, regardless of site theme.
+        className={`flex ${s.badge} shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white shadow-lg transition-transform group-hover:scale-105`}
       >
-        <Smartphone className={`${s.icon} text-black`} strokeWidth={2.5} />
-        <div
-          className={`absolute ${s.accent} flex items-center justify-center rounded-full bg-neutral-900 ring-2 ring-white dark:bg-white dark:ring-neutral-950`}
-        >
-          <Wrench className={`${s.accentIcon} text-amber-500`} strokeWidth={3} />
-        </div>
+        <Image src="/logo-mark.png" alt="MS Soft GSM" width={s.img} height={s.img} className="object-contain" priority />
       </div>
       <div className="flex flex-col">
         <span className={`${s.word} font-black tracking-wider leading-none text-neutral-900 dark:text-white`}>

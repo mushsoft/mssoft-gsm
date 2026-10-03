@@ -344,16 +344,20 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
           receipt shouldn't come out dark. */}
       <div className="receipt-paper rounded-2xl border border-neutral-200 bg-white p-8 text-black shadow-sm dark:border-neutral-800">
         <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-black pb-4">
-          <div>
-            <div className="text-xl font-black">{shopProfile.businessName}</div>
-            {shopProfile.address && <div className="mt-1 text-xs text-neutral-700">{shopProfile.address}</div>}
-            <div className="mt-1 space-y-0.5 text-xs text-neutral-700">
-              {shopProfile.phone && <div>Tel: {shopProfile.phone}</div>}
-              {shopProfile.whatsapp && <div>WhatsApp: {shopProfile.whatsapp}</div>}
-              {shopProfile.email && <div>{shopProfile.email}</div>}
-              {shopProfile.website && <div>{shopProfile.website}</div>}
-              {socials.length > 0 && <div>{socials.join(' · ')}</div>}
-              {shopProfile.tinNumber && <div>TIN: {shopProfile.tinNumber}</div>}
+          <div className="flex items-start gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element -- plain HTML/print document, not a Next.js route (no optimization needed here) */}
+            <img src="/logo-mark.png" alt="" width={56} height={56} className="shrink-0" />
+            <div>
+              <div className="text-xl font-black">{shopProfile.businessName}</div>
+              {shopProfile.address && <div className="mt-1 text-xs text-neutral-700">{shopProfile.address}</div>}
+              <div className="mt-1 space-y-0.5 text-xs text-neutral-700">
+                {shopProfile.phone && <div>Tel: {shopProfile.phone}</div>}
+                {shopProfile.whatsapp && <div>WhatsApp: {shopProfile.whatsapp}</div>}
+                {shopProfile.email && <div>{shopProfile.email}</div>}
+                {shopProfile.website && <div>{shopProfile.website}</div>}
+                {socials.length > 0 && <div>{socials.join(' · ')}</div>}
+                {shopProfile.tinNumber && <div>TIN: {shopProfile.tinNumber}</div>}
+              </div>
             </div>
           </div>
           <div className="text-right">
