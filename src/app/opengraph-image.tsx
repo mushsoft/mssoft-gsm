@@ -31,19 +31,21 @@ export default function Image() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
           <div
+            // logo-mark.png is a ~1.79:1 rectangle, not square — size the
+            // chip around the image's own proportions (padding, not a fixed
+            // square) instead of stretching it to fit.
             style={{
               display: 'flex',
-              width: 220,
-              height: 220,
               alignItems: 'center',
               justifyContent: 'center',
+              padding: 32,
               borderRadius: 36,
               background: 'white',
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)',
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- Satori (ImageResponse) only accepts a raw <img>, not next/image */}
-            <img src={logoDataUri} width={176} height={176} alt="" />
+            <img src={logoDataUri} width={320} height={179} alt="" />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
