@@ -1,26 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Prisma } from '@prisma/client';
 import { Package, PackagePlus, Pencil } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
-
-const PRODUCT_TABS: { key: string; label: string; where: Prisma.ProductWhereInput }[] = [
-  { key: 'all', label: 'All', where: {} },
-  { key: 'phones', label: 'Phones', where: { category: 'PHONE' } },
-  { key: 'screens', label: 'Screens', where: { category: 'SPARE_PART', subcategory: 'SCREEN' } },
-  { key: 'accessories', label: 'Accessories', where: { category: 'ACCESSORY' } },
-  { key: 'kids-tabs', label: 'Kids Tabs', where: { category: 'KIDS_TAB' } },
-  { key: 'laptops', label: 'Laptops', where: { category: 'LAPTOP' } },
-  {
-    key: 'spares-tools',
-    label: 'Spares & Tools',
-    where: { OR: [{ category: 'REPAIR_TOOL' }, { category: 'SPARE_PART', NOT: { subcategory: 'SCREEN' } }] },
-  },
-];
+import { PRODUCT_TABS, productTabHref } from '@/lib/adminProductTabs';
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   await requireAdminPage();
@@ -62,7 +48,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
           return (
             <Link
               key={t.key}
-              href={t.key === 'all' ? '/admin/products' : `/admin/products?tab=${t.key}`}
+              href={productTabHref(t)}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
                 active
                   ? 'bg-amber-500 text-black'
@@ -139,7 +125,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <Link
-                    href={`/admin/products/${product.id}`}
+                    href={`/admin/products/${product.id}?tab=${activeTab.key}`}
                     className="flex w-fit items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/40 hover:text-amber-500"
                   >
                     <Pencil className="h-3.5 w-3.5" />

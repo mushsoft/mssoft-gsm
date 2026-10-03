@@ -8,16 +8,29 @@ import ProductImageUploader from '@/components/admin/ProductImageUploader';
 import DeleteProductButton from '@/components/admin/DeleteProductButton';
 import { splitSpecs, type ProductCategory } from '@/lib/productSpecFields';
 import { getCategoryRouteByCategory } from '@/lib/productCategoryRoutes';
+import { getProductTab, resolveProductTab, productTabHref } from '@/lib/adminProductTabs';
 
-export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditProductPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
   await requireAdminPage();
 
   const { id } = await params;
+  const { tab } = await searchParams;
   const product = await prisma.product.findUnique({ where: { id } });
 
   if (!product) {
     notFound();
   }
+
+  // Prefer the tab the admin actually came from (carried via ?tab=); fall
+  // back to deriving it from the product's own category for links that
+  // didn't carry one (bookmarks, direct navigation).
+  const backTab = getProductTab(tab) ?? resolveProductTab(product.category, product.subcategory);
 
   const rawSpecs =
     product.specs && typeof product.specs === 'object' && !Array.isArray(product.specs)
@@ -33,11 +46,11 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
       <Link
-        href="/admin/products"
+        href={productTabHref(backTab)}
         className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"
       >
         <ArrowLeft className="h-4 w-4" />
-        <span>Back to Products</span>
+        <span>Back to {backTab.label}</span>
       </Link>
 
       <div className="flex items-center justify-between gap-3">
