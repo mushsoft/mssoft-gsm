@@ -344,7 +344,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
           receipt shouldn't come out dark. */}
       <div className="receipt-paper rounded-2xl border border-neutral-200 bg-white p-8 text-black shadow-sm dark:border-neutral-800">
         <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-black pb-4">
-          <div className="flex items-start gap-3">
+          <div className="flex flex-col items-start gap-1.5">
             {/* eslint-disable-next-line @next/next/no-img-element -- plain HTML/print document, not a Next.js route (no optimization needed here) */}
             <img src="/logo-mark.png" alt="" width={122} height={68} className="shrink-0 object-contain" />
             <div>
