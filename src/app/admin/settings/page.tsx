@@ -31,6 +31,7 @@ export default async function AdminSettingsPage() {
         <ShopProfileForm
           initialValues={{
             businessName: profile.businessName,
+            tagline: profile.tagline ?? '',
             phone: profile.phone ?? '',
             whatsapp: profile.whatsapp ?? '',
             email: profile.email ?? '',

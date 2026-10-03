@@ -32,6 +32,7 @@ export default async function NewReceiptPage() {
       }}
       shopProfile={{
         businessName: profile.businessName,
+        tagline: profile.tagline,
         phone: profile.phone,
         whatsapp: profile.whatsapp,
         email: profile.email,

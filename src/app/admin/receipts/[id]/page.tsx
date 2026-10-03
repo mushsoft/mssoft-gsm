@@ -46,6 +46,7 @@ export default async function EditReceiptPage({ params }: { params: Promise<{ id
       }}
       shopProfile={{
         businessName: profile.businessName,
+        tagline: profile.tagline,
         phone: profile.phone,
         whatsapp: profile.whatsapp,
         email: profile.email,

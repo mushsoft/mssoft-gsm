@@ -270,6 +270,7 @@ model AdminSession {
 model ShopProfile {
   id           String   @id @default(uuid())
   businessName String   @default("MS Soft GSM")
+  tagline      String? // e.g. "Phones, Spares, Repairs And Accessories" — shown as a smaller subheading under businessName on invoices/receipts, kept separate so the heading itself stays short
   phone        String?
   whatsapp     String?
   email        String?

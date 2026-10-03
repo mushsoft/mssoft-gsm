@@ -6,6 +6,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 
 export type ShopProfileFormValues = {
   businessName: string;
+  tagline: string;
   phone: string;
   whatsapp: string;
   email: string;
@@ -73,6 +74,18 @@ export default function ShopProfileForm({ initialValues }: { initialValues: Shop
           className={inputClass}
           placeholder="MS Soft GSM"
         />
+      </div>
+
+      <div>
+        <label className={labelClass}>Tagline (optional)</label>
+        <input
+          value={values.tagline}
+          onChange={(e) => update('tagline', e.target.value)}
+          disabled={isSubmitting}
+          className={inputClass}
+          placeholder="Phones, Spares, Repairs And Accessories"
+        />
+        <p className="mt-1 text-[10px] text-neutral-400">Shown as a smaller line under the business name on invoices and receipts.</p>
       </div>
 
       <div>

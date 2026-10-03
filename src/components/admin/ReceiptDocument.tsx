@@ -46,6 +46,7 @@ const COLOR_OPTIONS = ['Black', 'White', 'Blue', 'Green', 'Gold', 'Silver', 'Gra
 
 type ShopProfileData = {
   businessName: string;
+  tagline: string | null;
   phone: string | null;
   whatsapp: string | null;
   email: string | null;
@@ -348,7 +349,10 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
             {/* eslint-disable-next-line @next/next/no-img-element -- plain HTML/print document, not a Next.js route (no optimization needed here) */}
             <img src="/logo-mark.png" alt="" width={122} height={68} className="shrink-0 object-contain" />
             <div>
-              <div className="text-xl font-black">{shopProfile.businessName}</div>
+              <div className="text-xl font-black leading-tight">{shopProfile.businessName}</div>
+              {shopProfile.tagline && (
+                <div className="text-xs font-semibold text-neutral-500">{shopProfile.tagline}</div>
+              )}
               {shopProfile.address && <div className="mt-1 text-xs text-neutral-700">{shopProfile.address}</div>}
               <div className="mt-1 space-y-0.5 text-xs text-neutral-700">
                 {shopProfile.phone && <div>Tel: {shopProfile.phone}</div>}

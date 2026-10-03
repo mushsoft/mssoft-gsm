@@ -81,6 +81,7 @@ export default async function OrderReceiptPage({ params }: { params: Promise<{ i
       initial={initial}
       shopProfile={{
         businessName: shopProfile.businessName,
+        tagline: shopProfile.tagline,
         phone: shopProfile.phone,
         whatsapp: shopProfile.whatsapp,
         email: shopProfile.email,

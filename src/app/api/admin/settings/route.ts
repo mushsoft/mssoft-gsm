@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 
 const OPTIONAL_TEXT_FIELDS = [
+  'tagline',
   'phone',
   'whatsapp',
   'email',
