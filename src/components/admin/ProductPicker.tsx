@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, Search } from 'lucide-react';
 
-type ProductResult = { id: string; title: string; price: number; stock: number; brand: string };
+type ProductResult = { id: string; title: string; price: number; stock: number; brand: string; category: string };
 
 // Search-as-you-type product lookup for the receipt/invoice item table —
 // lets an admin add a real catalog item (with its live price) instead of

@@ -87,7 +87,8 @@ const compatibleBrandsField = (): SpecFieldDef => ({
 });
 
 const RAM_OPTIONS = ['1GB', '2GB', '3GB', '4GB', '6GB', '8GB', '12GB', '16GB', '18GB'];
-const STORAGE_OPTIONS = ['8GB', '16GB', '32GB', '64GB', '128GB', '256GB', '512GB', '1TB'];
+// Exported for reuse by the receipt line-item form's Storage field.
+export const STORAGE_OPTIONS = ['8GB', '16GB', '32GB', '64GB', '128GB', '256GB', '512GB', '1TB'];
 
 // RAM/storage are multiselect (stored as a comma-joined string, e.g. "6GB, 8GB")
 // since many phones ship in more than one variant. Screen size is freeform text

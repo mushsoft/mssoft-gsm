@@ -7,6 +7,17 @@ export interface ReceiptItemInput {
   title: string;
   quantity: number;
   price: number;
+  // Phone-specific fields — present only when the admin marked this line
+  // item as a phone. Omitted entirely (not empty strings) when unset, so
+  // non-phone items (accessories, spare parts, ...) on the same receipt
+  // round-trip without clutter.
+  isPhone?: boolean;
+  brand?: string;
+  condition?: string;
+  color?: string;
+  storage?: string;
+  serialNumber?: string;
+  imei?: string;
 }
 
 export interface ReceiptInput {
@@ -46,7 +57,28 @@ function parseItems(raw: unknown): ReceiptItemInput[] {
     if (!Number.isFinite(price) || price < 0) {
       throw new ReceiptValidationError(`items[${index}].price must be a non-negative number`);
     }
-    return { title, quantity, price };
+
+    const isPhone = e.isPhone === true;
+    const stringField = (key: string) => (typeof e[key] === 'string' ? (e[key] as string).trim() : '');
+    const brand = stringField('brand');
+    const condition = stringField('condition');
+    const color = stringField('color');
+    const storage = stringField('storage');
+    const serialNumber = stringField('serialNumber');
+    const imei = stringField('imei');
+
+    return {
+      title,
+      quantity,
+      price,
+      ...(isPhone ? { isPhone: true } : {}),
+      ...(brand ? { brand } : {}),
+      ...(condition ? { condition } : {}),
+      ...(color ? { color } : {}),
+      ...(storage ? { storage } : {}),
+      ...(serialNumber ? { serialNumber } : {}),
+      ...(imei ? { imei } : {}),
+    };
   });
 }
 

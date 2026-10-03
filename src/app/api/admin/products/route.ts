@@ -31,7 +31,7 @@ export async function GET(req: Request) {
           { modelName: { contains: q, mode: 'insensitive' } },
         ],
       },
-      select: { id: true, title: true, price: true, stock: true, brand: true },
+      select: { id: true, title: true, price: true, stock: true, brand: true, category: true },
       orderBy: { title: 'asc' },
       take: 15,
     });

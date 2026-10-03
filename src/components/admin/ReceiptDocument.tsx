@@ -3,9 +3,24 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, FileUp, Loader2, Plus, Printer, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, FileUp, Loader2, Plus, Printer, Save, Smartphone, Trash2, X } from 'lucide-react';
 import ProductPicker from './ProductPicker';
 import { DOC_TYPES, type DocType } from '@/lib/receiptDocTypes';
+import { STORAGE_OPTIONS } from '@/lib/productSpecFields';
+import { PRODUCT_BRANDS } from '@/lib/brands';
+
+export type ReceiptItemData = {
+  title: string;
+  quantity: number;
+  price: number;
+  isPhone?: boolean;
+  brand?: string;
+  condition?: string;
+  color?: string;
+  storage?: string;
+  serialNumber?: string;
+  imei?: string;
+};
 
 export type ReceiptInitialData = {
   receiptId: string | null; // null = not yet saved
@@ -18,13 +33,16 @@ export type ReceiptInitialData = {
   deliveryAddress: string;
   documentDate: string; // YYYY-MM-DD
   documentTime: string; // HH:mm
-  items: { title: string; quantity: number; price: number }[];
+  items: ReceiptItemData[];
   discountAmount: number;
   paymentStatus: string;
   paymentMethod: string;
   paymentReference: string;
   notesByType: Record<DocType, string>;
 };
+
+const PHONE_CONDITIONS = ['Brand New', 'UK Used'];
+const COLOR_OPTIONS = ['Black', 'White', 'Blue', 'Green', 'Gold', 'Silver', 'Gray', 'Purple', 'Red', 'Pink'];
 
 type ShopProfileData = {
   businessName: string;
@@ -71,7 +89,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
   const [importError, setImportError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function updateItem(index: number, patch: Partial<{ title: string; quantity: number; price: number }>) {
+  function updateItem(index: number, patch: Partial<ReceiptItemData>) {
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
     setJustSaved(false);
   }
@@ -83,8 +101,31 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
     setItems((prev) => [...prev, { title: '', quantity: 1, price: 0 }]);
     setJustSaved(false);
   }
-  function addProduct(product: { title: string; price: number }) {
-    setItems((prev) => [...prev, { title: product.title, quantity: 1, price: product.price }]);
+  function addProduct(product: { title: string; price: number; brand: string; category: string }) {
+    setItems((prev) => [
+      ...prev,
+      {
+        title: product.title,
+        quantity: 1,
+        price: product.price,
+        ...(product.category === 'PHONE' ? { isPhone: true, brand: product.brand } : {}),
+      },
+    ]);
+    setJustSaved(false);
+  }
+  // Toggling off clears the phone-only fields instead of just hiding them,
+  // so an accidental toggle doesn't ship stale IMEI/serial data on an item
+  // that's no longer marked as a phone.
+  function togglePhone(index: number) {
+    setItems((prev) =>
+      prev.map((item, i) => {
+        if (i !== index) return item;
+        if (item.isPhone) {
+          return { title: item.title, quantity: item.quantity, price: item.price };
+        }
+        return { ...item, isPhone: true };
+      })
+    );
     setJustSaved(false);
   }
 
@@ -418,13 +459,114 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
           <tbody>
             {items.map((item, i) => (
               <tr key={i} className="border-b border-neutral-200">
-                <td className="py-1.5 pr-2">
-                  <input
-                    value={item.title}
-                    onChange={(e) => updateItem(i, { title: e.target.value })}
-                    className="receipt-field w-full rounded border border-neutral-300 px-1.5 py-1"
-                    placeholder="Item name"
-                  />
+                <td className="py-1.5 pr-2 align-top">
+                  <div className="flex items-start gap-1.5">
+                    <input
+                      value={item.title}
+                      onChange={(e) => updateItem(i, { title: e.target.value })}
+                      className="receipt-field w-full rounded border border-neutral-300 px-1.5 py-1"
+                      placeholder="Item name"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePhone(i)}
+                      title={item.isPhone ? 'Not a phone' : 'Mark as phone'}
+                      className={`no-print flex shrink-0 items-center gap-1 rounded border px-1.5 py-1 text-[10px] font-bold transition-colors ${
+                        item.isPhone
+                          ? 'border-amber-500/50 bg-amber-500/10 text-amber-600'
+                          : 'border-neutral-300 text-neutral-400 hover:border-amber-500/40 hover:text-amber-500'
+                      }`}
+                    >
+                      {item.isPhone ? <X className="h-3 w-3" /> : <Smartphone className="h-3 w-3" />}
+                    </button>
+                  </div>
+
+                  {item.isPhone && (
+                    <div className="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-1.5 rounded border border-dashed border-neutral-300 p-1.5 sm:grid-cols-3">
+                      <label className="flex flex-col gap-0.5 text-[9px] font-bold uppercase tracking-wide text-neutral-500">
+                        Brand
+                        <input
+                          list={`receipt-brands-${i}`}
+                          value={item.brand ?? ''}
+                          onChange={(e) => updateItem(i, { brand: e.target.value })}
+                          className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-[11px] font-normal normal-case text-black"
+                          placeholder="Samsung"
+                        />
+                        <datalist id={`receipt-brands-${i}`}>
+                          {PRODUCT_BRANDS.map((b) => (
+                            <option key={b} value={b} />
+                          ))}
+                        </datalist>
+                      </label>
+                      <label className="flex flex-col gap-0.5 text-[9px] font-bold uppercase tracking-wide text-neutral-500">
+                        Color
+                        <input
+                          list={`receipt-colors-${i}`}
+                          value={item.color ?? ''}
+                          onChange={(e) => updateItem(i, { color: e.target.value })}
+                          className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-[11px] font-normal normal-case text-black"
+                          placeholder="Black"
+                        />
+                        <datalist id={`receipt-colors-${i}`}>
+                          {COLOR_OPTIONS.map((c) => (
+                            <option key={c} value={c} />
+                          ))}
+                        </datalist>
+                      </label>
+                      <label className="flex flex-col gap-0.5 text-[9px] font-bold uppercase tracking-wide text-neutral-500">
+                        Storage
+                        <input
+                          list={`receipt-storage-${i}`}
+                          value={item.storage ?? ''}
+                          onChange={(e) => updateItem(i, { storage: e.target.value })}
+                          className="receipt-field rounded border border-neutral-300 px-1 py-0.5 text-[11px] font-normal normal-case text-black"
+                          placeholder="128GB"
+                        />
+                        <datalist id={`receipt-storage-${i}`}>
+                          {STORAGE_OPTIONS.map((s) => (
+                            <option key={s} value={s} />
+                          ))}
+                        </datalist>
+                      </label>
+                      <label className="flex flex-col gap-0.5 text-[9px] font-bold uppercase tracking-wide text-neutral-500">
+                        Serial Number
+                        <input
+                          value={item.serialNumber ?? ''}
+                          onChange={(e) => updateItem(i, { serialNumber: e.target.value })}
+                          className="receipt-field rounded border border-neutral-300 px-1 py-0.5 font-mono text-[11px] font-normal normal-case text-black"
+                          placeholder="S/N"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-0.5 text-[9px] font-bold uppercase tracking-wide text-neutral-500">
+                        IMEI
+                        <input
+                          value={item.imei ?? ''}
+                          onChange={(e) => updateItem(i, { imei: e.target.value })}
+                          className="receipt-field rounded border border-neutral-300 px-1 py-0.5 font-mono text-[11px] font-normal normal-case text-black"
+                          placeholder="356938035643809"
+                        />
+                      </label>
+                      <div className="flex flex-col gap-0.5 text-[9px] font-bold uppercase tracking-wide text-neutral-500">
+                        Condition
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateItem(i, {
+                              condition: item.condition === PHONE_CONDITIONS[1] ? PHONE_CONDITIONS[0] : PHONE_CONDITIONS[1],
+                            })
+                          }
+                          className="no-print w-fit rounded border border-neutral-300 px-1.5 py-0.5 text-[10px] font-bold normal-case text-black hover:border-amber-500/50"
+                        >
+                          {item.condition || 'Set Condition'}
+                        </button>
+                        {item.condition && (
+                          <span className="hidden text-[11px] font-normal normal-case text-black print:inline">
+                            {item.condition}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </td>
                 <td className="py-1.5 pr-2">
                   <input

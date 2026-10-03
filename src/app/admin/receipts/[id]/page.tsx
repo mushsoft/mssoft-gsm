@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
-import ReceiptDocument from '@/components/admin/ReceiptDocument';
+import ReceiptDocument, { type ReceiptItemData } from '@/components/admin/ReceiptDocument';
 import { DOC_TYPES, type DocType } from '@/lib/receiptDocTypes';
 
 export default async function EditReceiptPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,9 +15,7 @@ export default async function EditReceiptPage({ params }: { params: Promise<{ id
     notFound();
   }
 
-  const items = Array.isArray(receipt.items)
-    ? (receipt.items as unknown as { title: string; quantity: number; price: number }[])
-    : [];
+  const items = Array.isArray(receipt.items) ? (receipt.items as unknown as ReceiptItemData[]) : [];
   const storedNotes =
     typeof receipt.notes === 'object' && receipt.notes !== null && !Array.isArray(receipt.notes)
       ? (receipt.notes as Record<string, string>)
