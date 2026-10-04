@@ -125,7 +125,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <Link
-                    href={`/admin/products/${product.id}?tab=${activeTab.key}`}
+                    href={`/admin/products/${product.id}`}
                     className="flex w-fit items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/40 hover:text-amber-500"
                   >
                     <Pencil className="h-3.5 w-3.5" />

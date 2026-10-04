@@ -23,12 +23,8 @@ export const PRODUCT_TABS: ProductTab[] = [
   },
 ];
 
-export function getProductTab(key: string | undefined): ProductTab | undefined {
-  return PRODUCT_TABS.find((t) => t.key === key);
-}
-
 // Mirrors each tab's `where` filter so a product can be mapped back to the
-// tab it lives under, for products list links that didn't carry a `?tab=`.
+// tab it lives under.
 export function resolveProductTab(category: string, subcategory: string | null): ProductTab {
   if (category === 'PHONE') return PRODUCT_TABS[1];
   if (category === 'SPARE_PART' && subcategory === 'SCREEN') return PRODUCT_TABS[2];
