@@ -17,7 +17,7 @@ import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
 export const metadata = {
   title: 'About Us',
   description:
-    "The story behind MS Soft GSM — from electrician to phone repair specialist to software engineer, now dealing in genuine phones, repairs, and spares in Kampala, Uganda.",
+    "The story behind MS Soft GSM: from electrician to phone repair specialist to software engineer, now dealing in genuine phones, repairs, and spares in Kampala, Uganda.",
 };
 
 const TIMELINE = [
@@ -33,7 +33,7 @@ const TIMELINE = [
     icon: Wrench,
     title: 'Moved Into Phone Repair',
     description:
-      'Began repairing and servicing phones in Kampala — both hardware and software — turning that electrical foundation toward mobile devices.',
+      'Began repairing and servicing phones in Kampala, both hardware and software, turning that electrical foundation toward mobile devices.',
   },
   {
     year: 'Ongoing',
@@ -47,14 +47,14 @@ const TIMELINE = [
     icon: Rocket,
     title: 'National ICT Innovation Hub',
     description:
-      "Developed and worked out of Uganda's National ICT Innovation Hub in Nakawa — building alongside the country's wider tech ecosystem.",
+      "Developed and worked out of Uganda's National ICT Innovation Hub in Nakawa, building alongside the country's wider tech ecosystem.",
   },
   {
     year: 'Today',
     icon: Store,
     title: 'MS Soft GSM',
     description:
-      'Genuine new & used phone sales, phone & computer repairs and updates, and a full range of accessories & spares — all based in Kampala, Uganda.',
+      'Genuine new & used phone sales, phone & computer repairs and updates, and a full range of accessories & spares, all based in Kampala, Uganda.',
   },
 ];
 
@@ -84,7 +84,7 @@ export default function AboutPage() {
           Built by Someone Who Actually Fixes Phones
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          MS Soft GSM didn&apos;t start as a shop — it started as an electrician&apos;s toolkit, grew into a phone
+          MS Soft GSM didn&apos;t start as a shop. It started as an electrician&apos;s toolkit, grew into a phone
           repair bench in Kampala, and picked up a software engineering education along the way. Every part sold
           here comes from that same hands-on background.
         </p>

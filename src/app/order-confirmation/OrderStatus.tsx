@@ -154,7 +154,7 @@ export default function OrderStatus() {
       title={isAirtelMoney ? 'Verifying your Airtel Money payment...' : 'Confirming your payment...'}
       message={
         isAirtelMoney
-          ? "We're checking your transaction ID against our Airtel Money account. This is manual, so it can take a little while — we'll confirm via email or WhatsApp once it's done."
+          ? "We're checking your transaction ID against our Airtel Money account. This is manual, so it can take a little while. We'll confirm via email or WhatsApp once it's done."
           : stillPolling
             ? 'This usually takes a few seconds. This page will update automatically.'
             : "This is taking longer than expected. Your payment may still be processing. We'll confirm via WhatsApp once it clears."

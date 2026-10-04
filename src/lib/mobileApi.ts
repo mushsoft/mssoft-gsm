@@ -75,7 +75,7 @@ async function mobileApiRequest<T>(path: string, params: Record<string, string>)
   const response = await fetch(url, { headers: { Authorization: `Token ${apiKey}` } });
 
   if (response.status === 429) {
-    throw new MobileApiError('MobileAPI.dev rate limit reached — wait a minute and try again', 429);
+    throw new MobileApiError('MobileAPI.dev rate limit reached. Wait a minute and try again.', 429);
   }
   if (!response.ok) {
     const body = await response.text().catch(() => '');

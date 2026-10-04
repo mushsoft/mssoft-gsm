@@ -43,7 +43,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
   if (fileSize > MAX_FILE_SIZE) {
     return NextResponse.json(
-      { success: false, error: 'Video must be under 50MB — trim the clip or upload it to YouTube and paste the link instead' },
+      { success: false, error: 'Video must be under 50MB. Trim the clip, or upload it to YouTube and paste the link instead.' },
       { status: 400 }
     );
   }

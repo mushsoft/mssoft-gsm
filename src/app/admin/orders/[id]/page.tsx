@@ -108,7 +108,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           {order.paymentReference && (
             <div className="mt-3 rounded-lg border border-red-500/20 bg-red-500/5 p-2.5">
               <div className="text-[10px] font-bold uppercase tracking-wide text-red-500 dark:text-red-400">
-                Airtel Money Transaction ID — check this against your Airtel Money account
+                Airtel Money Transaction ID: check this against your Airtel Money account
               </div>
               <div className="mt-0.5 font-mono text-sm font-bold text-neutral-900 dark:text-white">
                 {order.paymentReference}

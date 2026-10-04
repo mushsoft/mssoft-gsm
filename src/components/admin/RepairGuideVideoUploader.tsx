@@ -147,7 +147,7 @@ export default function RepairGuideVideoUploader({ guideId, videoUrl }: { guideI
       ) : (
         <div className="flex h-16 items-center gap-2 rounded-lg border border-dashed border-neutral-300 px-3 text-xs text-neutral-400 dark:border-neutral-700">
           <Film className="h-4 w-4" />
-          No video yet — optional
+          No video yet (optional)
         </div>
       )}
 

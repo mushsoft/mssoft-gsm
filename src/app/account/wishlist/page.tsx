@@ -30,7 +30,7 @@ export default async function AccountWishlistPage() {
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-8 text-center text-xs text-neutral-500">
-          Nothing saved yet — tap the heart icon on any product to add it here.
+          Nothing saved yet. Tap the heart icon on any product to add it here.
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

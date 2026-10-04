@@ -8,7 +8,7 @@ export const revalidate = 60;
 
 export const metadata = {
   title: 'Hot Deals on Phones and Spares',
-  description: 'Discounted genuine phones, screens, batteries, and repair tools at MS Soft GSM — limited-time pricing, updated live.',
+  description: 'Discounted genuine phones, screens, batteries, and repair tools at MS Soft GSM. Limited-time pricing, updated live.',
   alternates: { canonical: '/deals' },
 };
 

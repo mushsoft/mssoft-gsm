@@ -3,7 +3,7 @@ import { ArrowLeft, MapPin, Phone, Mail, MessageCircle, Clock } from 'lucide-rea
 
 export const metadata = {
   title: 'Contact Us',
-  description: 'Get in touch with MS Soft GSM — phone, WhatsApp, email, and our shop location in Kampala, Uganda.',
+  description: 'Get in touch with MS Soft GSM by phone, WhatsApp, or email, and find our shop location in Kampala, Uganda.',
   alternates: { canonical: '/contact' },
 };
 
@@ -82,7 +82,7 @@ export default function ContactPage() {
 
       <div className="flex items-start gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-xs text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/60 dark:text-neutral-400">
         <Clock className="h-4 w-4 shrink-0 text-neutral-400" />
-        <p>For fastest response, message us on WhatsApp — that&apos;s where our team replies quickest.</p>
+        <p>For fastest response, message us on WhatsApp. That&apos;s where our team replies quickest.</p>
       </div>
     </main>
   );

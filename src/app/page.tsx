@@ -204,7 +204,7 @@ export default async function HomePage() {
             </h2>
             <p className="mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-400">
               Get the right testpoint diagram, wholesale pricing, or a second pair of eyes on a stubborn
-              fault — talk to a real technician, not a chatbot.
+              fault. Talk to a real technician, not a chatbot.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-3">

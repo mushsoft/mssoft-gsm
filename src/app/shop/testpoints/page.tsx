@@ -6,7 +6,7 @@ import { TESTPOINT_SLUG_MAP, TESTPOINT_TYPES } from '@/lib/testPointTypes';
 
 export const metadata = {
   title: 'EDL Testpoint Diagrams',
-  description: 'EDL/EDL9008 testpoint diagrams for phone repair technicians — find the exact testpoint for your device model at MS Soft GSM.',
+  description: 'EDL/EDL9008 testpoint diagrams for phone repair technicians. Find the exact testpoint for your device model at MS Soft GSM.',
   alternates: { canonical: '/shop/testpoints' },
 };
 

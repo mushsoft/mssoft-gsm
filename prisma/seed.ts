@@ -99,7 +99,7 @@ const repairGuides = [
     content: `1. Power off the phone completely and remove the SIM tray.
 2. Apply gentle heat around the screen edges with a heat gun (low setting) to soften the adhesive.
 3. Use a suction cup on the lower edge of the screen and gently lift while sliding a plastic pry tool underneath to release the clips. Work slowly around all four edges.
-4. Once the screen is loosened, lift it like a book from the bottom — the display flex cables are connected near the top, so don't pull it fully off yet.
+4. Once the screen is loosened, lift it like a book from the bottom. The display flex cables are connected near the top, so don't pull it fully off yet.
 5. Remove the screws covering the flex cable connector bracket, lift the bracket, and disconnect the display and fingerprint sensor cables with a spudger.
 6. Transfer the fingerprint sensor and any small components from the old screen if the replacement doesn't include them.
 7. Connect the new screen's flex cables, replace the bracket and screws, and power on the phone BEFORE sealing it to confirm the display and touch work correctly.
@@ -122,7 +122,7 @@ const repairGuides = [
 8. Use your phone's Battery Health setting to confirm the new battery is recognized correctly.`,
   },
   {
-    title: 'Tecno Camon 20 Pro Charging Port Not Working — Fix Guide',
+    title: 'Tecno Camon 20 Pro Charging Port Not Working: Fix Guide',
     brand: 'Tecno',
     modelName: 'Camon 20 Pro',
     videoUrl: null,
@@ -130,7 +130,7 @@ const repairGuides = [
     toolsUsed: ['Precision Screwdriver Set', 'Plastic Pry Tools', 'Isopropyl Alcohol', 'Soft Brush'],
     content: `1. First, rule out a dirty port: power off the phone and clean the charging port gently with a soft brush and isopropyl alcohol. Let it dry fully before testing again.
 2. If cleaning doesn't help, remove the back cover (gentle heat helps loosen the adhesive) and the screws securing the main board shield.
-3. Locate the charging sub-board — on this model it's a separate flex board, not soldered directly to the motherboard, which makes this an easier repair.
+3. Locate the charging sub-board. On this model it's a separate flex board, not soldered directly to the motherboard, which makes this an easier repair.
 4. Disconnect the battery connector before doing any other work.
 5. Unscrew and lift out the charging sub-board, noting how the flex cable routes.
 6. Install the replacement sub-board, reconnect its flex cable, and reconnect the battery.
@@ -138,7 +138,7 @@ const repairGuides = [
 8. Once confirmed working, replace the shield, back cover, and any adhesive.`,
   },
   {
-    title: 'Universal Back Glass Replacement — What to Know Before You Start',
+    title: 'Universal Back Glass Replacement: What to Know Before You Start',
     brand: 'Universal',
     modelName: 'Most Glass-Back Phones',
     videoUrl: null,
@@ -146,9 +146,9 @@ const repairGuides = [
     toolsUsed: ['Low-Wattage Laser (or Heat Gun)', 'Suction Cup', 'Fine Wire or Pry Tool', 'UV Adhesive'],
     content: `Back glass replacement is one of the trickiest repairs to do cleanly without professional equipment, since the glass is fused directly to the frame (not held by screws or clips like the front screen).
 
-1. Apply heat evenly across the back glass in small sections — never concentrate heat in one spot, as this can crack the glass further or damage internal components.
+1. Apply heat evenly across the back glass in small sections. Never concentrate heat in one spot, as this can crack the glass further or damage internal components.
 2. Once the adhesive softens, use a suction cup to lift a small section and carefully feed a thin wire or pry tool underneath to cut through the adhesive, working in small sections.
-3. Remove all old glass fragments and adhesive residue completely — any leftover debris will prevent the new glass from sitting flush.
+3. Remove all old glass fragments and adhesive residue completely. Any leftover debris will prevent the new glass from sitting flush.
 4. Check the wireless charging coil and any other components attached to the original back glass; these usually need to be transferred to the new glass.
 5. Apply new adhesive (UV-cure adhesive gives the strongest, most water-resistant result) and press the new glass into place evenly.
 6. Cure the adhesive per its instructions before handling the phone normally again.

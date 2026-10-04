@@ -157,7 +157,7 @@ export default function CartPageClient() {
       ? `Hello MS Soft GSM! I want to ORDER these items:\n\n${checkoutable
           .map(
             ({ product, quantity }) =>
-              `📌 *${product.title}* ×${quantity} — UGX ${(product.price * quantity).toLocaleString()}`
+              `📌 *${product.title}* ×${quantity}: UGX ${(product.price * quantity).toLocaleString()}`
           )
           .join('\n')}\n\n💰 Total: UGX ${subtotal.toLocaleString()}`
       : '';
@@ -188,7 +188,7 @@ export default function CartPageClient() {
 
       {removedNotice && (
         <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
-          One or more items were removed — they&apos;re no longer available.
+          One or more items were removed. They&apos;re no longer available.
         </div>
       )}
 

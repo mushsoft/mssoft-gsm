@@ -8,7 +8,7 @@ export const generateWhatsAppLink = (product: Product, userNote?: string): strin
   const lineBreak = '\n';
   
   const message = [
-    `📱 *NEW ORDER REQUEST — MS SOFT GSM*`,
+    `📱 *NEW ORDER REQUEST: MS SOFT GSM*`,
     `-----------------------------------`,
     `• *Item:* ${product.name}`,
     `• *Brand:* ${product.brand}`,
