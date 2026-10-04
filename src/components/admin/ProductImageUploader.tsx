@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Loader2, Trash2, Upload } from 'lucide-react';
+import { Loader2, Trash2, Upload, X } from 'lucide-react';
 
 export default function ProductImageUploader({
   productId,
@@ -17,6 +17,16 @@ export default function ProductImageUploader({
   const [isUploading, setIsUploading] = useState(false);
   const [deletingUrl, setDeletingUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!previewUrl) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setPreviewUrl(null);
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [previewUrl]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -76,17 +86,25 @@ export default function ProductImageUploader({
       <div className="flex flex-wrap gap-2">
         {images.map((url) => (
           <div key={url} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950">
-            <Image src={url} alt="" fill className="object-cover" />
             <button
+              type="button"
+              onClick={() => setPreviewUrl(url)}
+              className="absolute inset-0"
+              aria-label="Preview image"
+            >
+              <Image src={url} alt="" fill className="object-cover" />
+            </button>
+            <button
+              type="button"
               onClick={() => handleDelete(url)}
               disabled={deletingUrl === url}
-              className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-100"
+              className="absolute right-0.5 top-0.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-100"
               aria-label="Delete image"
             >
               {deletingUrl === url ? (
-                <Loader2 className="h-4 w-4 animate-spin text-white" />
+                <Loader2 className="h-3 w-3 animate-spin text-white" />
               ) : (
-                <Trash2 className="h-4 w-4 text-red-400" />
+                <Trash2 className="h-3 w-3 text-red-400" />
               )}
             </button>
           </div>
@@ -109,6 +127,28 @@ export default function ProductImageUploader({
         />
       </div>
       {error && <p className="text-[10px] text-red-400">{error}</p>}
+
+      {previewUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setPreviewUrl(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setPreviewUrl(null)}
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+            aria-label="Close preview"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div
+            className="relative h-full max-h-[85vh] w-full max-w-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image src={previewUrl} alt="" fill className="object-contain" sizes="100vw" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
