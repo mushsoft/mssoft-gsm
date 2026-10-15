@@ -13,7 +13,7 @@ const TILE_SIZE = 360;
 // glyph came out as a tofu box. satori is a pure-JS text layout/shaping
 // engine (the same one next/og's ImageResponse uses) that takes an explicit
 // font buffer, so it renders correctly with zero system font dependency.
-const fontData = readFileSync(join(process.cwd(), 'src/assets/fonts/Roboto-Bold.woff'));
+const fontData = readFileSync(join(process.cwd(), 'src/assets/fonts/Roboto-Bold.ttf'));
 
 let tileCache: Promise<Buffer> | null = null;
 
