@@ -76,9 +76,21 @@ export interface WatermarkedImage {
 // always trustworthy) — jpeg/webp/gif all collapse to jpeg output since gif
 // animation can't survive a static composite anyway.
 export async function applyWatermark(input: Buffer): Promise<WatermarkedImage> {
-  const tile = await getWatermarkTile();
+  const masterTile = await getWatermarkTile();
   const base = sharp(input, { failOn: 'none' }).rotate();
   const metadata = await base.metadata();
+
+  // sharp's tile:true composite refuses an overlay larger than the base
+  // image — several catalog photos (small GSMArena-style icon crops) are
+  // under 360px on a side, so the tile has to shrink to fit rather than
+  // use one fixed size for every image.
+  const width = metadata.width ?? TILE_SIZE;
+  const height = metadata.height ?? TILE_SIZE;
+  const effectiveTileSize = Math.max(40, Math.min(TILE_SIZE, width, height));
+  const tile =
+    effectiveTileSize === TILE_SIZE
+      ? masterTile
+      : await sharp(masterTile).resize(effectiveTileSize, effectiveTileSize).png().toBuffer();
 
   const composited = sharp(input, { failOn: 'none' })
     .rotate()

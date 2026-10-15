@@ -20,7 +20,7 @@ interface CheckoutRequestBody {
   couponCode: string | null;
 }
 
-const ALLOWED_PAYMENT_METHODS = ["MOBILE_MONEY", "CARD", "AIRTEL_MONEY"];
+const ALLOWED_PAYMENT_METHODS = ["MOBILE_MONEY", "CARD", "AIRTEL_MONEY", "PAWAPAY"];
 // Airtel Money transaction codes look like "MP250101.1234.A56789" — this is
 // deliberately loose (just a sane length band) since the exact format isn't
 // documented and an admin visually cross-checks it against their Airtel
@@ -106,14 +106,23 @@ export async function POST(req: Request) {
   }
 
   const flutterwaveSecretKey = process.env.FLUTTERWAVE_SECRET_KEY;
+  const pawapayApiToken = process.env.PAWAPAY_API_TOKEN;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   // Airtel Money is a direct-to-merchant-ID payment with no gateway
   // involved (see markOrderPaid / admin "Mark as Paid") — it doesn't need
   // Flutterwave configured, so it shouldn't be blocked by it being down.
-  const needsFlutterwave = checkout.paymentMethod !== "AIRTEL_MONEY";
+  const needsFlutterwave = checkout.paymentMethod === "MOBILE_MONEY" || checkout.paymentMethod === "CARD";
+  const needsPawapay = checkout.paymentMethod === "PAWAPAY";
 
-  if (needsFlutterwave && (!flutterwaveSecretKey || !baseUrl)) {
-    console.error("Checkout misconfigured: FLUTTERWAVE_SECRET_KEY or NEXT_PUBLIC_BASE_URL is missing");
+  const needsGateway = needsFlutterwave || needsPawapay;
+  if (
+    (needsGateway && !baseUrl) ||
+    (needsFlutterwave && !flutterwaveSecretKey) ||
+    (needsPawapay && !pawapayApiToken)
+  ) {
+    console.error("Checkout misconfigured: payment gateway key or NEXT_PUBLIC_BASE_URL is missing", {
+      paymentMethod: checkout.paymentMethod,
+    });
     return NextResponse.json(
       { success: false, error: "Checkout is temporarily unavailable. Please try again later." },
       { status: 500 }
@@ -124,6 +133,11 @@ export async function POST(req: Request) {
   // amounts are never trusted, since a tampered request body could otherwise
   // buy real products for an arbitrary price.
   const txRef = `PH-${crypto.randomUUID()}`;
+  // pawaPay requires its own bare UUIDv4 "depositId" (distinct format from
+  // txRef's "PH-" prefixed one) — generated upfront so it can be stored on
+  // the order at creation time and reused unchanged for the payment-page
+  // call below.
+  const pawapayDepositId = checkout.paymentMethod === "PAWAPAY" ? crypto.randomUUID() : null;
   // Guest checkout stays fully supported — this only attaches the order to
   // an account when the request happens to carry a valid customer session.
   const customer = await getOrCreateCustomer().catch(() => null);
@@ -195,7 +209,7 @@ export async function POST(req: Request) {
           customerEmail: checkout.customerEmail,
           totalAmount,
           paymentMethod: checkout.paymentMethod,
-          paymentReference: checkout.paymentReference,
+          paymentReference: pawapayDepositId ?? checkout.paymentReference,
           txRef,
           customerId: customer?.id ?? null,
           couponCode: appliedCouponCode,
@@ -242,6 +256,54 @@ export async function POST(req: Request) {
   // to the order-confirmation page instead of a Flutterwave hosted page.
   if (checkout.paymentMethod === "AIRTEL_MONEY") {
     return NextResponse.json({ success: true, txRef });
+  }
+
+  // Stock is only decremented once pawaPay confirms payment via the webhook
+  // (see /api/checkout/webhook/pawapay) — never at initiation, matching the
+  // Flutterwave flow below.
+  if (checkout.paymentMethod === "PAWAPAY") {
+    try {
+      const response = await fetchWithTimeout(
+        `${process.env.PAWAPAY_BASE_URL || "https://api.pawapay.io"}/v2/paymentpage`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${pawapayApiToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            depositId: pawapayDepositId,
+            returnUrl: `${baseUrl}/order-confirmation?tx_ref=${txRef}`,
+            amountDetails: { amount: String(order.totalAmount), currency: "UGX" },
+            reason: "MS Soft GSM purchase",
+            // phoneNumber/country deliberately omitted — Ugandan phone
+            // numbers come in inconsistent formats (+256/0/256-prefixed)
+            // from the checkout form, and pawaPay's own payment page lets
+            // the customer enter/choose these directly rather than risk
+            // rejecting a well-formed order over a malformed MSISDN guess.
+          }),
+        },
+        FETCH_TIMEOUT_MS
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || data.status === "REJECTED" || !data.redirectUrl) {
+        throw new Error(data?.failureReason?.failureMessage || `pawaPay rejected the payment request (${response.status})`);
+      }
+
+      return NextResponse.json({ success: true, paymentUrl: data.redirectUrl, txRef });
+    } catch (error) {
+      console.error("pawaPay payment page creation failed", { txRef, error });
+      Sentry.captureException(error, { extra: { txRef, orderId: order.id } });
+      await markOrderFailed(order.id).catch((releaseError) =>
+        console.error("Failed to mark order failed / release coupon after init failure", { txRef, releaseError })
+      );
+      return NextResponse.json(
+        { success: false, error: "Unable to start payment. Please try again." },
+        { status: 502 }
+      );
+    }
   }
 
   // Stock is only decremented once Flutterwave confirms payment via the

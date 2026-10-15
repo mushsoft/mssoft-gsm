@@ -3,7 +3,7 @@
 import { CreditCard, Copy, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 
-export type PaymentMethod = 'MOBILE_MONEY' | 'CARD' | 'AIRTEL_MONEY';
+export type PaymentMethod = 'MOBILE_MONEY' | 'CARD' | 'AIRTEL_MONEY' | 'PAWAPAY';
 
 export const AIRTEL_MERCHANT_ID = '6923944';
 export const AIRTEL_USSD_CODE = '*185*9#';
@@ -91,7 +91,7 @@ export default function CheckoutFields({
 
       <div>
         <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">Payment Method</label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             disabled={isSubmitting}
@@ -130,6 +130,19 @@ export default function CheckoutFields({
           >
             <Smartphone className="h-3.5 w-3.5" />
             Airtel Money
+          </button>
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={() => onPaymentMethodChange('PAWAPAY')}
+            className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
+              paymentMethod === 'PAWAPAY'
+                ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400'
+                : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+            }`}
+          >
+            <Smartphone className="h-3.5 w-3.5" />
+            Mobile Money (Africa-wide)
           </button>
         </div>
       </div>
