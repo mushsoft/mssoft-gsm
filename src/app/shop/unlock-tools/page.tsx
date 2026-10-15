@@ -12,6 +12,12 @@ export const metadata = {
   alternates: { canonical: '/shop/unlock-tools' },
 };
 
+// No searchParams/cookies/headers usage here, so Next.js would otherwise
+// statically prerender this at build time and freeze it at whatever the DB
+// held then — admin additions/price-rate changes need to show up without a
+// redeploy, so this opts out of that.
+export const dynamic = 'force-dynamic';
+
 export default async function UnlockToolsPage() {
   const [tools, profile] = await Promise.all([
     prisma.softwareTool.findMany({ orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }] }),
