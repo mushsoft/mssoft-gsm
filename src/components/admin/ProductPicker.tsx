@@ -19,11 +19,10 @@ export default function ProductPicker({ onSelect }: { onSelect: (product: Produc
   useEffect(() => {
     const trimmed = query.trim();
     if (!trimmed) {
-      setResults([]);
       return;
     }
-    setIsLoading(true);
     const timer = setTimeout(() => {
+      setIsLoading(true);
       fetch(`/api/admin/products?q=${encodeURIComponent(trimmed)}`)
         .then((res) => res.json())
         .then((data) => setResults(data.success ? data.products : []))
@@ -52,6 +51,7 @@ export default function ProductPicker({ onSelect }: { onSelect: (product: Produc
           onChange={(e) => {
             setQuery(e.target.value);
             setIsOpen(true);
+            if (!e.target.value.trim()) setResults([]);
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="Search products to add..."
