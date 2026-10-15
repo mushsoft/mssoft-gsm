@@ -3,6 +3,15 @@ import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { parseRepairGuideInput, RepairGuideValidationError } from '@/lib/validateRepairGuide';
 
+export async function GET() {
+  if (!(await requireAdminApi())) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const guides = await prisma.repairGuide.findMany({ orderBy: { createdAt: 'desc' } });
+  return NextResponse.json({ success: true, guides });
+}
+
 export async function POST(req: Request) {
   if (!(await requireAdminApi())) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });

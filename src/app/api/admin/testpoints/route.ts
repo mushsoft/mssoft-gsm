@@ -3,6 +3,15 @@ import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { parseTestPointInput, TestPointValidationError } from '@/lib/validateTestPoint';
 
+export async function GET() {
+  if (!(await requireAdminApi())) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const testPoints = await prisma.testPoint.findMany({ orderBy: { createdAt: 'desc' } });
+  return NextResponse.json({ success: true, testPoints });
+}
+
 export async function POST(req: Request) {
   if (!(await requireAdminApi())) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });

@@ -3,6 +3,7 @@ import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { PRODUCT_IMAGES_BUCKET, getSupabaseAdmin, isSupabaseConfigured, pathFromPublicUrl } from '@/lib/supabaseAdmin';
 import { revalidateStorefront } from '@/lib/revalidateStorefront';
+import { applyWatermark } from '@/lib/imageWatermark';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -36,14 +37,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ success: false, error: 'Image must be under 5MB' }, { status: 400 });
   }
 
-  const extension = file.name.includes('.') ? file.name.split('.').pop() : file.type.split('/')[1];
+  const rawBuffer = Buffer.from(await file.arrayBuffer());
+  const { buffer, contentType, extension } = await applyWatermark(rawBuffer);
   const storagePath = `${productId}/${crypto.randomUUID()}.${extension}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
 
   const supabaseAdmin = getSupabaseAdmin();
   const { error: uploadError } = await supabaseAdmin.storage
     .from(PRODUCT_IMAGES_BUCKET)
-    .upload(storagePath, buffer, { contentType: file.type });
+    .upload(storagePath, buffer, { contentType });
 
   if (uploadError) {
     console.error('Supabase Storage upload failed', uploadError);
