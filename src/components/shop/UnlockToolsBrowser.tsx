@@ -63,7 +63,7 @@ export default function UnlockToolsBrowser({
             </div>
             <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
               {group.items.map((item) => {
-                const waMessage = `Hello MS Soft GSM! I'd like to order this:\n\n🔑 *${item.title}*\n💰 UGX ${item.priceUgx.toLocaleString()}`;
+                const waMessage = `Hello MS Soft GSM! I'd like to order this:\n\n🔑 *${item.title}*\n💰 ${item.priceUgx.toLocaleString()} Credits`;
                 const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
                 return (
@@ -76,7 +76,7 @@ export default function UnlockToolsBrowser({
                     </div>
                     <div className="flex shrink-0 items-center gap-3">
                       <span className="text-sm font-black text-neutral-900 dark:text-white whitespace-nowrap">
-                        UGX {item.priceUgx.toLocaleString()}
+                        {item.priceUgx.toLocaleString()} Credits
                       </span>
                       <a
                         href={whatsappUrl}

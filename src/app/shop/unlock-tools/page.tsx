@@ -8,7 +8,7 @@ import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/Un
 export const metadata = {
   title: 'Unlock & Flash Tool Credits',
   description:
-    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more — unlock/FRP/flash tool credits and activations for repair technicians, sold in UGX at MS Soft GSM.',
+    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more — unlock/FRP/flash tool credits and activations for repair technicians, priced in Credits at MS Soft GSM.',
   alternates: { canonical: '/shop/unlock-tools' },
 };
 
@@ -78,7 +78,7 @@ export default async function UnlockToolsPage({
               </h1>
               <p className="mt-1 max-w-xl text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
                 DC-Unlocker, Octoplus, NCK, Z3X, Miracle, UnlockTool, Chimera, schematics and more &mdash;
-                we top these up for you locally in UGX, no card needed. Find yours below and order on WhatsApp.
+                we top these up for you locally in Credits, no card needed. Find yours below and order on WhatsApp.
               </p>
             </div>
           </div>
