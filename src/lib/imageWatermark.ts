@@ -1,6 +1,67 @@
 import sharp from 'sharp';
+import satori from 'satori';
+import { Resvg } from '@resvg/resvg-js';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { createElement } from 'react';
 
 const WATERMARK_TEXT = 'mssoft-gsm.com';
+const TILE_SIZE = 360;
+
+// sharp's own SVG <text> rendering (librsvg) resolves fonts through the host
+// OS's fontconfig, which Vercel's serverless runtime has none of — every
+// glyph came out as a tofu box. satori is a pure-JS text layout/shaping
+// engine (the same one next/og's ImageResponse uses) that takes an explicit
+// font buffer, so it renders correctly with zero system font dependency.
+const fontData = readFileSync(join(process.cwd(), 'src/assets/fonts/Roboto-Bold.woff'));
+
+let tileCache: Promise<Buffer> | null = null;
+
+async function getWatermarkTile(): Promise<Buffer> {
+  if (!tileCache) {
+    tileCache = (async () => {
+      const element = createElement(
+        'div',
+        {
+          style: {
+            width: `${TILE_SIZE}px`,
+            height: `${TILE_SIZE}px`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        },
+        createElement(
+          'div',
+          {
+            style: {
+              display: 'flex',
+              fontSize: 30,
+              fontWeight: 700,
+              fontFamily: 'Roboto',
+              color: 'rgba(16,16,16,0.22)',
+              whiteSpace: 'nowrap',
+              transform: 'rotate(-30deg)',
+            },
+          },
+          WATERMARK_TEXT
+        )
+      );
+
+      const svg = await satori(
+        element,
+        {
+          width: TILE_SIZE,
+          height: TILE_SIZE,
+          fonts: [{ name: 'Roboto', data: fontData, weight: 700, style: 'normal' }],
+        }
+      );
+      const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: TILE_SIZE } });
+      return Buffer.from(resvg.render().asPng());
+    })();
+  }
+  return tileCache;
+}
 
 export interface WatermarkedImage {
   buffer: Buffer;
@@ -15,28 +76,13 @@ export interface WatermarkedImage {
 // always trustworthy) — jpeg/webp/gif all collapse to jpeg output since gif
 // animation can't survive a static composite anyway.
 export async function applyWatermark(input: Buffer): Promise<WatermarkedImage> {
+  const tile = await getWatermarkTile();
   const base = sharp(input, { failOn: 'none' }).rotate();
   const metadata = await base.metadata();
-  const width = metadata.width ?? 800;
-  const height = metadata.height ?? 800;
-
-  const tileSize = Math.max(120, Math.round(Math.min(width, height) / 5));
-  const fontSize = Math.max(14, Math.round(tileSize / 6));
-
-  const svg = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="wm" width="${tileSize}" height="${tileSize}" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">
-          <text x="0" y="${Math.round(tileSize / 2)}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="700" fill="#101010" fill-opacity="0.22">${WATERMARK_TEXT}</text>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#wm)" />
-    </svg>
-  `;
 
   const composited = sharp(input, { failOn: 'none' })
     .rotate()
-    .composite([{ input: Buffer.from(svg), blend: 'over' }]);
+    .composite([{ input: tile, tile: true, blend: 'over' }]);
 
   if (metadata.format === 'png') {
     return { buffer: await composited.png().toBuffer(), contentType: 'image/png', extension: 'png' };
