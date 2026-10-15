@@ -16,8 +16,14 @@ export type SoftwareToolGroup = {
 
 const WHATSAPP_PHONE = '256773944288';
 
-export default function UnlockToolsBrowser({ groups }: { groups: SoftwareToolGroup[] }) {
-  const [query, setQuery] = useState('');
+export default function UnlockToolsBrowser({
+  groups,
+  initialQuery = '',
+}: {
+  groups: SoftwareToolGroup[];
+  initialQuery?: string;
+}) {
+  const [query, setQuery] = useState(initialQuery);
 
   const filteredGroups = useMemo(() => {
     const q = query.trim().toLowerCase();

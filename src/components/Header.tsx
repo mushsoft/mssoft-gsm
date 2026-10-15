@@ -55,6 +55,18 @@ const CATEGORIES: CategoryMenu[] = [
     ]
   },
   {
+    title: 'FLASHING & UNLOCKING TOOLS',
+    icon: KeyRound,
+    mainHref: '/shop/unlock-tools',
+    subcategories: [
+      { title: 'DC-Unlocker & HCU', href: '/shop/unlock-tools?q=dc-unlocker' },
+      { title: 'Octoplus / Octopus Box', href: '/shop/unlock-tools?q=octoplus' },
+      { title: 'NCK Tools', href: '/shop/unlock-tools?q=nck' },
+      { title: 'Miracle / GB-Key', href: '/shop/unlock-tools?q=miracle' },
+      { title: 'Schematics', href: '/shop/unlock-tools?q=schematic' },
+    ]
+  },
+  {
     title: 'TESTPOINTS',
     icon: CircuitBoard,
     mainHref: '/shop/testpoints',
@@ -314,16 +326,6 @@ export default function Header() {
 
             <li className="py-2.5">
               <Link
-                href="/shop/unlock-tools"
-                className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 font-bold hover:text-purple-500 dark:hover:text-purple-300 transition-colors"
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-                <span>UNLOCK TOOLS</span>
-              </Link>
-            </li>
-
-            <li className="py-2.5">
-              <Link
                 href="/deals"
                 className="flex items-center gap-1 text-red-500 dark:text-red-400 font-bold hover:text-red-400 dark:hover:text-red-300 transition-colors"
               >
@@ -411,15 +413,6 @@ export default function Header() {
           >
             <GraduationCap className="w-4 h-4" />
             <span>LEARN TO REPAIR</span>
-          </Link>
-
-          <Link
-            href="/shop/unlock-tools"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center gap-2 py-2 text-xs font-bold text-purple-600 dark:text-purple-400"
-          >
-            <KeyRound className="w-4 h-4" />
-            <span>UNLOCK TOOLS</span>
           </Link>
 
           <Link

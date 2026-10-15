@@ -18,7 +18,12 @@ export const metadata = {
 // redeploy, so this opts out of that.
 export const dynamic = 'force-dynamic';
 
-export default async function UnlockToolsPage() {
+export default async function UnlockToolsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const [tools, profile] = await Promise.all([
     prisma.softwareTool.findMany({ orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }] }),
     getShopProfile(),
@@ -111,7 +116,7 @@ export default async function UnlockToolsPage() {
           </a>
         </div>
       ) : (
-        <UnlockToolsBrowser groups={groups} />
+        <UnlockToolsBrowser groups={groups} initialQuery={q ?? ''} />
       )}
     </main>
   );
