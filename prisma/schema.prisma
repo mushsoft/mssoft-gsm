@@ -78,6 +78,25 @@ model TestPoint {
   createdAt  DateTime @default(now())
 }
 
+// A reseller line item for a phone-unlocking/flashing/FRP/schematic tool
+// credit or activation (DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool,
+// etc.) — displayed on /shop/unlock-tools grouped by `category`. creditCost
+// is the raw supplier cost in that reseller's own "Credit" unit; the UGX
+// price shown to customers is computed at render time from creditCost ×
+// ShopProfile.creditRateUgx × a markup (see src/lib/softwareToolPricing.ts),
+// never stored, so one rate update instantly re-prices every listing.
+model SoftwareTool {
+  id         String   @id @default(uuid())
+  category   String   // e.g. "DC-Unlocker & HCU", "Octoplus / Octopus Box" — grouping heading
+  title      String   // e.g. "DC-Unlocker And HCU Credits For Existing User"
+  creditCost Float    // supplier cost in Credit units, e.g. 0.668, 60.62
+  order      Int      @default(0) // manual sort position within its category
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([category])
+}
+
 model RepairGuide {
   id        String   @id @default(uuid())
   title     String   // e.g. Tecno Camon 18 Charging Flex Fix
@@ -280,6 +299,10 @@ model ShopProfile {
   facebook     String?
   address      String?
   tinNumber    String? // Uganda Tax Identification Number — optional, shown on invoices if set
+  // UGX value of 1 "Credit" on the unlock-tool supplier's reseller panel —
+  // fluctuates with the USD/UGX rate, so it's admin-editable here rather
+  // than hardcoded, and every SoftwareTool price derives from it live.
+  creditRateUgx Int      @default(4300)
   updatedAt    DateTime @updatedAt
 }
 

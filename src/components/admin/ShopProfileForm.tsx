@@ -16,6 +16,7 @@ export type ShopProfileFormValues = {
   facebook: string;
   address: string;
   tinNumber: string;
+  creditRateUgx: string;
 };
 
 export default function ShopProfileForm({ initialValues }: { initialValues: ShopProfileFormValues }) {
@@ -178,6 +179,24 @@ export default function ShopProfileForm({ initialValues }: { initialValues: Shop
             placeholder="MS Soft GSM"
           />
         </div>
+      </div>
+
+      <div>
+        <label className={labelClass}>Unlock-Tool Credit Rate (UGX per Credit)</label>
+        <input
+          type="number"
+          min="1"
+          step="1"
+          value={values.creditRateUgx}
+          onChange={(e) => update('creditRateUgx', e.target.value)}
+          disabled={isSubmitting}
+          className={inputClass}
+          placeholder="4300"
+        />
+        <p className="mt-1 text-[10px] text-neutral-400">
+          What 1 supplier &quot;Credit&quot; costs in UGX right now &mdash; every price on the Unlock &amp; Flash
+          Tools page recalculates from this the moment you save, so update it whenever the rate moves.
+        </p>
       </div>
 
       <div>

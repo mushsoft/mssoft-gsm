@@ -41,6 +41,7 @@ export default async function AdminSettingsPage() {
             facebook: profile.facebook ?? '',
             address: profile.address ?? '',
             tinNumber: profile.tinNumber ?? '',
+            creditRateUgx: String(profile.creditRateUgx),
           }}
         />
       </div>

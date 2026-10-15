@@ -32,10 +32,18 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ success: false, error: 'Business name is required' }, { status: 400 });
   }
 
-  const data: Record<string, string | null> = { businessName };
+  const data: Record<string, string | number | null> = { businessName };
   for (const field of OPTIONAL_TEXT_FIELDS) {
     const raw = b[field];
     data[field] = typeof raw === 'string' && raw.trim() ? raw.trim() : null;
+  }
+
+  if ('creditRateUgx' in b) {
+    const creditRateUgx = typeof b.creditRateUgx === 'number' ? b.creditRateUgx : Number(b.creditRateUgx);
+    if (!Number.isFinite(creditRateUgx) || creditRateUgx <= 0) {
+      return NextResponse.json({ success: false, error: 'Credit rate must be a positive number' }, { status: 400 });
+    }
+    data.creditRateUgx = creditRateUgx;
   }
 
   // Singleton — get-or-create the one row, then update it by its real id
