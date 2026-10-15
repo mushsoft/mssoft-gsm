@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { MessageCircle, Search } from 'lucide-react';
 
 export type PricedSoftwareTool = {
@@ -17,8 +18,6 @@ export type SoftwareToolGroup = {
   category: string;
   items: PricedSoftwareTool[];
 };
-
-const WHATSAPP_PHONE = '256773944288';
 
 export default function UnlockToolsBrowser({
   groups,
@@ -66,35 +65,28 @@ export default function UnlockToolsBrowser({
               {group.category}
             </div>
             <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
-              {group.items.map((item) => {
-                const waMessage = `Hello MS Soft GSM! I'd like to order this:\n\n🔑 *${item.title}*\n💰 ${formatCredits(item.credits)} Credits`;
-                const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
-
-                return (
-                  <div
-                    key={item.id}
-                    className="flex flex-col gap-2 bg-white dark:bg-neutral-950/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 sm:pr-4">
-                      {item.title}
-                    </div>
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span className="text-sm font-black text-neutral-900 dark:text-white whitespace-nowrap">
-                        {formatCredits(item.credits)} Credits
-                      </span>
-                      <a
-                        href={whatsappUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-emerald-500"
-                      >
-                        <MessageCircle className="h-3.5 w-3.5 fill-current" />
-                        Order
-                      </a>
-                    </div>
+              {group.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col gap-2 bg-white dark:bg-neutral-950/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 sm:pr-4">
+                    {item.title}
                   </div>
-                );
-              })}
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className="text-sm font-black text-neutral-900 dark:text-white whitespace-nowrap">
+                      {formatCredits(item.credits)} Credits
+                    </span>
+                    <Link
+                      href="/shop/unlock-tools/maintenance"
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-emerald-500"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5 fill-current" />
+                      Order
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ))
