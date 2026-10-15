@@ -30,7 +30,7 @@ export default async function NewSoftwareToolPage() {
         <div>
           <h1 className="text-lg font-black text-neutral-900 dark:text-white">New Software Tool</h1>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Enter the supplier cost in Credit units &mdash; the UGX price is computed automatically.
+            Enter the supplier cost in Credit units. The UGX price is computed automatically.
           </p>
         </div>
       </div>

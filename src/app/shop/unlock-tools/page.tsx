@@ -6,7 +6,7 @@ import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/Un
 export const metadata = {
   title: 'Unlock & Flash Tool Credits',
   description:
-    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more — unlock/FRP/flash tool credits and activations for repair technicians, priced in Credits at MS Soft GSM.',
+    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more: unlock/FRP/flash tool credits and activations for repair technicians, priced in Credits at MS Soft GSM.',
   alternates: { canonical: '/shop/unlock-tools' },
 };
 

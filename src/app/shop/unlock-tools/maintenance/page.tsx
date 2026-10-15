@@ -17,7 +17,7 @@ export default function UnlockToolsMaintenancePage() {
         </h1>
         <p className="text-sm text-neutral-500 dark:text-neutral-400">
           Unlock &amp; Flash Tool ordering is paused for about 24 hours while we update things. Please
-          check back soon &mdash; the tool list is still here to browse in the meantime.
+          check back soon. The tool list is still here to browse in the meantime.
         </p>
         <p className="text-xs text-neutral-400">
           Need something urgently?{' '}

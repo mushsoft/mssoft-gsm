@@ -194,7 +194,7 @@ export default function ShopProfileForm({ initialValues }: { initialValues: Shop
           placeholder="4300"
         />
         <p className="mt-1 text-[10px] text-neutral-400">
-          What 1 supplier &quot;Credit&quot; costs in UGX right now &mdash; every price on the Unlock &amp; Flash
+          What 1 supplier &quot;Credit&quot; costs in UGX right now. Every price on the Unlock &amp; Flash
           Tools page recalculates from this the moment you save, so update it whenever the rate moves.
         </p>
       </div>
