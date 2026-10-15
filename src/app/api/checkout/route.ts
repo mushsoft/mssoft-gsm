@@ -275,12 +275,15 @@ export async function POST(req: Request) {
             depositId: pawapayDepositId,
             returnUrl: `${baseUrl}/order-confirmation?tx_ref=${txRef}`,
             amountDetails: { amount: String(order.totalAmount), currency: "UGX" },
+            // pawaPay requires "country" or "phoneNumber" alongside
+            // amountDetails — always Uganda here. phoneNumber itself is
+            // deliberately omitted: Ugandan numbers come in inconsistent
+            // formats (+256/0/256-prefixed) from the checkout form, and
+            // pawaPay's own payment page lets the customer enter/choose
+            // their number directly rather than risk rejecting a
+            // well-formed order over a malformed MSISDN guess.
+            country: "UGA",
             reason: "MS Soft GSM purchase",
-            // phoneNumber/country deliberately omitted — Ugandan phone
-            // numbers come in inconsistent formats (+256/0/256-prefixed)
-            // from the checkout form, and pawaPay's own payment page lets
-            // the customer enter/choose these directly rather than risk
-            // rejecting a well-formed order over a malformed MSISDN guess.
           }),
         },
         FETCH_TIMEOUT_MS

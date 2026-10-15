@@ -142,7 +142,7 @@ export default function CheckoutFields({
             }`}
           >
             <Smartphone className="h-3.5 w-3.5" />
-            Mobile Money (Africa-wide)
+            Mobile Money (pawaPay)
           </button>
         </div>
       </div>
