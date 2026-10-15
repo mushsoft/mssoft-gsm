@@ -6,8 +6,12 @@ import { MessageCircle, Search } from 'lucide-react';
 export type PricedSoftwareTool = {
   id: string;
   title: string;
-  priceUgx: number;
+  credits: number;
 };
+
+function formatCredits(credits: number): string {
+  return credits.toLocaleString(undefined, { maximumFractionDigits: 3 });
+}
 
 export type SoftwareToolGroup = {
   category: string;
@@ -63,7 +67,7 @@ export default function UnlockToolsBrowser({
             </div>
             <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
               {group.items.map((item) => {
-                const waMessage = `Hello MS Soft GSM! I'd like to order this:\n\n🔑 *${item.title}*\n💰 ${item.priceUgx.toLocaleString()} Credits`;
+                const waMessage = `Hello MS Soft GSM! I'd like to order this:\n\n🔑 *${item.title}*\n💰 ${formatCredits(item.credits)} Credits`;
                 const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
                 return (
@@ -76,7 +80,7 @@ export default function UnlockToolsBrowser({
                     </div>
                     <div className="flex shrink-0 items-center gap-3">
                       <span className="text-sm font-black text-neutral-900 dark:text-white whitespace-nowrap">
-                        {item.priceUgx.toLocaleString()} Credits
+                        {formatCredits(item.credits)} Credits
                       </span>
                       <a
                         href={whatsappUrl}

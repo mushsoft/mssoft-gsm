@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, KeyRound, MessageCircle, Sparkles } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
-import { getShopProfile } from '@/lib/shopProfile';
-import { computeSoftwareToolPrice } from '@/lib/softwareToolPricing';
 import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/UnlockToolsBrowser';
 
 export const metadata = {
@@ -24,10 +22,9 @@ export default async function UnlockToolsPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const [tools, profile] = await Promise.all([
-    prisma.softwareTool.findMany({ orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }] }),
-    getShopProfile(),
-  ]);
+  const tools = await prisma.softwareTool.findMany({
+    orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }],
+  });
 
   const whatsappPhone = '256773944288';
 
@@ -37,7 +34,7 @@ export default async function UnlockToolsPage({
     groupsMap.get(tool.category)!.items.push({
       id: tool.id,
       title: tool.title,
-      priceUgx: computeSoftwareToolPrice(tool.creditCost, profile.creditRateUgx),
+      credits: tool.creditCost,
     });
   }
   const groups = Array.from(groupsMap.values());
