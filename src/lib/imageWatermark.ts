@@ -1,6 +1,5 @@
 import sharp from 'sharp';
 import satori from 'satori';
-import { Resvg } from '@resvg/resvg-js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createElement } from 'react';
@@ -12,7 +11,9 @@ const TILE_SIZE = 360;
 // OS's fontconfig, which Vercel's serverless runtime has none of — every
 // glyph came out as a tofu box. satori is a pure-JS text layout/shaping
 // engine (the same one next/og's ImageResponse uses) that takes an explicit
-// font buffer, so it renders correctly with zero system font dependency.
+// font buffer and bakes each glyph directly into <path> geometry — by the
+// time the SVG comes back there's no text left for a renderer to resolve a
+// font for, so sharp can rasterize it like any other vector graphic.
 const fontData = readFileSync(join(process.cwd(), 'src/assets/fonts/Roboto-Bold.ttf'));
 
 let tileCache: Promise<Buffer> | null = null;
@@ -56,8 +57,7 @@ async function getWatermarkTile(): Promise<Buffer> {
           fonts: [{ name: 'Roboto', data: fontData, weight: 700, style: 'normal' }],
         }
       );
-      const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: TILE_SIZE } });
-      return Buffer.from(resvg.render().asPng());
+      return sharp(Buffer.from(svg)).png().toBuffer();
     })();
   }
   return tileCache;
