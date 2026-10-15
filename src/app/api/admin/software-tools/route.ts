@@ -3,6 +3,17 @@ import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { parseSoftwareToolInput, SoftwareToolValidationError } from '@/lib/validateSoftwareTool';
 
+export async function GET() {
+  if (!(await requireAdminApi())) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const softwareTools = await prisma.softwareTool.findMany({
+    orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }],
+  });
+  return NextResponse.json({ success: true, softwareTools });
+}
+
 export async function POST(req: Request) {
   if (!(await requireAdminApi())) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
