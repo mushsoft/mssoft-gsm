@@ -57,7 +57,7 @@ export const CATEGORY_SUBCATEGORIES: Partial<Record<ProductCategory, Subcategory
   ],
 };
 
-const QUALITY_OPTIONS = ['Original Service Pack', 'OEM Replacement', 'Aftermarket', 'Used - Original'];
+const QUALITY_OPTIONS = ['Original Service Pack', 'OEM Replacement', 'Aftermarket', 'Copy', 'Used - Original'];
 
 const qualityField = (): SpecFieldDef => ({
   key: 'quality',

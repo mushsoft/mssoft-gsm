@@ -24,7 +24,7 @@ const PAGE_SIZE = 24;
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ sub?: string; brand?: string; condition?: string }>;
+  searchParams: Promise<{ sub?: string; brand?: string; condition?: string; fits?: string; quality?: string }>;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
@@ -47,9 +47,9 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { category } = await params;
-  const { sub, brand, condition } = await searchParams;
+  const { sub, brand, condition, fits, quality } = await searchParams;
 
-  const built = buildCategoryWhere(category, { sub, brand, condition });
+  const built = buildCategoryWhere(category, { sub, brand, condition, fits, quality });
 
   if (!built) {
     return (
@@ -153,6 +153,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           sub={sub}
           brand={brand}
           condition={condition}
+          fits={fits}
+          quality={quality}
         />
       )}
     </main>

@@ -14,6 +14,8 @@ export const PRODUCT_BRANDS = [
   'Nokia',
   'Huawei',
   'Honor',
+  'Google',
+  'ZTE',
 ] as const;
 
 // Model options for the admin form's Brand -> Model cascading dropdown.

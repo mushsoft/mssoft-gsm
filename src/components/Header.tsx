@@ -51,7 +51,12 @@ const CATEGORIES: CategoryMenu[] = [
       { title: 'UK Used Phones', href: '/shop/phones?condition=uk_used' },
       { title: 'iPhones / Apple', href: '/shop/phones?brand=apple' },
       { title: 'Samsung Galaxy', href: '/shop/phones?brand=samsung' },
-      { title: 'Tecno & Infinix', href: '/shop/phones?brand=tecno' },
+      { title: 'Tecno', href: '/shop/phones?brand=tecno' },
+      { title: 'Infinix', href: '/shop/phones?brand=infinix' },
+      { title: 'itel', href: '/shop/phones?brand=itel' },
+      { title: 'ZTE', href: '/shop/phones?brand=zte' },
+      { title: 'Google Pixel', href: '/shop/phones?brand=pixel' },
+      { title: 'Redmi / Xiaomi', href: '/shop/phones?brand=redmi' },
     ]
   },
   {
@@ -96,8 +101,12 @@ const CATEGORIES: CategoryMenu[] = [
     icon: Sparkles,
     mainHref: '/shop/screens',
     subcategories: [
-      { title: 'Touch Screens', href: '/shop/screens?sub=touch' },
-      { title: 'Complete Screens', href: '/shop/screens?sub=complete' },
+      { title: 'iPhone Screens', href: '/shop/screens?fits=apple' },
+      { title: 'Samsung Screens', href: '/shop/screens?fits=samsung' },
+      { title: 'Tecno Screens', href: '/shop/screens?fits=tecno' },
+      { title: 'Infinix Screens', href: '/shop/screens?fits=infinix' },
+      { title: 'Original / OEM', href: '/shop/screens?quality=oem' },
+      { title: 'Copy Screens', href: '/shop/screens?quality=copy' },
     ]
   },
   {
