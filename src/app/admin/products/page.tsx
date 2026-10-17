@@ -6,22 +6,31 @@ import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
-import { PRODUCT_TABS, productTabHref } from '@/lib/adminProductTabs';
+import { PRODUCT_TABS, productTabHref, SUB_TABS_BY_TAB, subTabHref } from '@/lib/adminProductTabs';
 
-export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ tab?: string; sub?: string }> }) {
   await requireAdminPage();
 
-  const { tab } = await searchParams;
+  const { tab, sub } = await searchParams;
   const activeTab = PRODUCT_TABS.find((t) => t.key === tab) ?? PRODUCT_TABS[0];
+  const subTabs = SUB_TABS_BY_TAB[activeTab.key];
+  const activeSubTab = sub ? subTabs?.find((s) => s.key === sub) : undefined;
+  const where = activeSubTab ? { AND: [activeTab.where, activeSubTab.where] } : activeTab.where;
 
   // Sequential, not Promise.all — concurrent Prisma queries over the shared
   // pooled connection have triggered a Postgres protocol error ("bind
   // message supplies N parameters, but prepared statement requires 0") in
   // this environment (see ReviewsSection.tsx, adminDashboard.ts).
-  const products = await prisma.product.findMany({ where: activeTab.where, orderBy: { createdAt: 'desc' } });
+  const products = await prisma.product.findMany({ where, orderBy: { createdAt: 'desc' } });
   const counts: number[] = [];
   for (const t of PRODUCT_TABS) {
     counts.push(await prisma.product.count({ where: t.where }));
+  }
+  const subCounts: number[] = [];
+  if (subTabs) {
+    for (const s of subTabs) {
+      subCounts.push(await prisma.product.count({ where: { AND: [activeTab.where, s.where] } }));
+    }
   }
 
   return (
@@ -61,6 +70,38 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
           );
         })}
       </div>
+
+      {subTabs && (
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={subTabHref(activeTab.key)}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors ${
+              !activeSubTab
+                ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
+                : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:border-amber-500/40 hover:text-amber-500'
+            }`}
+          >
+            All {activeTab.label}
+          </Link>
+          {subTabs.map((s, i) => {
+            const active = s.key === activeSubTab?.key;
+            return (
+              <Link
+                key={s.key}
+                href={subTabHref(activeTab.key, s.key)}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors ${
+                  active
+                    ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
+                    : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:border-amber-500/40 hover:text-amber-500'
+                }`}
+              >
+                {s.label}
+                <span className={active ? 'opacity-60' : 'text-neutral-400 dark:text-neutral-600'}>{subCounts[i]}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       <div className="flex justify-end">
         <Link
@@ -139,7 +180,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
 
         {products.length === 0 && (
           <div className="p-8 text-center text-xs text-neutral-500">
-            No products in {activeTab.label.toLowerCase()} yet,{' '}
+            No products in {activeSubTab ? activeSubTab.label.toLowerCase() : activeTab.label.toLowerCase()} yet,{' '}
             <Link href="/admin/products/new" className="font-bold text-amber-500 hover:underline">
               create one
             </Link>
