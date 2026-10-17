@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader2, Package } from 'lucide-react';
 import CatalogProductCard, { type CatalogProduct } from '@/components/cards/CatalogProductCard';
 import { CATEGORY_ICON } from '@/lib/categoryIcons';
@@ -36,8 +36,12 @@ export default function CategoryProductGrid({
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false);
 
   async function loadMore() {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
     setIsLoading(true);
     try {
       const qs = new URLSearchParams({ category, page: String(page + 1) });
@@ -55,9 +59,27 @@ export default function CategoryProductGrid({
         setPage((p) => p + 1);
       }
     } finally {
+      loadingRef.current = false;
       setIsLoading(false);
     }
   }
+
+  // Fetch the next page automatically once the sentinel scrolls near the
+  // viewport, so the list keeps growing without a click.
+  useEffect(() => {
+    if (!hasMore) return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: '600px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, page]);
 
   return (
     <>
@@ -68,16 +90,13 @@ export default function CategoryProductGrid({
       </div>
 
       {hasMore && (
-        <div className="flex justify-center pt-2">
-          <button
-            type="button"
-            onClick={loadMore}
-            disabled={isLoading}
-            className="flex items-center gap-2 rounded-lg border border-neutral-200 px-5 py-2.5 text-xs font-bold text-neutral-600 transition-colors hover:border-amber-500/50 hover:text-amber-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-800 dark:text-neutral-300"
-          >
-            {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-            {isLoading ? 'Loading...' : 'Load More'}
-          </button>
+        <div ref={sentinelRef} className="flex justify-center pt-2">
+          {isLoading && (
+            <div className="flex items-center gap-2 text-xs font-bold text-neutral-500 dark:text-neutral-400">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Loading more...
+            </div>
+          )}
         </div>
       )}
     </>
