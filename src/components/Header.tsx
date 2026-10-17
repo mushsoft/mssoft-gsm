@@ -1,10 +1,9 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
-  Search,
   ChevronDown,
   MessageCircle,
   Menu,
@@ -28,6 +27,8 @@ import {
 import ThemeToggle from '@/components/ThemeToggle';
 import SiteLogo from '@/components/SiteLogo';
 import CartIcon from '@/components/cart/CartIcon';
+import SearchBar from '@/components/SearchBar';
+import { getSearchScope } from '@/lib/searchScope';
 
 interface SubCategory {
   title: string;
@@ -144,16 +145,18 @@ const CATEGORIES: CategoryMenu[] = [
 ];
 
 export default function Header() {
-  const router = useRouter();
   // The home page's own hero already has a prominent search bar directly
   // below it — showing this one too was two search bars stacked on one
   // screen. Hide this one there; every other page still needs it since they
   // have no hero search of their own.
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  // Which category (if any) the shopper is currently browsing — the search
+  // bar searches within that category as they type instead of always
+  // searching the whole catalog. See src/lib/searchScope.ts.
+  const searchScope = getSearchScope(pathname);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMobileCategory, setActiveMobileCategory] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const whatsappUrl = 'https://wa.me/256773944288';
   // "Ask a Technician" used to link straight into the /account/** auth
   // gate (proxy.ts), forcing a sign-in/signup before a visitor could even
@@ -163,15 +166,6 @@ export default function Header() {
   const askTechWhatsappUrl = `https://wa.me/256773944288?text=${encodeURIComponent(
     "Hi, I'd like to ask a technician about a phone/laptop issue."
   )}`;
-
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const query = searchQuery.trim();
-    if (!query) return;
-
-    // Utilize Next.js Router instead of triggering a hard reload
-    router.push(`/shop?search=${encodeURIComponent(query)}`);
-  };
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800">
@@ -210,26 +204,9 @@ export default function Header() {
 
         {/* SEARCH BAR (Desktop) — the home page's hero has its own, so skip this one there */}
         {!isHomePage && (
-          <form
-            onSubmit={handleSearch}
-            className="hidden md:flex flex-1 max-w-lg relative items-center"
-          >
-            <input
-              type="text"
-              aria-label="Search products"
-              placeholder="Search EDL testpoints, blowers, screens, UK used phones..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-xl py-2.5 pl-10 pr-20 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
-            />
-            <Search className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 pointer-events-none" />
-            <button
-              type="submit"
-              className="absolute right-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-lg transition-colors"
-            >
-              Search
-            </button>
-          </form>
+          <div className="hidden md:flex flex-1 max-w-lg">
+            <SearchBar key={searchScope.key} scope={searchScope} variant="desktop" />
+          </div>
         )}
 
         {/* ACTIONS */}
@@ -272,23 +249,7 @@ export default function Header() {
       {/* MOBILE SEARCH BAR — the home page's hero has its own, so skip this one there */}
       {!isHomePage && (
         <div className="md:hidden px-4 pb-3">
-          <form onSubmit={handleSearch} className="relative flex items-center">
-            <input
-              type="text"
-              aria-label="Search products"
-              placeholder="Search testpoints, blowers, screens..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-lg py-2 pl-9 pr-16 focus:outline-none focus:border-amber-500"
-            />
-            <Search className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 absolute left-3 pointer-events-none" />
-            <button
-              type="submit"
-              className="absolute right-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-black font-bold text-[10px] rounded"
-            >
-              Search
-            </button>
-          </form>
+          <SearchBar key={searchScope.key} scope={searchScope} variant="mobile" />
         </div>
       )}
 

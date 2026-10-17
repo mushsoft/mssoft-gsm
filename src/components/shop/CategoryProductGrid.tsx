@@ -20,6 +20,7 @@ export default function CategoryProductGrid({
   condition,
   fits,
   quality,
+  q,
 }: {
   initialProducts: ProductWithCategory[];
   initialHasMore: boolean;
@@ -29,6 +30,7 @@ export default function CategoryProductGrid({
   condition?: string;
   fits?: string;
   quality?: string;
+  q?: string;
 }) {
   const [products, setProducts] = useState(initialProducts);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -44,6 +46,7 @@ export default function CategoryProductGrid({
       if (condition) qs.set('condition', condition);
       if (fits) qs.set('fits', fits);
       if (quality) qs.set('quality', quality);
+      if (q) qs.set('q', q);
       const res = await fetch(`/api/shop/products?${qs.toString()}`);
       const data = await res.json();
       if (data.success) {

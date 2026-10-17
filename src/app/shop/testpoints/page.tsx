@@ -13,13 +13,26 @@ export const metadata = {
 export default async function TestpointsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sub?: string }>;
+  searchParams: Promise<{ sub?: string; q?: string }>;
 }) {
-  const { sub } = await searchParams;
+  const { sub, q } = await searchParams;
   const mappedType = sub ? TESTPOINT_SLUG_MAP[sub] : undefined;
+  const trimmedQuery = q?.trim();
 
   const testpoints = await prisma.testPoint.findMany({
-    where: mappedType ? { pointType: mappedType } : undefined,
+    where: {
+      ...(mappedType ? { pointType: mappedType } : {}),
+      ...(trimmedQuery
+        ? {
+            OR: [
+              { title: { contains: trimmedQuery, mode: 'insensitive' } },
+              { brand: { contains: trimmedQuery, mode: 'insensitive' } },
+              { modelName: { contains: trimmedQuery, mode: 'insensitive' } },
+              { chipset: { contains: trimmedQuery, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -93,10 +106,13 @@ export default async function TestpointsPage({
             <CircuitBoard className="h-7 w-7" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">No diagrams listed yet</h3>
+            <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
+              {trimmedQuery ? `No matches for "${trimmedQuery}"` : 'No diagrams listed yet'}
+            </h3>
             <p className="mx-auto mt-1 max-w-sm text-xs text-neutral-500">
-              Add entries at /admin/testpoints, or message us directly and we&apos;ll source the
-              diagram you need.
+              {trimmedQuery
+                ? "Try a different model name, or message us directly and we'll source the diagram you need."
+                : "Add entries at /admin/testpoints, or message us directly and we'll source the diagram you need."}
             </p>
           </div>
           <a

@@ -16,9 +16,10 @@ export async function GET(req: Request) {
   const condition = url.searchParams.get('condition') ?? undefined;
   const fits = url.searchParams.get('fits') ?? undefined;
   const quality = url.searchParams.get('quality') ?? undefined;
+  const q = url.searchParams.get('q') ?? undefined;
   const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
 
-  const built = buildCategoryWhere(category, { sub, brand, condition, fits, quality });
+  const built = buildCategoryWhere(category, { sub, brand, condition, fits, quality, q });
   if (!built) {
     return NextResponse.json({ success: false, error: 'Unknown category' }, { status: 404 });
   }

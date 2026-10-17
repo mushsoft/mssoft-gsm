@@ -69,13 +69,25 @@ export const QUALITY_SLUG_MAP: Record<string, string> = {
 
 export function buildCategoryWhere(
   category: string,
-  filters: { sub?: string; brand?: string; condition?: string; fits?: string; quality?: string }
+  filters: { sub?: string; brand?: string; condition?: string; fits?: string; quality?: string; q?: string }
 ): { meta: CategoryMeta; where: Prisma.ProductWhereInput; mappedSub?: string } | null {
   const meta = CATEGORY_MAP[category];
   if (!meta) return null;
 
   const mappedSub = filters.sub ? SUB_SLUG_MAP[filters.sub] : undefined;
   const where: Prisma.ProductWhereInput = { category: meta.type };
+  // Free-text search scoped to this category — the header's search bar uses
+  // this (instead of the cross-category /shop search) whenever the shopper
+  // is already browsing a specific category, so "iphone" typed on the
+  // Phones page only searches phones, not the whole catalog.
+  const q = filters.q?.trim();
+  if (q) {
+    where.OR = [
+      { title: { contains: q, mode: 'insensitive' } },
+      { brand: { contains: q, mode: 'insensitive' } },
+      { modelName: { contains: q, mode: 'insensitive' } },
+    ];
+  }
   if (mappedSub) {
     where.subcategory = mappedSub;
   } else if (meta.subcategory) {

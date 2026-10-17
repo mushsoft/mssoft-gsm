@@ -24,7 +24,7 @@ const PAGE_SIZE = 24;
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ sub?: string; brand?: string; condition?: string; fits?: string; quality?: string }>;
+  searchParams: Promise<{ sub?: string; brand?: string; condition?: string; fits?: string; quality?: string; q?: string }>;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
@@ -47,9 +47,9 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { category } = await params;
-  const { sub, brand, condition, fits, quality } = await searchParams;
+  const { sub, brand, condition, fits, quality, q } = await searchParams;
 
-  const built = buildCategoryWhere(category, { sub, brand, condition, fits, quality });
+  const built = buildCategoryWhere(category, { sub, brand, condition, fits, quality, q });
 
   if (!built) {
     return (
@@ -64,6 +64,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   const activeSubcategoryLabel = mappedSub && CATEGORY_SUBCATEGORIES[meta.type]?.find((s) => s.value === mappedSub)?.label;
   const pageLabel = activeSubcategoryLabel ?? meta.label;
+  const trimmedQuery = q?.trim();
 
   const [totalCount, products] = await Promise.all([
     prisma.product.count({ where }),
@@ -133,7 +134,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               <Sparkles className="h-3 w-3" />
               Verified Inventory
             </div>
-            <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-3xl">{pageLabel}</h1>
+            <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+              {trimmedQuery ? `"${trimmedQuery}" in ${pageLabel}` : pageLabel}
+            </h1>
             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
               {totalCount} item{totalCount === 1 ? '' : 's'} available. Pay instantly or order via WhatsApp.
             </p>
@@ -143,7 +146,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
       {products.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-12 text-center text-neutral-500 dark:text-neutral-400">
-          No items listed under {pageLabel.toLowerCase()} yet.
+          {trimmedQuery
+            ? `No matches for "${trimmedQuery}" in ${pageLabel.toLowerCase()}.`
+            : `No items listed under ${pageLabel.toLowerCase()} yet.`}
         </div>
       ) : (
         <CategoryProductGrid
@@ -155,6 +160,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           condition={condition}
           fits={fits}
           quality={quality}
+          q={q}
         />
       )}
     </main>
