@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ClipboardList, FileText, MessageCircle, Package } from 'lucide-react';
+import { ClipboardList, FileText, MessageCircle, Package } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import OrderActions from '@/components/admin/OrderActions';
 import { PaymentStatusBadge, FulfillmentStatusBadge } from '@/components/admin/OrderStatusBadge';
+import AdminBackLink from '@/components/admin/AdminBackLink';
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -26,13 +27,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
       <AutoRefresh intervalMs={15000} />
-      <Link
-        href="/admin/orders"
-        className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Orders</span>
-      </Link>
+      <AdminBackLink href="/admin/orders" label="Back to Orders" />
 
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">

@@ -1,20 +1,14 @@
-import Link from 'next/link';
-import { ArrowLeft, GraduationCap } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import RepairGuideForm from '@/components/admin/RepairGuideForm';
+import AdminBackLink from '@/components/admin/AdminBackLink';
 
 export default async function NewRepairGuidePage() {
   await requireAdminPage();
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-      <Link
-        href="/admin/repair-guides"
-        className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-emerald-500"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Repair Guides</span>
-      </Link>
+      <AdminBackLink href="/admin/repair-guides" label="Back to Repair Guides" accent="emerald" />
 
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">

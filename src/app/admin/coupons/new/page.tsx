@@ -1,20 +1,14 @@
-import Link from 'next/link';
-import { ArrowLeft, Percent } from 'lucide-react';
+import { Percent } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import CouponForm from '@/components/admin/CouponForm';
+import AdminBackLink from '@/components/admin/AdminBackLink';
 
 export default async function NewCouponPage() {
   await requireAdminPage();
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-      <Link
-        href="/admin/coupons"
-        className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Coupons</span>
-      </Link>
+      <AdminBackLink href="/admin/coupons" label="Back to Coupons" />
 
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">

@@ -1,9 +1,8 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import ProductForm from '@/components/admin/ProductForm';
 import { getCategoryRoute } from '@/lib/productCategoryRoutes';
+import AdminBackLink from '@/components/admin/AdminBackLink';
 
 export default async function NewCategoryProductPage({ params }: { params: Promise<{ category: string }> }) {
   await requireAdminPage();
@@ -19,13 +18,7 @@ export default async function NewCategoryProductPage({ params }: { params: Promi
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-      <Link
-        href="/admin/products/new"
-        className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Categories</span>
-      </Link>
+      <AdminBackLink href="/admin/products/new" label="Back to Categories" />
 
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">

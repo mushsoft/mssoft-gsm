@@ -1,11 +1,11 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Package } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import ProductForm from '@/components/admin/ProductForm';
 import ProductImageUploader from '@/components/admin/ProductImageUploader';
 import DeleteProductButton from '@/components/admin/DeleteProductButton';
+import AdminBackLink from '@/components/admin/AdminBackLink';
 import { splitSpecs, type ProductCategory } from '@/lib/productSpecFields';
 import { getCategoryRouteByCategory } from '@/lib/productCategoryRoutes';
 import { resolveProductTab, productTabHref } from '@/lib/adminProductTabs';
@@ -38,13 +38,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-      <Link
-        href={productTabHref(backTab)}
-        className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to {backTab.label}</span>
-      </Link>
+      <AdminBackLink href={productTabHref(backTab)} label={`Back to ${backTab.label}`} />
 
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">

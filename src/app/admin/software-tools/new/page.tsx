@@ -1,8 +1,8 @@
-import Link from 'next/link';
-import { ArrowLeft, KeyRound } from 'lucide-react';
+import { KeyRound } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import SoftwareToolForm from '@/components/admin/SoftwareToolForm';
+import AdminBackLink from '@/components/admin/AdminBackLink';
 
 export default async function NewSoftwareToolPage() {
   await requireAdminPage();
@@ -15,13 +15,7 @@ export default async function NewSoftwareToolPage() {
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-      <Link
-        href="/admin/software-tools"
-        className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-amber-500"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Software Tools</span>
-      </Link>
+      <AdminBackLink href="/admin/software-tools" label="Back to Software Tools" />
 
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
