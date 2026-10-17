@@ -77,8 +77,8 @@ const PRODUCT_RAILS: { key: string; label: string; eyebrow: string; href: string
     href: '/shop/screens',
     where: { category: 'SPARE_PART', subcategory: 'SCREEN' },
   },
-  { key: 'tools', label: 'Repair Tools', eyebrow: 'For the Bench', href: '/shop/tools', where: { category: 'REPAIR_TOOL' } },
   { key: 'accessories', label: 'Accessories', eyebrow: 'Everyday Carry', href: '/shop/accessories', where: { category: 'ACCESSORY' } },
+  { key: 'tools', label: 'Repair Tools', eyebrow: 'For the Bench', href: '/shop/tools', where: { category: 'REPAIR_TOOL' } },
   {
     key: 'spares',
     label: 'Other Spares',
