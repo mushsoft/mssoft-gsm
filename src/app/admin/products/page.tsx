@@ -26,11 +26,26 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   for (const t of PRODUCT_TABS) {
     counts.push(await prisma.product.count({ where: t.where }));
   }
-  const subCounts: number[] = [];
-  if (subTabs) {
-    for (const s of subTabs) {
-      subCounts.push(await prisma.product.count({ where: { AND: [activeTab.where, s.where] } }));
-    }
+
+  // Sub-tab counts as ONE query each (not one per brand/quality value) — the
+  // original per-value count() loop added 8 extra sequential round trips on
+  // the Phones tab (4 on Screens), which is what made switching between
+  // brand/quality chips feel laggy.
+  let subCounts: number[] = [];
+  if (activeTab.key === 'phones' && subTabs) {
+    const brandGroups = await prisma.product.groupBy({ by: ['brand'], where: activeTab.where, _count: { _all: true } });
+    subCounts = subTabs.map((s) => {
+      const wantedBrand = (s.where as { brand?: { equals: string } }).brand?.equals.toLowerCase();
+      return brandGroups.reduce((sum, g) => (g.brand.toLowerCase() === wantedBrand ? sum + g._count._all : sum), 0);
+    });
+  } else if (activeTab.key === 'screens' && subTabs) {
+    // specs.quality is a JSON field — Prisma can't groupBy into it, so pull
+    // just that column for the (small, ~265-row) Screens tab and tally in JS.
+    const screenSpecs = await prisma.product.findMany({ where: activeTab.where, select: { specs: true } });
+    subCounts = subTabs.map((s) => {
+      const wantedQuality = (s.where as { specs?: { path: string[]; equals: string } }).specs?.equals;
+      return screenSpecs.filter((p) => (p.specs as Record<string, unknown> | null)?.quality === wantedQuality).length;
+    });
   }
 
   return (
