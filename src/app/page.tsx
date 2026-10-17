@@ -13,9 +13,9 @@ import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
 import { TESTPOINT_TYPES } from '@/lib/testPointTypes';
 
 export const metadata = {
-  title: 'MS Soft GSM | Phones, Spare Parts & Technician Support Uganda',
+  title: 'Phones, Spare Parts & Technician Support Uganda',
   description:
-    'Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp, with fast delivery across Kampala & East Africa.',
+    'Genuine phones, screens, batteries, accessories and repair tools in Uganda. Instant checkout or order via WhatsApp, with fast delivery across Kampala and Uganda-wide on request.',
   alternates: { canonical: '/' },
 };
 
@@ -222,8 +222,8 @@ export default async function HomePage() {
       {/* Trust Strip */}
       <StaggerGroup className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { number: '01', title: 'Genuine Parts', blurb: 'Sourced & verified' },
-          { number: '02', title: 'Fast Delivery', blurb: 'Across East Africa' },
+          { number: '01', title: 'Original & Copy Parts', blurb: 'Clearly labelled' },
+          { number: '02', title: 'Fast Delivery', blurb: 'Kampala, Uganda-wide on request' },
           { number: '03', title: 'WhatsApp Support', blurb: 'A technician replies' },
           { number: '04', title: 'Repair Guidance', blurb: 'Free technician tips' },
         ].map(({ number, title, blurb }) => (
@@ -266,13 +266,17 @@ export default async function HomePage() {
               <MessageCircle className="h-3.5 w-3.5 fill-current" />
               WhatsApp the Bench
             </a>
-            <Link
-              href="/account/repair-requests"
+            <a
+              href={`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(
+                "Hi, I'd like to ask a technician about a phone/laptop issue."
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2.5 text-xs font-bold text-neutral-700 dark:text-neutral-200 transition-colors hover:border-amber-500/50 hover:text-amber-500"
             >
               <Stethoscope className="h-3.5 w-3.5" />
               Ask a Technician
-            </Link>
+            </a>
           </div>
         </div>
       </div>

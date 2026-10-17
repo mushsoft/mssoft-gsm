@@ -5,7 +5,7 @@ import CartPageClient from '@/components/cart/CartPageClient';
 // or DB-backed state) — this file exists only to carry metadata, since a
 // 'use client' component can't export it.
 export const metadata: Metadata = {
-  title: 'Your Cart | MS Soft GSM',
+  title: 'Your Cart',
   robots: { index: false, follow: true },
 };
 

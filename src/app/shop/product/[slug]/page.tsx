@@ -37,6 +37,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const product = await getProduct(slug);
   if (!product) return {};
 
+  // WhatsApp/social share previews are the whole point of this metadata — a
+  // bare product name with no price reads as an ad with the price cropped
+  // off, so lead the preview title with it instead of leaving it to the
+  // (often price-less) product description.
+  const priceLabel = `UGX ${product.price.toLocaleString()}`;
+  const shareTitle = `${product.title} — ${priceLabel}`;
   const description = truncate(product.description);
   const image = product.images[0];
   const url = `${baseUrl}/shop/product/${product.slug}`;
@@ -47,14 +53,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     alternates: { canonical: url },
     openGraph: {
       type: 'website',
-      title: product.title,
+      title: shareTitle,
       description,
       url,
       images: image ? [{ url: image }] : undefined,
     },
     twitter: {
       card: image ? 'summary_large_image' : 'summary',
-      title: product.title,
+      title: shareTitle,
       description,
       images: image ? [image] : undefined,
     },

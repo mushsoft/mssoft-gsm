@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   const meta = CATEGORY_MAP[category];
   if (!meta) return {};
 
-  const description = `Shop ${meta.label.toLowerCase()} at MS Soft GSM: genuine stock, competitive prices, fast delivery across Kampala & East Africa.`;
+  const description = `Shop ${meta.label.toLowerCase()} at MS Soft GSM: genuine stock, competitive prices, fast delivery across Kampala and Uganda-wide on request.`;
 
   return {
     title: meta.label,

@@ -89,7 +89,7 @@ export default function WholesalePage() {
         <h2 className="text-base font-bold text-neutral-900 dark:text-white">How it works</h2>
         <p className="mx-auto mt-2 max-w-lg text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 sm:text-sm">
           Message us on WhatsApp with your shop details and the parts you typically stock or need. We&apos;ll set
-          you up with a wholesale quote and a direct line for future orders no minimum order size required to
+          you up with a wholesale quote and a direct line for future orders. No minimum order size required to
           get started.
         </p>
         <a

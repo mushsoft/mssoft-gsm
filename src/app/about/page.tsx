@@ -141,13 +141,17 @@ export default function AboutPage() {
           Ask a technician directly, or browse what&apos;s in stock right now.
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/account/repair-requests"
+          <a
+            href={`https://wa.me/256773944288?text=${encodeURIComponent(
+              "Hi, I'd like to ask a technician about a phone/laptop issue."
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-black transition-colors hover:bg-amber-400"
           >
             <MessageCircle className="h-3.5 w-3.5" />
             Ask a Technician
-          </Link>
+          </a>
           <Link
             href="/shop/phones"
             className="flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 px-4 py-2 text-xs font-bold text-neutral-600 dark:text-neutral-300 transition-colors hover:border-amber-500/50 hover:text-amber-500"

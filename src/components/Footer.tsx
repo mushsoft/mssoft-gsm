@@ -27,8 +27,8 @@ export default function Footer() {
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Genuine Parts</h4>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Tested & Tech Certified</p>
+              <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Original & Quality Copies</h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Clearly labelled, every listing</p>
             </div>
           </div>
 
@@ -38,7 +38,7 @@ export default function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Fast Delivery</h4>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Across East Africa</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Kampala, Uganda-wide on request</p>
             </div>
           </div>
 
@@ -57,8 +57,8 @@ export default function Footer() {
               <Headphones className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-neutral-900 dark:text-white">24/7 Assistance</h4>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Quick WhatsApp Response</p>
+              <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Fast WhatsApp Replies</h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Mon–Sat, 9am–7pm</p>
             </div>
           </div>
         </div>

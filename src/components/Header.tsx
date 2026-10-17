@@ -189,7 +189,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Fast delivery across Kampala & East Africa</span>
+            <span>Fast delivery across Kampala, Uganda-wide on request</span>
           </div>
           <div className="hidden sm:flex items-center gap-4 text-neutral-500 dark:text-neutral-400">
             <a href="tel:+256755754880" className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors flex items-center gap-1.5">
