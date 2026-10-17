@@ -37,14 +37,67 @@ export const SCREEN_QUALITY_SUB_TABS: ProductSubTab[] = [
   { key: 'copy', label: 'Copy', where: { specs: { path: ['quality'], equals: QUALITY_SLUG_MAP.copy } } },
 ];
 
-// Maps a PRODUCT_TABS key to the sub-tab row (if any) shown beneath it.
-export const SUB_TABS_BY_TAB: Record<string, ProductSubTab[] | undefined> = {
-  phones: PHONE_BRAND_SUB_TABS,
-  screens: SCREEN_QUALITY_SUB_TABS,
+// Another filter row shown under the Screens tab, alongside quality — groups
+// by the screen's own `brand` field (which phone the panel was made for),
+// not the storefront's `fits`/compatibleBrands filter. Curated to the brands
+// that actually show up in the catalog in meaningful numbers (~90% of all
+// screens); anything else still shows up under "All Screens".
+export const SCREEN_BRAND_SUB_TABS: ProductSubTab[] = [
+  { key: 'samsung', label: 'Samsung', where: { brand: { equals: 'Samsung', mode: 'insensitive' } } },
+  { key: 'tecno', label: 'Tecno', where: { brand: { equals: 'Tecno', mode: 'insensitive' } } },
+  { key: 'vivo', label: 'Vivo', where: { brand: { equals: 'Vivo', mode: 'insensitive' } } },
+  { key: 'realme', label: 'Realme', where: { brand: { equals: 'Realme', mode: 'insensitive' } } },
+  { key: 'motorola', label: 'Motorola', where: { brand: { equals: 'Motorola', mode: 'insensitive' } } },
+  { key: 'honor', label: 'Honor', where: { brand: { equals: 'Honor', mode: 'insensitive' } } },
+  { key: 'nokia', label: 'Nokia', where: { brand: { equals: 'Nokia', mode: 'insensitive' } } },
+  { key: 'apple', label: 'Apple', where: { brand: { equals: 'Apple', mode: 'insensitive' } } },
+  { key: 'oppo', label: 'Oppo', where: { brand: { equals: 'Oppo', mode: 'insensitive' } } },
+  { key: 'infinix', label: 'Infinix', where: { brand: { equals: 'Infinix', mode: 'insensitive' } } },
+  { key: 'google', label: 'Google', where: { brand: { equals: 'Google', mode: 'insensitive' } } },
+  { key: 'villaon', label: 'Villaon', where: { brand: { equals: 'Villaon', mode: 'insensitive' } } },
+  { key: 'xiaomi', label: 'Xiaomi', where: { brand: { equals: 'Xiaomi', mode: 'insensitive' } } },
+  { key: 'zte', label: 'ZTE', where: { brand: { equals: 'ZTE', mode: 'insensitive' } } },
+  { key: 'huawei', label: 'Huawei', where: { brand: { equals: 'Huawei', mode: 'insensitive' } } },
+  { key: 'itel', label: 'itel', where: { brand: { equals: 'itel', mode: 'insensitive' } } },
+  { key: 'tiok', label: 'Tiok', where: { brand: { equals: 'Tiok', mode: 'insensitive' } } },
+  { key: 'generic', label: 'Generic / Unbranded', where: { brand: { equals: 'Generic', mode: 'insensitive' } } },
+];
+
+export interface ProductSubTabFacet {
+  // Query param this facet's choice is stored under — each facet on a tab
+  // needs its own param so picking a screen brand doesn't clobber the
+  // quality selection (and vice versa).
+  paramKey: string;
+  // Label for the chip that clears this facet back to "no filter".
+  clearLabel: string;
+  options: ProductSubTab[];
+}
+
+// Maps a PRODUCT_TABS key to the independent filter row(s) shown beneath it.
+// Screens has two: which phone brand the panel fits, and the quality grade.
+export const SUB_TAB_FACETS_BY_TAB: Record<string, ProductSubTabFacet[] | undefined> = {
+  phones: [{ paramKey: 'sub', clearLabel: 'All Phones', options: PHONE_BRAND_SUB_TABS }],
+  screens: [
+    { paramKey: 'brand', clearLabel: 'All Brands', options: SCREEN_BRAND_SUB_TABS },
+    { paramKey: 'sub', clearLabel: 'All Grades', options: SCREEN_QUALITY_SUB_TABS },
+  ],
 };
 
-export function subTabHref(tabKey: string, subKey?: string): string {
-  return subKey ? `/admin/products?tab=${tabKey}&sub=${subKey}` : `/admin/products?tab=${tabKey}`;
+// Builds a sub-tab link that sets `paramKey=value` (or clears it) while
+// preserving whatever the tab's *other* facet(s) are currently set to, so
+// switching the brand chip doesn't reset the quality chip or vice versa.
+export function subTabHref(
+  tabKey: string,
+  paramKey: string,
+  value: string | undefined,
+  otherActive: Record<string, string | undefined> = {}
+): string {
+  const params = new URLSearchParams({ tab: tabKey });
+  for (const [key, val] of Object.entries(otherActive)) {
+    if (val) params.set(key, val);
+  }
+  if (value) params.set(paramKey, value);
+  return `/admin/products?${params.toString()}`;
 }
 
 // Shared between the admin products list (which tab is active) and the

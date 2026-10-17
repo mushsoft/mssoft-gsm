@@ -6,16 +6,25 @@ import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
-import { PRODUCT_TABS, productTabHref, SUB_TABS_BY_TAB, subTabHref } from '@/lib/adminProductTabs';
+import { PRODUCT_TABS, productTabHref, SUB_TAB_FACETS_BY_TAB, subTabHref, type ProductSubTab } from '@/lib/adminProductTabs';
 
-export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ tab?: string; sub?: string }> }) {
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string; sub?: string; brand?: string }>;
+}) {
   await requireAdminPage();
 
-  const { tab, sub } = await searchParams;
+  const { tab, sub, brand } = await searchParams;
   const activeTab = PRODUCT_TABS.find((t) => t.key === tab) ?? PRODUCT_TABS[0];
-  const subTabs = SUB_TABS_BY_TAB[activeTab.key];
-  const activeSubTab = sub ? subTabs?.find((s) => s.key === sub) : undefined;
-  const where = activeSubTab ? { AND: [activeTab.where, activeSubTab.where] } : activeTab.where;
+  const facets = SUB_TAB_FACETS_BY_TAB[activeTab.key] ?? [];
+  const paramValues: Record<string, string | undefined> = { sub, brand };
+  const activeOptions = facets.map((facet) => {
+    const value = paramValues[facet.paramKey];
+    return value ? facet.options.find((o) => o.key === value) : undefined;
+  });
+  const activeWheres = activeOptions.filter((o): o is ProductSubTab => o !== undefined).map((o) => o.where);
+  const where = activeWheres.length > 0 ? { AND: [activeTab.where, ...activeWheres] } : activeTab.where;
 
   // Sequential, not Promise.all — concurrent Prisma queries over the shared
   // pooled connection have triggered a Postgres protocol error ("bind
@@ -27,25 +36,36 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
     counts.push(await prisma.product.count({ where: t.where }));
   }
 
-  // Sub-tab counts as ONE query each (not one per brand/quality value) — the
-  // original per-value count() loop added 8 extra sequential round trips on
-  // the Phones tab (4 on Screens), which is what made switching between
-  // brand/quality chips feel laggy.
-  let subCounts: number[] = [];
-  if (activeTab.key === 'phones' && subTabs) {
+  // Facet counts as ONE query (not one per brand/quality value) — the
+  // original per-value count() loop added 8+ extra sequential round trips on
+  // the Phones tab (more on Screens with two facets now), which is what made
+  // switching between brand/quality chips feel laggy. Each chip's count is
+  // computed against the whole tab, ignoring the *other* active facet — same
+  // semantics as before, just extended to more than one facet row.
+  let facetCounts: number[][] = facets.map(() => []);
+  if (activeTab.key === 'phones') {
     const brandGroups = await prisma.product.groupBy({ by: ['brand'], where: activeTab.where, _count: { _all: true } });
-    subCounts = subTabs.map((s) => {
-      const wantedBrand = (s.where as { brand?: { equals: string } }).brand?.equals.toLowerCase();
-      return brandGroups.reduce((sum, g) => (g.brand.toLowerCase() === wantedBrand ? sum + g._count._all : sum), 0);
-    });
-  } else if (activeTab.key === 'screens' && subTabs) {
+    facetCounts = facets.map((facet) =>
+      facet.options.map((o) => {
+        const wantedBrand = (o.where as { brand?: { equals: string } }).brand?.equals.toLowerCase();
+        return brandGroups.reduce((sum, g) => (g.brand.toLowerCase() === wantedBrand ? sum + g._count._all : sum), 0);
+      })
+    );
+  } else if (activeTab.key === 'screens') {
     // specs.quality is a JSON field — Prisma can't groupBy into it, so pull
-    // just that column for the (small, ~265-row) Screens tab and tally in JS.
-    const screenSpecs = await prisma.product.findMany({ where: activeTab.where, select: { specs: true } });
-    subCounts = subTabs.map((s) => {
-      const wantedQuality = (s.where as { specs?: { path: string[]; equals: string } }).specs?.equals;
-      return screenSpecs.filter((p) => (p.specs as Record<string, unknown> | null)?.quality === wantedQuality).length;
-    });
+    // brand + that column for the (small, ~400-row) Screens tab and tally
+    // both facets in JS from the same rows.
+    const screenRows = await prisma.product.findMany({ where: activeTab.where, select: { brand: true, specs: true } });
+    facetCounts = facets.map((facet) =>
+      facet.options.map((o) => {
+        if (facet.paramKey === 'brand') {
+          const wantedBrand = (o.where as { brand?: { equals: string } }).brand?.equals.toLowerCase();
+          return screenRows.filter((p) => p.brand.toLowerCase() === wantedBrand).length;
+        }
+        const wantedQuality = (o.where as { specs?: { path: string[]; equals: string } }).specs?.equals;
+        return screenRows.filter((p) => (p.specs as Record<string, unknown> | null)?.quality === wantedQuality).length;
+      })
+    );
   }
 
   return (
@@ -86,37 +106,45 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
         })}
       </div>
 
-      {subTabs && (
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href={subTabHref(activeTab.key)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors ${
-              !activeSubTab
-                ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
-                : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:border-amber-500/40 hover:text-amber-500'
-            }`}
-          >
-            All {activeTab.label}
-          </Link>
-          {subTabs.map((s, i) => {
-            const active = s.key === activeSubTab?.key;
-            return (
-              <Link
-                key={s.key}
-                href={subTabHref(activeTab.key, s.key)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors ${
-                  active
-                    ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
-                    : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:border-amber-500/40 hover:text-amber-500'
-                }`}
-              >
-                {s.label}
-                <span className={active ? 'opacity-60' : 'text-neutral-400 dark:text-neutral-600'}>{subCounts[i]}</span>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+      {facets.map((facet, fi) => {
+        const activeValue = paramValues[facet.paramKey];
+        const otherActive = Object.fromEntries(
+          facets.filter((f) => f.paramKey !== facet.paramKey).map((f) => [f.paramKey, paramValues[f.paramKey]])
+        );
+        return (
+          <div key={facet.paramKey} className="flex flex-wrap gap-2">
+            <Link
+              href={subTabHref(activeTab.key, facet.paramKey, undefined, otherActive)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors ${
+                !activeValue
+                  ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
+                  : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:border-amber-500/40 hover:text-amber-500'
+              }`}
+            >
+              {facet.clearLabel}
+            </Link>
+            {facet.options.map((o, i) => {
+              const active = o.key === activeValue;
+              return (
+                <Link
+                  key={o.key}
+                  href={subTabHref(activeTab.key, facet.paramKey, o.key, otherActive)}
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors ${
+                    active
+                      ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
+                      : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:border-amber-500/40 hover:text-amber-500'
+                  }`}
+                >
+                  {o.label}
+                  <span className={active ? 'opacity-60' : 'text-neutral-400 dark:text-neutral-600'}>
+                    {facetCounts[fi]?.[i]}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        );
+      })}
 
       <div className="flex justify-end">
         <Link
@@ -195,7 +223,14 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
 
         {products.length === 0 && (
           <div className="p-8 text-center text-xs text-neutral-500">
-            No products in {activeSubTab ? activeSubTab.label.toLowerCase() : activeTab.label.toLowerCase()} yet,{' '}
+            No products in{' '}
+            {activeOptions.some((o) => o)
+              ? activeOptions
+                  .filter((o): o is ProductSubTab => o !== undefined)
+                  .map((o) => o.label.toLowerCase())
+                  .join(' · ')
+              : activeTab.label.toLowerCase()}{' '}
+            yet,{' '}
             <Link href="/admin/products/new" className="font-bold text-amber-500 hover:underline">
               create one
             </Link>
