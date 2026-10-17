@@ -2,7 +2,7 @@ import { cache } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Flame, MessageCircle, Package } from 'lucide-react';
+import { ArrowLeft, Flame, MessageCircle, Package, ShieldCheck } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import ProductGallery from '@/components/product/ProductGallery';
@@ -199,6 +199,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               Order Now
             </a>
           </div>
+
+          <Link
+            href="/shipping-returns"
+            className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+          >
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+            Warranty, condition grading &amp; delivery
+          </Link>
 
           <div>
             <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-neutral-500">Description</h2>

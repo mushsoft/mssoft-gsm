@@ -9,6 +9,7 @@ const routes = [
   'contact',
   'privacy',
   'terms',
+  'shipping-returns',
   'learn-to-repair',
   'wholesale',
   'new-arrivals',

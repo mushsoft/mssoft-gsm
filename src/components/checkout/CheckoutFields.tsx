@@ -1,6 +1,7 @@
 'use client';
 
-import { CreditCard, Copy, Smartphone } from 'lucide-react';
+import { CreditCard, Copy, Smartphone, Truck } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export type PaymentMethod = 'MOBILE_MONEY' | 'CARD' | 'AIRTEL_MONEY' | 'PAWAPAY';
@@ -41,8 +42,11 @@ export default function CheckoutFields({
   return (
     <div className="space-y-3">
       <div>
-        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">Full Name</label>
+        <label htmlFor="checkout-name" className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">
+          Full Name <span className="text-red-500">*</span>
+        </label>
         <input
+          id="checkout-name"
           value={values.customerName}
           onChange={(e) => onChange('customerName', e.target.value)}
           required
@@ -53,8 +57,11 @@ export default function CheckoutFields({
       </div>
 
       <div>
-        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">Phone Number</label>
+        <label htmlFor="checkout-phone" className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">
+          Phone Number <span className="text-red-500">*</span>
+        </label>
         <input
+          id="checkout-phone"
           value={values.customerPhone}
           onChange={(e) => onChange('customerPhone', e.target.value)}
           required
@@ -63,11 +70,22 @@ export default function CheckoutFields({
           disabled={isSubmitting}
           className="w-full rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-600 outline-none focus:border-amber-500/50 disabled:opacity-60"
         />
+        <p className="mt-1 flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
+          <Truck className="h-3 w-3 shrink-0" />
+          We&apos;ll confirm delivery cost &amp; timing on this number — see{' '}
+          <Link href="/shipping-returns" className="font-semibold text-amber-500 hover:underline">
+            delivery areas &amp; estimates
+          </Link>
+          .
+        </p>
       </div>
 
       <div>
-        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">Email</label>
+        <label htmlFor="checkout-email" className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">
+          Email <span className="text-red-500">*</span>
+        </label>
         <input
+          id="checkout-email"
           value={values.customerEmail}
           onChange={(e) => onChange('customerEmail', e.target.value)}
           required
@@ -79,8 +97,11 @@ export default function CheckoutFields({
       </div>
 
       <div>
-        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">Promo Code (optional)</label>
+        <label htmlFor="checkout-coupon" className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">
+          Promo Code (optional)
+        </label>
         <input
+          id="checkout-coupon"
           value={values.couponCode}
           onChange={(e) => onChange('couponCode', e.target.value.toUpperCase())}
           placeholder="MSGSM10"
@@ -208,10 +229,11 @@ function AirtelMoneyInstructions({
       </ol>
 
       <div>
-        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">
-          Airtel Money Transaction ID
+        <label htmlFor="checkout-airtel-ref" className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">
+          Airtel Money Transaction ID <span className="text-red-500">*</span>
         </label>
         <input
+          id="checkout-airtel-ref"
           value={reference}
           onChange={(e) => onChange('paymentReference', e.target.value.toUpperCase())}
           required

@@ -154,6 +154,14 @@ export default async function HomePage() {
     return [];
   });
 
+  // Real aggregate only — shows nothing until genuine reviews exist rather
+  // than a fabricated/empty-looking trust badge.
+  const reviewStats = await prisma.review
+    .aggregate({ _count: { _all: true }, _avg: { rating: true } })
+    .catch(() => null);
+  const reviewCount = reviewStats?._count._all ?? 0;
+  const averageRating = reviewStats?._avg.rating;
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const localBusinessJsonLd = {
     '@context': 'https://schema.org',
@@ -167,6 +175,12 @@ export default async function HomePage() {
       streetAddress: 'Kampala Centre Point, AC 19, opposite ABSA Bank',
       addressLocality: 'Kampala',
       addressCountry: 'UG',
+    },
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      opens: '09:00',
+      closes: '19:00',
     },
     sameAs: [
       'https://www.tiktok.com/@mushsoft',
@@ -191,6 +205,19 @@ export default async function HomePage() {
       </div>
 
       <Marquee items={BRAND_TICKER} />
+
+      {/* Real aggregate rating — only once genuine reviews exist, never a
+          placeholder/invented count. */}
+      {reviewCount > 0 && averageRating != null && (
+        <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-neutral-600 dark:text-neutral-300">
+          <span className="text-amber-500">★</span>
+          <span>{averageRating.toFixed(1)} average</span>
+          <span className="text-neutral-400 dark:text-neutral-600">·</span>
+          <span className="text-neutral-500 dark:text-neutral-400">
+            {reviewCount} customer review{reviewCount === 1 ? '' : 's'}
+          </span>
+        </div>
+      )}
 
       {/* Trust Strip */}
       <StaggerGroup className="grid grid-cols-2 gap-3 sm:grid-cols-4">

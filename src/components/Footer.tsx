@@ -127,6 +127,31 @@ export default function Footer() {
                   Pro Repair Tools
                 </Link>
               </li>
+              <li>
+                <Link href="/shop/unlock-tools" className="hover:text-amber-400 transition-colors">
+                  Flashing &amp; Unlocking Tools
+                </Link>
+              </li>
+              <li>
+                <Link href="/shop/testpoints" className="hover:text-amber-400 transition-colors">
+                  Testpoints
+                </Link>
+              </li>
+              <li>
+                <Link href="/shop/laptops" className="hover:text-amber-400 transition-colors">
+                  Laptops
+                </Link>
+              </li>
+              <li>
+                <Link href="/shop/kids-tabs" className="hover:text-amber-400 transition-colors">
+                  Kids Tabs
+                </Link>
+              </li>
+              <li>
+                <Link href="/shop/spares" className="hover:text-amber-400 transition-colors">
+                  Other Spares
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -197,6 +222,7 @@ export default function Footer() {
           <div className="flex gap-6">
             <Link href="/about" className="hover:text-neutral-700 dark:hover:text-neutral-400">About Us</Link>
             <Link href="/contact" className="hover:text-neutral-700 dark:hover:text-neutral-400">Contact</Link>
+            <Link href="/shipping-returns" className="hover:text-neutral-700 dark:hover:text-neutral-400">Shipping &amp; Returns</Link>
             <Link href="/privacy" className="hover:text-neutral-700 dark:hover:text-neutral-400">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-neutral-700 dark:hover:text-neutral-400">Terms of Service</Link>
           </div>
