@@ -73,7 +73,7 @@ export default function RootLayout({
       className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100 font-sans">
+      <body className="min-h-full flex flex-col overflow-x-hidden bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100 font-sans">
         {/* Runs before paint to apply a stored light/dark preference — see ThemeToggle. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <VisitTracker />

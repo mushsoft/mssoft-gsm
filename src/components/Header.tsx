@@ -277,7 +277,11 @@ export default function Header() {
       {/* 3. DESKTOP NAVIGATION */}
       <nav className="hidden md:block bg-neutral-50/60 dark:bg-neutral-900/60 border-t border-neutral-200 dark:border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ul className="flex items-center gap-6 text-xs font-bold tracking-wide text-neutral-600 dark:text-neutral-300">
+          {/* flex-wrap so a growing category list (and long labels like
+              "FLASHING & UNLOCKING TOOLS") wraps onto another row instead of
+              forcing one unbreakable row that's wider than the page — that
+              used to push the whole site into horizontal scroll. */}
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs font-bold tracking-wide text-neutral-600 dark:text-neutral-300">
             <li className="py-2.5">
               <Link href="/" className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
                 HOME
@@ -313,7 +317,7 @@ export default function Header() {
               );
             })}
 
-            <li className="py-2.5 ml-auto">
+            <li className="py-2.5 pl-5 border-l border-neutral-200 dark:border-neutral-800">
               <Link
                 href="/account/repair-requests"
                 className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
