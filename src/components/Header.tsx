@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Search,
   ChevronDown,
@@ -145,10 +145,24 @@ const CATEGORIES: CategoryMenu[] = [
 
 export default function Header() {
   const router = useRouter();
+  // The home page's own hero already has a prominent search bar directly
+  // below it — showing this one too was two search bars stacked on one
+  // screen. Hide this one there; every other page still needs it since they
+  // have no hero search of their own.
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMobileCategory, setActiveMobileCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const whatsappUrl = 'https://wa.me/256773944288';
+  // "Ask a Technician" used to link straight into the /account/** auth
+  // gate (proxy.ts), forcing a sign-in/signup before a visitor could even
+  // ask a question — a real conversion killer for a first-time visitor.
+  // WhatsApp is already this shop's real-time human-support channel
+  // everywhere else, so route the question there instead.
+  const askTechWhatsappUrl = `https://wa.me/256773944288?text=${encodeURIComponent(
+    "Hi, I'd like to ask a technician about a phone/laptop issue."
+  )}`;
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -194,27 +208,29 @@ export default function Header() {
           <SiteLogo size="sm" />
         </Link>
 
-        {/* SEARCH BAR (Desktop) */}
-        <form
-          onSubmit={handleSearch}
-          className="hidden md:flex flex-1 max-w-lg relative items-center"
-        >
-          <input
-            type="text"
-            aria-label="Search products"
-            placeholder="Search EDL testpoints, blowers, screens, UK used phones..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-xl py-2.5 pl-10 pr-20 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
-          />
-          <Search className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 pointer-events-none" />
-          <button
-            type="submit"
-            className="absolute right-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-lg transition-colors"
+        {/* SEARCH BAR (Desktop) — the home page's hero has its own, so skip this one there */}
+        {!isHomePage && (
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:flex flex-1 max-w-lg relative items-center"
           >
-            Search
-          </button>
-        </form>
+            <input
+              type="text"
+              aria-label="Search products"
+              placeholder="Search EDL testpoints, blowers, screens, UK used phones..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-xl py-2.5 pl-10 pr-20 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+            />
+            <Search className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 pointer-events-none" />
+            <button
+              type="submit"
+              className="absolute right-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-lg transition-colors"
+            >
+              Search
+            </button>
+          </form>
+        )}
 
         {/* ACTIONS */}
         <div className="flex items-center gap-3">
@@ -253,26 +269,28 @@ export default function Header() {
         </div>
       </div>
 
-      {/* MOBILE SEARCH BAR */}
-      <div className="md:hidden px-4 pb-3">
-        <form onSubmit={handleSearch} className="relative flex items-center">
-          <input
-            type="text"
-            aria-label="Search products"
-            placeholder="Search testpoints, blowers, screens..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-lg py-2 pl-9 pr-16 focus:outline-none focus:border-amber-500"
-          />
-          <Search className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 absolute left-3 pointer-events-none" />
-          <button
-            type="submit"
-            className="absolute right-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-black font-bold text-[10px] rounded"
-          >
-            Search
-          </button>
-        </form>
-      </div>
+      {/* MOBILE SEARCH BAR — the home page's hero has its own, so skip this one there */}
+      {!isHomePage && (
+        <div className="md:hidden px-4 pb-3">
+          <form onSubmit={handleSearch} className="relative flex items-center">
+            <input
+              type="text"
+              aria-label="Search products"
+              placeholder="Search testpoints, blowers, screens..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-lg py-2 pl-9 pr-16 focus:outline-none focus:border-amber-500"
+            />
+            <Search className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 absolute left-3 pointer-events-none" />
+            <button
+              type="submit"
+              className="absolute right-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-black font-bold text-[10px] rounded"
+            >
+              Search
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* 3. DESKTOP NAVIGATION */}
       <nav className="hidden md:block bg-neutral-50/60 dark:bg-neutral-900/60 border-t border-neutral-200 dark:border-neutral-800">
@@ -318,13 +336,15 @@ export default function Header() {
             })}
 
             <li className="py-2.5 pl-5 border-l border-neutral-200 dark:border-neutral-800">
-              <Link
-                href="/account/repair-requests"
+              <a
+                href={askTechWhatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
               >
                 <Stethoscope className="w-3.5 h-3.5" />
                 <span>ASK A TECH</span>
-              </Link>
+              </a>
             </li>
 
             <li className="py-2.5">
@@ -410,14 +430,16 @@ export default function Header() {
             );
           })}
 
-          <Link
-            href="/account/repair-requests"
+          <a
+            href={askTechWhatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={() => setIsMobileMenuOpen(false)}
             className="flex items-center gap-2 py-2 text-xs font-bold text-blue-600 dark:text-blue-400"
           >
             <Stethoscope className="w-4 h-4" />
             <span>ASK A TECH</span>
-          </Link>
+          </a>
 
           <Link
             href="/learn-to-repair"

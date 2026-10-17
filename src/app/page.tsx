@@ -8,8 +8,7 @@ import TestpointCard from '@/components/cards/TestpointCard';
 import Carousel from '@/components/motion/Carousel';
 import GlowOrbs from '@/components/motion/GlowOrbs';
 import HeroContent from '@/components/motion/HeroContent';
-import Marquee from '@/components/motion/Marquee';
-import Reveal from '@/components/motion/Reveal';
+import Marquee, { type MarqueeItem } from '@/components/motion/Marquee';
 import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
 import { TESTPOINT_TYPES } from '@/lib/testPointTypes';
 
@@ -32,8 +31,23 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
   LAPTOP: Laptop,
 };
 
-const BRAND_TICKER = [
-  'Samsung', 'Apple', 'Tecno', 'Infinix', 'Xiaomi', 'itel', 'Vivo', 'Oppo', 'Realme', 'Nokia', 'Huawei', 'Honor',
+// Only brands with real stock and a working /shop/phones?brand= filter
+// (src/lib/categoryProductFilter.ts's BRAND_SLUG_MAP) get an href — the rest
+// stay plain text rather than linking into a filter that doesn't exist for
+// them, which would silently show "all phones" instead of being honest.
+const BRAND_TICKER: MarqueeItem[] = [
+  { label: 'Samsung', href: '/shop/phones?brand=samsung' },
+  { label: 'Apple', href: '/shop/phones?brand=apple' },
+  { label: 'Tecno', href: '/shop/phones?brand=tecno' },
+  { label: 'Infinix', href: '/shop/phones?brand=infinix' },
+  { label: 'Xiaomi', href: '/shop/phones?brand=redmi' },
+  { label: 'itel', href: '/shop/phones?brand=itel' },
+  { label: 'Vivo' },
+  { label: 'Oppo' },
+  { label: 'Realme' },
+  { label: 'Nokia' },
+  { label: 'Huawei' },
+  { label: 'Honor' },
 ];
 
 const WHATSAPP_PHONE = '256773944288';
@@ -85,8 +99,14 @@ interface ProductRailData {
 }
 
 function RailHeader({ eyebrow, title, href }: { eyebrow: string; title: string; href: string }) {
+  // Not Reveal-wrapped on purpose — this renders for the very first product
+  // rail right after the hero, so it's effectively above-the-fold on most
+  // phones. Reveal's scroll-triggered fade starts at opacity:0 in the SSR
+  // HTML itself; on a slow connection that's a visible dead gap before any
+  // products show, not a nice entrance animation, which is exactly what was
+  // reported here.
   return (
-    <Reveal className="mb-4 flex items-end justify-between gap-3">
+    <div className="mb-4 flex items-end justify-between gap-3">
       <div>
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500">{eyebrow}</div>
         <h2 className="mt-1 text-xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-2xl">{title}</h2>
@@ -94,7 +114,7 @@ function RailHeader({ eyebrow, title, href }: { eyebrow: string; title: string; 
       <Link href={href} className="shrink-0 text-xs font-bold text-amber-500 hover:underline">
         View All →
       </Link>
-    </Reveal>
+    </div>
   );
 }
 
@@ -194,8 +214,10 @@ export default async function HomePage() {
         ))}
       </StaggerGroup>
 
-      {/* Technician Lane CTA */}
-      <Reveal className="overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 sm:p-8">
+      {/* Technician Lane CTA — not Reveal-wrapped; it sits directly above the
+          first product rail, so scroll-triggered fade-in read as a dead gap
+          before any products appeared (see RailHeader's comment above). */}
+      <div className="overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 sm:p-8">
         <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500">Technician Lane</div>
@@ -226,7 +248,7 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
-      </Reveal>
+      </div>
 
       {/* Latest Arrivals, grouped by category — Phones first, then Testpoints, then the rest */}
       {productRails.find((r) => r.key === 'phones') && (

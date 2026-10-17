@@ -1,8 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
-export default function Marquee({ items }: { items: string[] }) {
+export interface MarqueeItem {
+  label: string;
+  // Omit for a brand with no current stock/filter support — linking it would
+  // silently fall through to "all phones" instead of an honest empty state,
+  // the same dead-filter bug already fixed elsewhere on this site.
+  href?: string;
+}
+
+export default function Marquee({ items }: { items: MarqueeItem[] }) {
   const loop = [...items, ...items];
 
   return (
@@ -14,14 +23,24 @@ export default function Marquee({ items }: { items: string[] }) {
         animate={{ x: ['0%', '-50%'] }}
         transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
       >
-        {loop.map((item, i) => (
-          <span
-            key={i}
-            className="text-xs font-bold uppercase tracking-widest text-neutral-500"
-          >
-            {item}
-          </span>
-        ))}
+        {loop.map((item, i) =>
+          item.href ? (
+            <Link
+              key={i}
+              href={item.href}
+              className="text-xs font-bold uppercase tracking-widest text-neutral-600 dark:text-neutral-300 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+            >
+              {item.label}
+            </Link>
+          ) : (
+            <span
+              key={i}
+              className="text-xs font-bold uppercase tracking-widest text-neutral-600 dark:text-neutral-300"
+            >
+              {item.label}
+            </span>
+          )
+        )}
       </motion.div>
     </div>
   );

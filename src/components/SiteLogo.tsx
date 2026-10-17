@@ -33,7 +33,16 @@ export default function SiteLogo({ size = 'sm' }: { size?: keyof typeof SIZES })
         <span className={`${s.word} font-black tracking-wider leading-none text-neutral-900 dark:text-white`}>
           MS Soft <span className="text-amber-500">GSM</span>
         </span>
-        <span className={`${s.tagline} mt-0.5 font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400`}>
+        {/* The tracked-out tagline is what was pushing the header's mobile
+            action row (cart/menu button) off-screen — the compact 'sm'
+            variant (used in Header, a tight justify-between row with a
+            shrink-0 logo) drops it below the sm breakpoint; the 'lg'
+            variant (Footer, never width-constrained) always shows it. */}
+        <span
+          className={`${s.tagline} mt-0.5 font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 ${
+            size === 'sm' ? 'hidden sm:block' : ''
+          }`}
+        >
           Phones, Spares &amp; Repairs
         </span>
       </div>

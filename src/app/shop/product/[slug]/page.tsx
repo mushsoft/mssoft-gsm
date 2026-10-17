@@ -168,7 +168,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               )}
             </div>
             <h1 className="text-xl font-black text-neutral-900 dark:text-white sm:text-2xl">{product.title}</h1>
-            {product.modelName && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{product.modelName}</p>}
+            {/* Only show modelName when it adds information the title doesn't
+                already carry — e.g. "Infinix Hot 70" followed by "Hot 70"
+                was pure, confusing repetition. */}
+            {product.modelName && !product.title.toLowerCase().includes(product.modelName.toLowerCase()) && (
+              <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{product.modelName}</p>
+            )}
           </div>
 
           <div className="flex items-baseline gap-2">
