@@ -42,6 +42,8 @@ interface CategoryMenu {
   subcategories: SubCategory[];
 }
 
+// Order here drives the mobile accordion order. The desktop top row instead
+// follows PRIMARY_CATEGORY_TITLES below, which pulls out a fixed subset.
 const CATEGORIES: CategoryMenu[] = [
   {
     title: 'PHONES',
@@ -73,31 +75,6 @@ const CATEGORIES: CategoryMenu[] = [
     ]
   },
   {
-    title: 'TESTPOINTS',
-    icon: CircuitBoard,
-    mainHref: '/shop/testpoints',
-    subcategories: [
-      { title: 'Qualcomm EDL Testpoints', href: '/shop/testpoints?sub=qualcomm' },
-      { title: 'MediaTek BROM Pinouts', href: '/shop/testpoints?sub=mediatek' },
-      { title: 'Samsung Hardware ISP', href: '/shop/testpoints?sub=samsung-isp' },
-      { title: 'iPhone Board Schematics', href: '/shop/testpoints?sub=iphone-tp' },
-    ]
-  },
-  {
-    title: 'REPAIR TOOLS',
-    icon: Wrench,
-    mainHref: '/shop/tools',
-    subcategories: [
-      { title: 'Blowers & Hot Air', href: '/shop/tools?sub=blowers' },
-      { title: 'Separators', href: '/shop/tools?sub=separators' },
-      { title: 'DC Power Supply', href: '/shop/tools?sub=power-supply' },
-      { title: 'Microscopes', href: '/shop/tools?sub=microscopes' },
-      { title: 'Multimeters', href: '/shop/tools?sub=multimeters' },
-      { title: 'Soldering Guns', href: '/shop/tools?sub=soldering-guns' },
-      { title: 'Laminators & Debubblers', href: '/shop/tools?sub=laminators' },
-    ]
-  },
-  {
     title: 'SCREENS',
     icon: Sparkles,
     mainHref: '/shop/screens',
@@ -116,6 +93,31 @@ const CATEGORIES: CategoryMenu[] = [
     mainHref: '/shop/accessories',
     subcategories: [
       { title: 'Chargers & Powerbanks', href: '/shop/accessories?sub=chargers' },
+    ]
+  },
+  {
+    title: 'REPAIR TOOLS',
+    icon: Wrench,
+    mainHref: '/shop/tools',
+    subcategories: [
+      { title: 'Blowers & Hot Air', href: '/shop/tools?sub=blowers' },
+      { title: 'Separators', href: '/shop/tools?sub=separators' },
+      { title: 'DC Power Supply', href: '/shop/tools?sub=power-supply' },
+      { title: 'Microscopes', href: '/shop/tools?sub=microscopes' },
+      { title: 'Multimeters', href: '/shop/tools?sub=multimeters' },
+      { title: 'Soldering Guns', href: '/shop/tools?sub=soldering-guns' },
+      { title: 'Laminators & Debubblers', href: '/shop/tools?sub=laminators' },
+    ]
+  },
+  {
+    title: 'TESTPOINTS',
+    icon: CircuitBoard,
+    mainHref: '/shop/testpoints',
+    subcategories: [
+      { title: 'Qualcomm EDL Testpoints', href: '/shop/testpoints?sub=qualcomm' },
+      { title: 'MediaTek BROM Pinouts', href: '/shop/testpoints?sub=mediatek' },
+      { title: 'Samsung Hardware ISP', href: '/shop/testpoints?sub=samsung-isp' },
+      { title: 'iPhone Board Schematics', href: '/shop/testpoints?sub=iphone-tp' },
     ]
   },
   {
@@ -144,6 +146,17 @@ const CATEGORIES: CategoryMenu[] = [
   }
 ];
 
+// These 5 stay on the desktop bar in this order (after Home); everything
+// else collapses into a "MORE" dropdown (see desktop nav below) to keep the
+// bar from wrapping or crowding out the WhatsApp/deals links.
+const PRIMARY_CATEGORY_TITLES = new Set([
+  'PHONES',
+  'FLASHING & UNLOCKING TOOLS',
+  'SCREENS',
+  'ACCESSORIES',
+  'REPAIR TOOLS',
+]);
+
 export default function Header() {
   // The home page's own hero already has a prominent search bar directly
   // below it — showing this one too was two search bars stacked on one
@@ -166,6 +179,8 @@ export default function Header() {
   const askTechWhatsappUrl = `https://wa.me/256773944288?text=${encodeURIComponent(
     "Hi, I'd like to ask a technician about a phone/laptop issue."
   )}`;
+  const primaryCategories = CATEGORIES.filter((cat) => PRIMARY_CATEGORY_TITLES.has(cat.title));
+  const moreCategories = CATEGORIES.filter((cat) => !PRIMARY_CATEGORY_TITLES.has(cat.title));
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800">
@@ -267,7 +282,7 @@ export default function Header() {
               </Link>
             </li>
 
-            {CATEGORIES.map((cat) => {
+            {primaryCategories.map((cat) => {
               const Icon = cat.icon;
               return (
                 <li key={cat.title} className="relative group py-2.5">
@@ -295,6 +310,35 @@ export default function Header() {
                 </li>
               );
             })}
+
+            {moreCategories.length > 0 && (
+              <li className="relative group py-2.5">
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 hover:text-amber-500 dark:hover:text-amber-400 transition-colors py-1"
+                >
+                  <span>MORE</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-transform group-hover:rotate-180" />
+                </button>
+
+                {/* DROPDOWN — each entry is a whole category, not a subcategory */}
+                <div className="absolute left-0 top-full hidden group-hover:block group-focus-within:block w-56 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl py-2 z-50">
+                  {moreCategories.map((cat) => {
+                    const Icon = cat.icon;
+                    return (
+                      <Link
+                        key={cat.title}
+                        href={cat.mainHref}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                      >
+                        <Icon className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
+                        <span>{cat.title}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </li>
+            )}
 
             <li className="py-2.5 pl-5 border-l border-neutral-200 dark:border-neutral-800">
               <a
