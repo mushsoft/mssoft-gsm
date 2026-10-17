@@ -74,8 +74,8 @@ export default async function UnlockToolsPage({
                 Unlock &amp; Flash Tool Credits
               </h1>
               <p className="mt-1 max-w-xl text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
-                DC-Unlocker, Octoplus, NCK, Z3X, Miracle, UnlockTool, Chimera, schematics and more &mdash;
-                we top these up for you locally in Credits, no card needed. Find yours below and order on WhatsApp.
+                DC-Unlocker, Octoplus, NCK, Z3X, Miracle, UnlockTool, Chimera, schematics and more.
+                We top these up for you locally in Credits, no card needed. Find yours below and order on WhatsApp.
               </p>
             </div>
           </div>

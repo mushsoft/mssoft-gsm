@@ -13,13 +13,13 @@ const headingClass = 'flex items-center gap-2 text-sm font-bold text-neutral-900
 const bodyClass = 'text-sm leading-relaxed text-neutral-600 dark:text-neutral-400';
 
 const GRADES = [
-  { grade: 'Grade A — Excellent', detail: 'Light signs of use, battery health 85% or higher, fully functional.' },
-  { grade: 'Grade B — Good', detail: 'Visible light wear, battery health 80% or higher, fully functional.' },
-  { grade: 'Grade C — Fair', detail: 'Noticeable cosmetic wear, battery health 75% or higher, fully functional.' },
+  { grade: 'Grade A: Excellent', detail: 'Light signs of use, battery health 85% or higher, fully functional.' },
+  { grade: 'Grade B: Good', detail: 'Visible light wear, battery health 80% or higher, fully functional.' },
+  { grade: 'Grade C: Fair', detail: 'Noticeable cosmetic wear, battery health 75% or higher, fully functional.' },
 ];
 
 const DELIVERY = [
-  { area: 'Within Kampala', timing: 'Usually same-day', cost: 'From UGX 10,000 — free on orders above UGX 500,000' },
+  { area: 'Within Kampala', timing: 'Usually same-day', cost: 'From UGX 10,000 (free on orders above UGX 500,000)' },
   { area: 'Rest of Uganda', timing: '1–3 business days', cost: 'From UGX 15,000, depending on destination' },
   { area: 'Wider East Africa', timing: 'On request', cost: 'Message us on WhatsApp for a delivery quote' },
 ];
@@ -60,7 +60,7 @@ export default function ShippingReturnsPage() {
             Every device and genuine part is tested before dispatch. If something arrives faulty or doesn&apos;t
             match its listing, contact us within 7 days of delivery and we&apos;ll repair, replace, or refund it.
             Repair tools and select spare parts carry the warranty period stated on their own product
-            listing instead — check the Specifications section on that product&apos;s page.
+            listing instead. Check the Specifications section on that product&apos;s page.
           </p>
           <p className={bodyClass}>
             <strong className="text-neutral-800 dark:text-neutral-200">Covered:</strong> defects present at

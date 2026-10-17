@@ -72,9 +72,9 @@ export default function CheckoutFields({
         />
         <p className="mt-1 flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
           <Truck className="h-3 w-3 shrink-0" />
-          We&apos;ll confirm delivery cost &amp; timing on this number — see{' '}
+          We&apos;ll confirm delivery cost and timing on this number. See{' '}
           <Link href="/shipping-returns" className="font-semibold text-amber-500 hover:underline">
-            delivery areas &amp; estimates
+            delivery areas and estimates
           </Link>
           .
         </p>

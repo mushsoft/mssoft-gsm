@@ -66,7 +66,7 @@ export default async function LearnToRepairPage({ searchParams }: LearnToRepairP
             </div>
             <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-3xl">Learn to Repair</h1>
             <p className="mt-1 max-w-xl text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
-              Step-by-step video tutorials and written guides &mdash; screen swaps, charging ports,
+              Step-by-step video tutorials and written guides for screen swaps, charging ports,
               batteries, and more. Free to follow, or let us do it for you.
             </p>
           </div>

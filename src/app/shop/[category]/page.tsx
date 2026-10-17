@@ -135,7 +135,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             </div>
             <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-3xl">{pageLabel}</h1>
             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
-              {totalCount} item{totalCount === 1 ? '' : 's'} available &mdash; pay instantly or order via WhatsApp.
+              {totalCount} item{totalCount === 1 ? '' : 's'} available. Pay instantly or order via WhatsApp.
             </p>
           </div>
         </div>

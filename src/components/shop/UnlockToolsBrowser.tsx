@@ -56,7 +56,7 @@ export default function UnlockToolsBrowser({
 
       {filteredGroups.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-10 text-center text-sm text-neutral-500">
-          No matches for &quot;{query}&quot;. Message us on WhatsApp &mdash; we likely still have it.
+          No matches for &quot;{query}&quot;. Message us on WhatsApp, we likely still have it.
         </div>
       ) : (
         filteredGroups.map((group) => (

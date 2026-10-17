@@ -63,7 +63,7 @@ export default async function TestpointsPage({
               </h1>
               <p className="mt-1 max-w-xl text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
                 Qualcomm EDL testpoints, MTK BROM pinouts, Samsung ISP hardware diagrams, and
-                board pinouts &mdash; free reference diagrams for repair technicians, zoom in for detail.
+                board pinouts. Free reference diagrams for repair technicians, zoom in for detail.
               </p>
             </div>
           </div>
