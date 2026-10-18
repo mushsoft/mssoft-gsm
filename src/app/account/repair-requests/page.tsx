@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import AccountNav from '@/components/account/AccountNav';
 import AutoRefresh from '@/components/AutoRefresh';
 import RepairRequestStatusBadge from '@/components/account/RepairRequestStatusBadge';
+import { formatDate } from '@/lib/formatDate';
 
 export default async function RepairRequestsPage() {
   const customer = await requireCustomerPage();
@@ -16,7 +17,7 @@ export default async function RepairRequestsPage() {
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-      <AutoRefresh intervalMs={20000} />
+      <AutoRefresh intervalMs={8000} />
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
@@ -87,7 +88,7 @@ export default async function RepairRequestsPage() {
                   </div>
                 )}
 
-                <p className="mt-2 text-[10px] text-neutral-400">{request.createdAt.toLocaleDateString()}</p>
+                <p className="mt-2 text-[10px] text-neutral-400">{formatDate(request.createdAt)}</p>
               </div>
             );
           })}

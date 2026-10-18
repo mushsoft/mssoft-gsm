@@ -6,6 +6,7 @@ import TestPointForm from '@/components/admin/TestPointForm';
 import TestPointDiagramUploader from '@/components/admin/TestPointDiagramUploader';
 import DeleteTestPointButton from '@/components/admin/DeleteTestPointButton';
 import AdminBackLink from '@/components/admin/AdminBackLink';
+import { formatDate } from '@/lib/formatDate';
 
 export default async function EditTestPointPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -29,7 +30,7 @@ export default async function EditTestPointPage({ params }: { params: Promise<{ 
           <div>
             <h1 className="text-lg font-black text-neutral-900 dark:text-white line-clamp-1">{testPoint.title}</h1>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Created {testPoint.createdAt.toLocaleDateString()}
+              Created {formatDate(testPoint.createdAt)}
             </p>
           </div>
         </div>

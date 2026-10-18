@@ -26,7 +26,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-      <AutoRefresh intervalMs={15000} />
+      <AutoRefresh intervalMs={5000} />
       <AdminBackLink href="/admin/orders" label="Back to Orders" />
 
       <div className="flex items-center justify-between gap-3">

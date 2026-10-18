@@ -139,7 +139,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-      <AutoRefresh intervalMs={30000} />
+      <AutoRefresh intervalMs={10000} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}

@@ -2,6 +2,7 @@ import { UserCircle } from 'lucide-react';
 import { requireCustomerPage } from '@/lib/customerAuth';
 import AccountLogoutButton from '@/components/account/AccountLogoutButton';
 import AccountNav from '@/components/account/AccountNav';
+import { formatDate } from '@/lib/formatDate';
 
 export default async function AccountPage() {
   const customer = await requireCustomerPage();
@@ -34,7 +35,7 @@ export default async function AccountPage() {
         </p>
         <p className="mt-1">
           <span className="font-bold text-neutral-800 dark:text-neutral-200">Member since:</span>{' '}
-          {customer.createdAt.toLocaleDateString()}
+          {formatDate(customer.createdAt)}
         </p>
       </div>
     </main>

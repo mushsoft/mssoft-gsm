@@ -26,7 +26,7 @@ export default async function AdminRepairRequestDetailPage({ params }: { params:
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-      <AutoRefresh intervalMs={15000} />
+      <AutoRefresh intervalMs={5000} />
       <AdminBackLink href="/admin/repair-requests" label="Back to Requests" />
 
       <div className="flex items-center gap-3">

@@ -197,7 +197,7 @@ export default async function HomePage() {
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
       />
-      <AutoRefresh intervalMs={30000} />
+      <AutoRefresh intervalMs={10000} />
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-white via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950 p-5 sm:p-8 lg:p-14">
         <GlowOrbs />

@@ -6,6 +6,7 @@ import ProductForm from '@/components/admin/ProductForm';
 import ProductImageUploader from '@/components/admin/ProductImageUploader';
 import DeleteProductButton from '@/components/admin/DeleteProductButton';
 import AdminBackLink from '@/components/admin/AdminBackLink';
+import { formatDate } from '@/lib/formatDate';
 import { splitSpecs, type ProductCategory } from '@/lib/productSpecFields';
 import { getCategoryRouteByCategory } from '@/lib/productCategoryRoutes';
 import { resolveProductTab, productTabHref } from '@/lib/adminProductTabs';
@@ -55,7 +56,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
               )}
             </div>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Created {product.createdAt.toLocaleDateString()}
+              Created {formatDate(product.createdAt)}
             </p>
           </div>
         </div>

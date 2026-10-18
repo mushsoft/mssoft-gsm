@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getOrCreateCustomer } from '@/lib/customerAuth';
 import ReviewForm from './ReviewForm';
 import DeleteReviewButton from './DeleteReviewButton';
+import { formatDate } from '@/lib/formatDate';
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -69,7 +70,7 @@ export default async function ReviewsSection({ productId }: { productId: string 
               </div>
               {review.title && <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">{review.title}</p>}
               <p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-300">{review.body}</p>
-              <p className="mt-1 text-[10px] text-neutral-400">{review.createdAt.toLocaleDateString()}</p>
+              <p className="mt-1 text-[10px] text-neutral-400">{formatDate(review.createdAt)}</p>
             </div>
           ))}
         </div>

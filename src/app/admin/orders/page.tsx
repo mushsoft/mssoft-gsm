@@ -7,6 +7,7 @@ import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
 import { PaymentStatusBadge, FulfillmentStatusBadge } from '@/components/admin/OrderStatusBadge';
+import { formatDate } from '@/lib/formatDate';
 
 const ORDER_TABS: { key: string; label: string; where: Prisma.OrderWhereInput }[] = [
   { key: 'all', label: 'All', where: {} },
@@ -47,7 +48,7 @@ export default async function AdminOrdersPage({
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-      <AutoRefresh intervalMs={15000} />
+      <AutoRefresh intervalMs={5000} />
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
@@ -134,7 +135,7 @@ export default async function AdminOrdersPage({
                   <FulfillmentStatusBadge status={order.fulfillmentStatus} />
                 </td>
                 <td className="px-4 py-3 align-middle text-[10px] text-neutral-500">
-                  {order.createdAt.toLocaleDateString()}
+                  {formatDate(order.createdAt)}
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <div className="flex items-center gap-1.5">

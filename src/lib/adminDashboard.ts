@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { startOfEatDay, eatDateKey } from './eatDate';
 
 const LOW_STOCK_THRESHOLD = 5;
 const TREND_DAYS = 30;
@@ -19,9 +20,7 @@ export interface DashboardData {
 // in this environment (see ReviewsSection.tsx). A dashboard page is not
 // latency-sensitive enough to be worth reintroducing that risk.
 export async function getDashboardData(): Promise<DashboardData> {
-  const since = new Date();
-  since.setDate(since.getDate() - (TREND_DAYS - 1));
-  since.setHours(0, 0, 0, 0);
+  const since = startOfEatDay(TREND_DAYS - 1);
 
   const revenueAgg = await prisma.order.aggregate({
     where: { paymentStatus: 'SUCCESSFUL', createdAt: { gte: since } },
@@ -40,7 +39,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   });
 
   const dailyRows = await prisma.$queryRaw<{ day: Date; revenue: number }[]>`
-    SELECT date_trunc('day', "createdAt") as day, SUM("totalAmount") as revenue
+    SELECT date_trunc('day', "createdAt" AT TIME ZONE 'Africa/Kampala') as day, SUM("totalAmount") as revenue
     FROM "Order"
     WHERE "paymentStatus" = 'SUCCESSFUL' AND "createdAt" >= ${since}
     GROUP BY day
@@ -73,9 +72,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
   const dailyRevenue: { date: string; revenue: number }[] = [];
   for (let i = 0; i < TREND_DAYS; i++) {
-    const d = new Date(since);
-    d.setDate(d.getDate() + i);
-    const key = d.toISOString().slice(0, 10);
+    const key = eatDateKey(TREND_DAYS - 1 - i);
     dailyRevenue.push({ date: key, revenue: revenueByDay.get(key) ?? 0 });
   }
 

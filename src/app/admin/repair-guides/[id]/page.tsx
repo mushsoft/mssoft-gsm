@@ -7,6 +7,7 @@ import DeleteRepairGuideButton from '@/components/admin/DeleteRepairGuideButton'
 import RepairGuideThumbnailUploader from '@/components/admin/RepairGuideThumbnailUploader';
 import RepairGuideVideoUploader from '@/components/admin/RepairGuideVideoUploader';
 import AdminBackLink from '@/components/admin/AdminBackLink';
+import { formatDate } from '@/lib/formatDate';
 
 export default async function EditRepairGuidePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -30,7 +31,7 @@ export default async function EditRepairGuidePage({ params }: { params: Promise<
           <div>
             <h1 className="text-lg font-black text-neutral-900 dark:text-white line-clamp-1">{guide.title}</h1>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Created {guide.createdAt.toLocaleDateString()}
+              Created {formatDate(guide.createdAt)}
             </p>
           </div>
         </div>

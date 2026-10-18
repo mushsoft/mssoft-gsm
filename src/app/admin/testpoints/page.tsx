@@ -15,7 +15,7 @@ export default async function AdminTestPointsPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-      <AutoRefresh intervalMs={15000} />
+      <AutoRefresh intervalMs={5000} />
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">

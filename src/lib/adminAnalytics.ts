@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { startOfEatDay, eatDateKey } from './eatDate';
 
 const RECENT_VISITS_LIMIT = 30;
 const TOP_PRODUCTS_LIMIT = 10;
@@ -17,19 +18,15 @@ export interface AnalyticsData {
 // multiple Prisma queries concurrently over the shared pooled connection has
 // triggered a Postgres protocol error in this environment.
 export async function getAnalyticsData(): Promise<AnalyticsData> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-
-  const since = new Date();
-  since.setDate(since.getDate() - (TREND_DAYS - 1));
-  since.setHours(0, 0, 0, 0);
+  const startOfToday = startOfEatDay();
+  const since = startOfEatDay(TREND_DAYS - 1);
 
   const totalVisits = await prisma.pageView.count();
   const visitsToday = await prisma.pageView.count({ where: { createdAt: { gte: startOfToday } } });
   const visits7Days = await prisma.pageView.count({ where: { createdAt: { gte: since } } });
 
   const dailyRows = await prisma.$queryRaw<{ day: Date; count: number }[]>`
-    SELECT date_trunc('day', "createdAt") as day, COUNT(*) as count
+    SELECT date_trunc('day', "createdAt" AT TIME ZONE 'Africa/Kampala') as day, COUNT(*) as count
     FROM "PageView"
     WHERE "createdAt" >= ${since}
     GROUP BY day
@@ -69,9 +66,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
   }
   const dailyVisits: { date: string; count: number }[] = [];
   for (let i = 0; i < TREND_DAYS; i++) {
-    const d = new Date(since);
-    d.setDate(d.getDate() + i);
-    const key = d.toISOString().slice(0, 10);
+    const key = eatDateKey(TREND_DAYS - 1 - i);
     dailyVisits.push({ date: key, count: visitsByDay.get(key) ?? 0 });
   }
 

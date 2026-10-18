@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import AccountNav from '@/components/account/AccountNav';
 import { PaymentStatusBadge, FulfillmentStatusBadge } from '@/components/admin/OrderStatusBadge';
+import { formatDate } from '@/lib/formatDate';
 
 export default async function AccountOrdersPage() {
   const customer = await requireCustomerPage();
@@ -17,7 +18,7 @@ export default async function AccountOrdersPage() {
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-      <AutoRefresh intervalMs={20000} />
+      <AutoRefresh intervalMs={8000} />
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
           <ClipboardList className="h-5 w-5" />
@@ -47,7 +48,7 @@ export default async function AccountOrdersPage() {
                   <PaymentStatusBadge status={order.paymentStatus} />
                   <FulfillmentStatusBadge status={order.fulfillmentStatus} />
                 </div>
-                <span className="text-[10px] text-neutral-500">{order.createdAt.toLocaleDateString()}</span>
+                <span className="text-[10px] text-neutral-500">{formatDate(order.createdAt)}</span>
               </div>
               <div className="space-y-1">
                 {order.items.map((item) => (

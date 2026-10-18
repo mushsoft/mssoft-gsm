@@ -5,6 +5,7 @@ import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
 import VisitsTrendChart from '@/components/admin/VisitsTrendChart';
+import { formatTime } from '@/lib/formatDate';
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
@@ -22,7 +23,7 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-      <AutoRefresh intervalMs={15000} />
+      <AutoRefresh intervalMs={10000} />
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
@@ -85,7 +86,7 @@ export default async function AdminAnalyticsPage() {
                 <li key={v.id} className="flex items-center justify-between gap-2 text-xs">
                   <span className="truncate text-neutral-700 dark:text-neutral-300">{v.path}</span>
                   <span className="shrink-0 text-neutral-400 dark:text-neutral-500">
-                    {v.createdAt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                    {formatTime(v.createdAt)}
                   </span>
                 </li>
               ))}
