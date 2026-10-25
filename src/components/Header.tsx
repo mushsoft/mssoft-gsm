@@ -92,7 +92,10 @@ const CATEGORIES: CategoryMenu[] = [
     icon: Headphones,
     mainHref: '/shop/accessories',
     subcategories: [
-      { title: 'Chargers & Powerbanks', href: '/shop/accessories?sub=chargers' },
+      { title: 'Chargers', href: '/shop/accessories?sub=chargers' },
+      { title: 'USB Cables', href: '/shop/accessories?sub=usb-cables' },
+      { title: 'Headsets, AirPods & Earbuds', href: '/shop/accessories?sub=headsets' },
+      { title: 'Power Banks', href: '/shop/accessories?sub=powerbanks' },
     ]
   },
   {

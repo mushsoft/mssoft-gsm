@@ -38,12 +38,11 @@ export const CATEGORY_SUBCATEGORIES: Partial<Record<ProductCategory, Subcategory
     { value: 'OTHER', label: 'Other Spares' },
   ],
   ACCESSORY: [
-    { value: 'PHONE_COVER', label: 'Phone Covers & Cases' },
-    { value: 'CHARGER', label: 'Chargers & Power Banks' },
-    { value: 'CABLE', label: 'Cables' },
-    { value: 'EARPHONE', label: 'Earphones & Audio' },
-    { value: 'SCREEN_PROTECTOR', label: 'Screen Protectors' },
-    { value: 'OTHER', label: 'Other Accessories' },
+    { value: 'CHARGER', label: 'Chargers' },
+    { value: 'CABLE', label: 'USB Cables' },
+    { value: 'EARPHONE', label: 'Headsets, AirPods & Earbuds' },
+    { value: 'POWERBANK', label: 'Power Banks' },
+    { value: 'OTHER', label: 'More' },
   ],
   REPAIR_TOOL: [
     { value: 'BLOWER', label: 'Blowers & Hot Air' },

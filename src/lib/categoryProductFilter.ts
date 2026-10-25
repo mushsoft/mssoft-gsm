@@ -30,6 +30,9 @@ export const CATEGORY_MAP: Record<string, CategoryMeta> = {
 // Matches the ?sub= slugs already emitted by Header.tsx's nav dropdowns.
 export const SUB_SLUG_MAP: Record<string, string> = {
   chargers: 'CHARGER',
+  'usb-cables': 'CABLE',
+  headsets: 'EARPHONE',
+  powerbanks: 'POWERBANK',
   housings: 'HOUSING',
   blowers: 'BLOWER',
   separators: 'SEPARATOR',
