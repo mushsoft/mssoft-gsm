@@ -81,13 +81,13 @@ export const SPARES_AND_TOOLS_TYPE_SUB_TABS: ProductSubTab[] = [
   ...CATEGORY_SUBCATEGORIES.REPAIR_TOOL!.map((s) => ({
     key: `tool-${s.value.toLowerCase()}`,
     label: s.label,
-    where: { category: 'REPAIR_TOOL', subcategory: s.value },
+    where: { category: 'REPAIR_TOOL' as const, subcategory: s.value },
   })),
   // Excludes SCREEN — the Screens tab already owns that subcategory.
   ...CATEGORY_SUBCATEGORIES.SPARE_PART!.filter((s) => s.value !== 'SCREEN').map((s) => ({
     key: `part-${s.value.toLowerCase()}`,
     label: s.label,
-    where: { category: 'SPARE_PART', subcategory: s.value },
+    where: { category: 'SPARE_PART' as const, subcategory: s.value },
   })),
 ];
 
