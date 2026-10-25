@@ -72,20 +72,24 @@ export const ACCESSORY_TYPE_SUB_TABS: ProductSubTab[] = CATEGORY_SUBCATEGORIES.A
   where: { subcategory: s.value },
 }));
 
-export const REPAIR_TOOL_TYPE_SUB_TABS: ProductSubTab[] = CATEGORY_SUBCATEGORIES.REPAIR_TOOL!.map((s) => ({
-  key: s.value.toLowerCase(),
-  label: s.label,
-  where: { category: 'REPAIR_TOOL', subcategory: s.value },
-}));
-
-// Excludes SCREEN — the Screens tab already owns that subcategory.
-export const SPARE_PART_TYPE_SUB_TABS: ProductSubTab[] = CATEGORY_SUBCATEGORIES.SPARE_PART!.filter(
-  (s) => s.value !== 'SCREEN'
-).map((s) => ({
-  key: s.value.toLowerCase(),
-  label: s.label,
-  where: { category: 'SPARE_PART', subcategory: s.value },
-}));
+// A product is either a repair tool or a spare part, never both, so these
+// live in ONE combined row (not two independent facets like Screens'
+// brand+quality, which *can* combine) — picking from both at once would
+// always mean zero results. Keys are prefixed since both source lists
+// happen to share an "OTHER" value.
+export const SPARES_AND_TOOLS_TYPE_SUB_TABS: ProductSubTab[] = [
+  ...CATEGORY_SUBCATEGORIES.REPAIR_TOOL!.map((s) => ({
+    key: `tool-${s.value.toLowerCase()}`,
+    label: s.label,
+    where: { category: 'REPAIR_TOOL', subcategory: s.value },
+  })),
+  // Excludes SCREEN — the Screens tab already owns that subcategory.
+  ...CATEGORY_SUBCATEGORIES.SPARE_PART!.filter((s) => s.value !== 'SCREEN').map((s) => ({
+    key: `part-${s.value.toLowerCase()}`,
+    label: s.label,
+    where: { category: 'SPARE_PART', subcategory: s.value },
+  })),
+];
 
 export interface ProductSubTabFacet {
   // Query param this facet's choice is stored under — each facet on a tab
@@ -106,10 +110,7 @@ export const SUB_TAB_FACETS_BY_TAB: Record<string, ProductSubTabFacet[] | undefi
     { paramKey: 'sub', clearLabel: 'All Grades', options: SCREEN_QUALITY_SUB_TABS },
   ],
   accessories: [{ paramKey: 'sub', clearLabel: 'All Accessories', options: ACCESSORY_TYPE_SUB_TABS }],
-  'spares-tools': [
-    { paramKey: 'sub', clearLabel: 'All Repair Tools', options: REPAIR_TOOL_TYPE_SUB_TABS },
-    { paramKey: 'type', clearLabel: 'All Spare Parts', options: SPARE_PART_TYPE_SUB_TABS },
-  ],
+  'spares-tools': [{ paramKey: 'sub', clearLabel: 'All Spares & Tools', options: SPARES_AND_TOOLS_TYPE_SUB_TABS }],
 };
 
 // Builds a sub-tab link that sets `paramKey=value` (or clears it) while

@@ -11,14 +11,14 @@ import { PRODUCT_TABS, productTabHref, SUB_TAB_FACETS_BY_TAB, subTabHref, type P
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; sub?: string; brand?: string; type?: string }>;
+  searchParams: Promise<{ tab?: string; sub?: string; brand?: string }>;
 }) {
   await requireAdminPage();
 
-  const { tab, sub, brand, type } = await searchParams;
+  const { tab, sub, brand } = await searchParams;
   const activeTab = PRODUCT_TABS.find((t) => t.key === tab) ?? PRODUCT_TABS[0];
   const facets = SUB_TAB_FACETS_BY_TAB[activeTab.key] ?? [];
-  const paramValues: Record<string, string | undefined> = { sub, brand, type };
+  const paramValues: Record<string, string | undefined> = { sub, brand };
   const activeOptions = facets.map((facet) => {
     const value = paramValues[facet.paramKey];
     return value ? facet.options.find((o) => o.key === value) : undefined;
