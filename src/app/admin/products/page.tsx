@@ -11,14 +11,14 @@ import { PRODUCT_TABS, productTabHref, SUB_TAB_FACETS_BY_TAB, subTabHref, type P
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; sub?: string; brand?: string }>;
+  searchParams: Promise<{ tab?: string; sub?: string; brand?: string; type?: string }>;
 }) {
   await requireAdminPage();
 
-  const { tab, sub, brand } = await searchParams;
+  const { tab, sub, brand, type } = await searchParams;
   const activeTab = PRODUCT_TABS.find((t) => t.key === tab) ?? PRODUCT_TABS[0];
   const facets = SUB_TAB_FACETS_BY_TAB[activeTab.key] ?? [];
-  const paramValues: Record<string, string | undefined> = { sub, brand };
+  const paramValues: Record<string, string | undefined> = { sub, brand, type };
   const activeOptions = facets.map((facet) => {
     const value = paramValues[facet.paramKey];
     return value ? facet.options.find((o) => o.key === value) : undefined;
@@ -64,6 +64,29 @@ export default async function AdminProductsPage({
         }
         const wantedQuality = (o.where as { specs?: { path: string[]; equals: string } }).specs?.equals;
         return screenRows.filter((p) => (p.specs as Record<string, unknown> | null)?.quality === wantedQuality).length;
+      })
+    );
+  } else if (activeTab.key === 'accessories') {
+    const subGroups = await prisma.product.groupBy({ by: ['subcategory'], where: activeTab.where, _count: { _all: true } });
+    facetCounts = facets.map((facet) =>
+      facet.options.map((o) => {
+        const wantedSub = (o.where as { subcategory?: string }).subcategory;
+        return subGroups.reduce((sum, g) => (g.subcategory === wantedSub ? sum + g._count._all : sum), 0);
+      })
+    );
+  } else if (activeTab.key === 'spares-tools') {
+    const subGroups = await prisma.product.groupBy({
+      by: ['category', 'subcategory'],
+      where: activeTab.where,
+      _count: { _all: true },
+    });
+    facetCounts = facets.map((facet) =>
+      facet.options.map((o) => {
+        const wanted = o.where as { category?: string; subcategory?: string };
+        return subGroups.reduce(
+          (sum, g) => (g.category === wanted.category && g.subcategory === wanted.subcategory ? sum + g._count._all : sum),
+          0
+        );
       })
     );
   }

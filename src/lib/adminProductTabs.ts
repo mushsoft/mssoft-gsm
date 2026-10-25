@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import { BRAND_SLUG_MAP, QUALITY_SLUG_MAP } from './categoryProductFilter';
+import { CATEGORY_SUBCATEGORIES } from './productSpecFields';
 
 export interface ProductTab {
   key: string;
@@ -63,6 +64,29 @@ export const SCREEN_BRAND_SUB_TABS: ProductSubTab[] = [
   { key: 'generic', label: 'Generic / Unbranded', where: { brand: { equals: 'Generic', mode: 'insensitive' } } },
 ];
 
+// Built from the same CATEGORY_SUBCATEGORIES the admin product form's
+// subcategory dropdown uses, so these chips can't drift out of sync with it.
+export const ACCESSORY_TYPE_SUB_TABS: ProductSubTab[] = CATEGORY_SUBCATEGORIES.ACCESSORY!.map((s) => ({
+  key: s.value.toLowerCase(),
+  label: s.label,
+  where: { subcategory: s.value },
+}));
+
+export const REPAIR_TOOL_TYPE_SUB_TABS: ProductSubTab[] = CATEGORY_SUBCATEGORIES.REPAIR_TOOL!.map((s) => ({
+  key: s.value.toLowerCase(),
+  label: s.label,
+  where: { category: 'REPAIR_TOOL', subcategory: s.value },
+}));
+
+// Excludes SCREEN — the Screens tab already owns that subcategory.
+export const SPARE_PART_TYPE_SUB_TABS: ProductSubTab[] = CATEGORY_SUBCATEGORIES.SPARE_PART!.filter(
+  (s) => s.value !== 'SCREEN'
+).map((s) => ({
+  key: s.value.toLowerCase(),
+  label: s.label,
+  where: { category: 'SPARE_PART', subcategory: s.value },
+}));
+
 export interface ProductSubTabFacet {
   // Query param this facet's choice is stored under — each facet on a tab
   // needs its own param so picking a screen brand doesn't clobber the
@@ -80,6 +104,11 @@ export const SUB_TAB_FACETS_BY_TAB: Record<string, ProductSubTabFacet[] | undefi
   screens: [
     { paramKey: 'brand', clearLabel: 'All Brands', options: SCREEN_BRAND_SUB_TABS },
     { paramKey: 'sub', clearLabel: 'All Grades', options: SCREEN_QUALITY_SUB_TABS },
+  ],
+  accessories: [{ paramKey: 'sub', clearLabel: 'All Accessories', options: ACCESSORY_TYPE_SUB_TABS }],
+  'spares-tools': [
+    { paramKey: 'sub', clearLabel: 'All Repair Tools', options: REPAIR_TOOL_TYPE_SUB_TABS },
+    { paramKey: 'type', clearLabel: 'All Spare Parts', options: SPARE_PART_TYPE_SUB_TABS },
   ],
 };
 
