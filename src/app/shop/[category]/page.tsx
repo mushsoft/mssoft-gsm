@@ -152,6 +152,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         </div>
       ) : (
         <CategoryProductGrid
+          // Forces a fresh mount (and so a fresh initialProducts seed) whenever
+          // the filters change — without this, clicking between subcategories
+          // reuses the same component instance and its useState(initialProducts)
+          // keeps showing the previous filter's list until a manual reload.
+          key={`${category}:${sub ?? ''}:${brand ?? ''}:${condition ?? ''}:${fits ?? ''}:${quality ?? ''}:${q ?? ''}`}
           initialProducts={products}
           initialHasMore={PAGE_SIZE < totalCount}
           category={category}
