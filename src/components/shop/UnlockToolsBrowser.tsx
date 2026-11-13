@@ -8,7 +8,9 @@ import OrderToolModal, { type OrderableTool } from './OrderToolModal';
 export type PricedSoftwareTool = {
   id: string;
   title: string;
+  // Price of the item, or of one credit when perCredit is true.
   priceUgx: number;
+  perCredit: boolean;
 };
 
 const orderButtonClass =
@@ -82,6 +84,7 @@ export default function UnlockToolsBrowser({
                   <div className="flex shrink-0 items-center gap-3">
                     <span className="text-sm font-black text-neutral-900 dark:text-white whitespace-nowrap">
                       UGX {item.priceUgx.toLocaleString()}
+                      {item.perCredit && <span className="text-[10px] font-semibold text-neutral-500"> / credit</span>}
                     </span>
                     {orderingPaused ? (
                       <Link href="/shop/unlock-tools/maintenance" className={orderButtonClass}>

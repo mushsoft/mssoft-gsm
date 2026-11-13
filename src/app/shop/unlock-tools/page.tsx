@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { ArrowLeft, KeyRound, MessageCircle, Sparkles } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
-import { computeSoftwareToolPrice } from '@/lib/softwareToolPricing';
+import { isPerCreditProduct } from '@/lib/softwareToolOrderFields';
+import { computeSoftwareToolPrice, computeSoftwareToolUnitPrice } from '@/lib/softwareToolPricing';
 import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/UnlockToolsBrowser';
 
 export const metadata = {
@@ -40,12 +41,17 @@ export default async function UnlockToolsPage({
   const groupsMap = new Map<string, SoftwareToolGroup>();
   for (const tool of tools) {
     if (!groupsMap.has(tool.category)) groupsMap.set(tool.category, { category: tool.category, items: [] });
+    const perCredit = isPerCreditProduct(tool.title);
     groupsMap.get(tool.category)!.items.push({
       id: tool.id,
       title: tool.title,
+      perCredit,
       // Only the marked-up UGX price leaves the server — creditCost is the
-      // raw supplier cost and shouldn't be visible to customers.
-      priceUgx: computeSoftwareToolPrice(tool.creditCost, profile.creditRateUgx),
+      // raw supplier cost and shouldn't be visible to customers. For
+      // per-credit products this is the price of one credit.
+      priceUgx: perCredit
+        ? computeSoftwareToolUnitPrice(tool.creditCost, profile.creditRateUgx)
+        : computeSoftwareToolPrice(tool.creditCost, profile.creditRateUgx),
     });
   }
   const groups = Array.from(groupsMap.values());
