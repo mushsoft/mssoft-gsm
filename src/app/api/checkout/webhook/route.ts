@@ -3,6 +3,7 @@ import { timingSafeEqual } from "crypto";
 import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/lib/prisma";
 import { markOrderPaid, markOrderFailed } from "@/lib/orderFulfillment";
+import { handleFlutterwaveTopUpWebhook, TOPUP_TX_REF_PREFIX } from "@/lib/wallet";
 
 const VERIFY_TIMEOUT_MS = 15_000;
 
@@ -38,6 +39,14 @@ export async function POST(req: Request) {
 
   if (typeof txRef !== "string" || !txRef || (typeof transactionId !== "number" && typeof transactionId !== "string")) {
     return NextResponse.json({ success: false, error: "Malformed webhook payload" }, { status: 400 });
+  }
+
+  // Wallet top-ups share this endpoint (Flutterwave allows one webhook URL)
+  // and are told apart by their "WT-" reference; they get the same
+  // re-verify-with-Flutterwave treatment in src/lib/wallet.ts.
+  if (txRef.startsWith(TOPUP_TX_REF_PREFIX)) {
+    const result = await handleFlutterwaveTopUpWebhook(txRef, transactionId);
+    return NextResponse.json(result.body, { status: result.status });
   }
 
   const order = await prisma.order.findUnique({ where: { txRef } });

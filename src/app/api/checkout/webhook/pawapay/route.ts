@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/lib/prisma";
 import { markOrderPaid, markOrderFailed } from "@/lib/orderFulfillment";
+import { findPawapayTopUp, handlePawapayTopUpWebhook } from "@/lib/wallet";
 
 const VERIFY_TIMEOUT_MS = 15_000;
 
@@ -33,6 +34,13 @@ export async function POST(req: Request) {
   const order = await prisma.order.findFirst({ where: { paymentReference: depositId, paymentMethod: "PAWAPAY" } });
 
   if (!order) {
+    // Not an order — it may be a wallet top-up (pawaPay allows one callback
+    // URL), verified the same way in src/lib/wallet.ts.
+    const topUp = await findPawapayTopUp(depositId);
+    if (topUp) {
+      const result = await handlePawapayTopUpWebhook(topUp);
+      return NextResponse.json(result.body, { status: result.status });
+    }
     console.error("pawaPay webhook received for unknown deposit", { depositId });
     return NextResponse.json({ success: false, error: "Order not found" }, { status: 404 });
   }

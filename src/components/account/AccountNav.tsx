@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ClipboardList, Heart, UserCircle, Wrench } from 'lucide-react';
+import { ClipboardList, Heart, UserCircle, Wallet, Wrench } from 'lucide-react';
 
 const TABS = [
   { href: '/account', label: 'Profile', icon: UserCircle },
+  { href: '/account/wallet', label: 'Wallet', icon: Wallet },
   { href: '/account/orders', label: 'Orders', icon: ClipboardList },
   { href: '/account/wishlist', label: 'Wishlist', icon: Heart },
   { href: '/account/repair-requests', label: 'Ask a Tech', icon: Wrench },
@@ -15,7 +16,7 @@ export default function AccountNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-2 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+    <nav className="flex flex-wrap gap-2 border-b border-neutral-200 dark:border-neutral-800 pb-3">
       {TABS.map(({ href, label, icon: Icon }) => {
         const active = href === '/account' ? pathname === href : pathname?.startsWith(href);
         return (

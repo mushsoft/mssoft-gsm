@@ -172,13 +172,64 @@ model Customer {
   username       String?  @unique
   phone          String?  @unique
   referralSource String? // Free-text answer to "How did you hear about us?"
+  // Prepaid balance for unlock-tool purchases, in USD cents. Only ever
+  // changed inside the same DB transaction that writes the matching
+  // WalletTransaction row (see src/lib/wallet.ts), so it always equals the
+  // sum of the customer's COMPLETED transactions — the ledger is the record,
+  // this is a cached total that can be checked/debited atomically.
+  walletBalanceCents Int @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  orders         Order[]
-  reviews        Review[]
-  wishlistItems  WishlistItem[]
-  repairRequests RepairRequest[]
+  orders             Order[]
+  reviews            Review[]
+  wishlistItems      WishlistItem[]
+  repairRequests     RepairRequest[]
+  walletTransactions WalletTransaction[]
+}
+
+enum WalletTransactionType {
+  TOPUP
+  PURCHASE
+  REFUND
+  ADJUSTMENT
+}
+
+enum WalletTransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+// One line of a customer's wallet history. A TOPUP starts PENDING when the
+// customer starts paying and only becomes COMPLETED (crediting the balance)
+// after the payment gateway's own API confirms it — or an admin approves a
+// manual Airtel Money top-up. Never deleted; failed top-ups stay as FAILED.
+model WalletTransaction {
+  id               String                  @id @default(uuid())
+  customerId       String
+  type             WalletTransactionType
+  status           WalletTransactionStatus @default(PENDING)
+  // USD cents. Positive adds to the balance (top-up, refund), negative
+  // spends it (purchase).
+  amountCents      Int
+  // Top-ups: the UGX the customer pays, and the UGX-per-USD rate locked in
+  // when they started, so a later rate change can't alter this top-up.
+  amountUgx        Int?
+  usdRate          Float?
+  paymentMethod    String? // PAWAPAY, MOBILE_MONEY, CARD or AIRTEL_MONEY
+  txRef            String                  @unique // our reference, "WT-<uuid>"
+  // pawaPay depositId, or the Airtel Money transaction ID the customer typed.
+  paymentReference String?
+  note             String?
+  createdAt        DateTime                @default(now())
+  completedAt      DateTime?
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId, createdAt])
+  @@index([status, paymentMethod])
+  @@index([paymentReference])
 }
 
 // A private "ask a technician" request — separate from RepairGuide, which is
