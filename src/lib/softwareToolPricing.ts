@@ -23,3 +23,22 @@ export function computeSoftwareToolPrice(creditCost: number, creditRateUgx: numb
 export function computeSoftwareToolUnitPrice(creditCost: number, creditRateUgx: number): number {
   return Math.ceil(creditCost * creditRateUgx * (1 + SOFTWARE_TOOL_MARKUP));
 }
+
+// USD is the headline price on the unlock-tools page (technicians compare
+// tool prices in dollars). Supplier Credits are treated as 1 Credit = 1 USD,
+// the norm on GSM credit servers, so no exchange rate is involved — the same
+// markup applies. Rounded up to the cent; toFixed first so float noise like
+// 1.2 × 1.5 × 100 = 180.00000000000003 doesn't ceil to 181.
+export function computeSoftwareToolPriceUsd(creditCost: number): number {
+  const cents = Number((creditCost * (1 + SOFTWARE_TOOL_MARKUP) * 100).toFixed(6));
+  return Math.ceil(cents) / 100;
+}
+
+export function formatUsd(amount: number): string {
+  return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+// Total for a per-credit order, to the cent — same float guard as above.
+export function multiplyUsd(unitUsd: number, quantity: number): number {
+  return Math.round(unitUsd * 100 * quantity) / 100;
+}

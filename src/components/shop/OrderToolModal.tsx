@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { MessageCircle, ShieldAlert, X } from 'lucide-react';
 import { getOrderFormSpec, MAX_CREDIT_QUANTITY, validateCreditQuantity, validateOrderField } from '@/lib/softwareToolOrderFields';
-import { roundUpUgx } from '@/lib/softwareToolPricing';
+import { formatUsd, multiplyUsd, roundUpUgx } from '@/lib/softwareToolPricing';
 
 export interface OrderableTool {
   id: string;
@@ -11,6 +11,7 @@ export interface OrderableTool {
   category: string;
   // Price of the item, or of one credit when perCredit is true.
   priceUgx: number;
+  priceUsd: number;
   perCredit: boolean;
 }
 
@@ -35,6 +36,7 @@ export default function OrderToolModal({
 
   const quantityValid = tool.perCredit && validateCreditQuantity(quantity) === null;
   const totalUgx = quantityValid ? roundUpUgx(tool.priceUgx * Number(quantity)) : null;
+  const totalUsd = quantityValid ? multiplyUsd(tool.priceUsd, Number(quantity)) : null;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -59,10 +61,10 @@ export default function OrderToolModal({
     const priceLines = tool.perCredit
       ? [
           `Quantity: ${Number(quantity).toLocaleString()} credits`,
-          `Price per credit: UGX ${tool.priceUgx.toLocaleString()}`,
-          `Total: UGX ${totalUgx!.toLocaleString()}`,
+          `Price per credit: ${formatUsd(tool.priceUsd)} (≈ UGX ${tool.priceUgx.toLocaleString()})`,
+          `Total: ${formatUsd(totalUsd!)} (≈ UGX ${totalUgx!.toLocaleString()})`,
         ]
-      : [`Price: UGX ${tool.priceUgx.toLocaleString()}`];
+      : [`Price: ${formatUsd(tool.priceUsd)} (≈ UGX ${tool.priceUgx.toLocaleString()})`];
     const lines = [
       'Hello MS Soft GSM! I would like to order:',
       '',
@@ -102,9 +104,10 @@ export default function OrderToolModal({
               {tool.title}
             </h2>
             <div className="mt-1 text-sm font-black text-neutral-900 dark:text-white">
-              UGX {tool.priceUgx.toLocaleString()}
+              {formatUsd(tool.priceUsd)}
               {tool.perCredit && <span className="text-xs font-semibold text-neutral-500"> per credit</span>}
             </div>
+            <div className="text-[11px] text-neutral-500">≈ UGX {tool.priceUgx.toLocaleString()}</div>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
             <X className="h-5 w-5" />
@@ -135,9 +138,10 @@ export default function OrderToolModal({
                 <p className="mt-1 text-[11px] font-semibold text-red-500">{errors.quantity}</p>
               ) : (
                 <p className="mt-1 text-[11px] text-neutral-500">
-                  {totalUgx !== null ? (
+                  {totalUgx !== null && totalUsd !== null ? (
                     <>
-                      Total: <span className="font-bold text-neutral-900 dark:text-white">UGX {totalUgx.toLocaleString()}</span>
+                      Total: <span className="font-bold text-neutral-900 dark:text-white">{formatUsd(totalUsd)}</span>{' '}
+                      (≈ UGX {totalUgx.toLocaleString()})
                     </>
                   ) : (
                     'Your total shows here.'

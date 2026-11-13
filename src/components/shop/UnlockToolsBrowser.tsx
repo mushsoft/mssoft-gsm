@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { MessageCircle, Search } from 'lucide-react';
+import { formatUsd } from '@/lib/softwareToolPricing';
 import OrderToolModal, { type OrderableTool } from './OrderToolModal';
 
 export type PricedSoftwareTool = {
@@ -10,6 +11,7 @@ export type PricedSoftwareTool = {
   title: string;
   // Price of the item, or of one credit when perCredit is true.
   priceUgx: number;
+  priceUsd: number;
   perCredit: boolean;
 };
 
@@ -82,9 +84,12 @@ export default function UnlockToolsBrowser({
                     {item.title}
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className="text-sm font-black text-neutral-900 dark:text-white whitespace-nowrap">
-                      UGX {item.priceUgx.toLocaleString()}
-                      {item.perCredit && <span className="text-[10px] font-semibold text-neutral-500"> / credit</span>}
+                    <span className="flex flex-col items-end whitespace-nowrap leading-tight">
+                      <span className="text-sm font-black text-neutral-900 dark:text-white">
+                        {formatUsd(item.priceUsd)}
+                        {item.perCredit && <span className="text-[10px] font-semibold text-neutral-500"> / credit</span>}
+                      </span>
+                      <span className="text-[10px] text-neutral-500">≈ UGX {item.priceUgx.toLocaleString()}</span>
                     </span>
                     {orderingPaused ? (
                       <Link href="/shop/unlock-tools/maintenance" className={orderButtonClass}>

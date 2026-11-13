@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { getOrderFormSpec, isPerCreditProduct, validateCreditQuantity, validateOrderField } from './softwareToolOrderFields';
-import { computeSoftwareToolPrice, computeSoftwareToolUnitPrice, roundUpUgx } from './softwareToolPricing';
+import {
+  computeSoftwareToolPrice,
+  computeSoftwareToolPriceUsd,
+  computeSoftwareToolUnitPrice,
+  formatUsd,
+  multiplyUsd,
+  roundUpUgx,
+} from './softwareToolPricing';
 
 // [category, title] pairs taken from the live /shop/unlock-tools listing.
 const kinds = (category: string, title: string) =>
@@ -140,5 +147,23 @@ describe('credit pricing', () => {
     expect(roundUpUgx(unit * 100)).toBe(774000);
     // The fixed-item price still rounds up to 500.
     expect(computeSoftwareToolPrice(1.2, 4300)).toBe(8000);
+  });
+});
+
+describe('USD pricing (1 Credit = 1 USD + markup)', () => {
+  it('applies the markup and rounds up to the cent without float noise', () => {
+    expect(computeSoftwareToolPriceUsd(1.2)).toBe(1.8); // not 1.81
+    expect(computeSoftwareToolPriceUsd(107.9)).toBe(161.85);
+    expect(computeSoftwareToolPriceUsd(0.668)).toBe(1.01); // 1.002 → up to 1.01
+  });
+
+  it('multiplies per-credit prices to the cent', () => {
+    expect(multiplyUsd(1.8, 100)).toBe(180);
+    expect(multiplyUsd(1.01, 3)).toBe(3.03);
+  });
+
+  it('formats as dollars with two decimals', () => {
+    expect(formatUsd(1.8)).toBe('$1.80');
+    expect(formatUsd(1234.5)).toBe('$1,234.50');
   });
 });

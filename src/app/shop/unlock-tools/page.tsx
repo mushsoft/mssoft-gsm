@@ -3,13 +3,17 @@ import { ArrowLeft, KeyRound, MessageCircle, Sparkles } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 import { isPerCreditProduct } from '@/lib/softwareToolOrderFields';
-import { computeSoftwareToolPrice, computeSoftwareToolUnitPrice } from '@/lib/softwareToolPricing';
+import {
+  computeSoftwareToolPrice,
+  computeSoftwareToolPriceUsd,
+  computeSoftwareToolUnitPrice,
+} from '@/lib/softwareToolPricing';
 import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/UnlockToolsBrowser';
 
 export const metadata = {
   title: 'Unlock & Flash Tool Credits',
   description:
-    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more: unlock/FRP/flash tool credits and activations for repair technicians, priced in UGX at MS Soft GSM.',
+    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more: unlock/FRP/flash tool credits and activations for repair technicians, priced in USD at MS Soft GSM.',
   alternates: { canonical: '/shop/unlock-tools' },
 };
 
@@ -52,6 +56,7 @@ export default async function UnlockToolsPage({
       priceUgx: perCredit
         ? computeSoftwareToolUnitPrice(tool.creditCost, profile.creditRateUgx)
         : computeSoftwareToolPrice(tool.creditCost, profile.creditRateUgx),
+      priceUsd: computeSoftwareToolPriceUsd(tool.creditCost),
     });
   }
   const groups = Array.from(groupsMap.values());
