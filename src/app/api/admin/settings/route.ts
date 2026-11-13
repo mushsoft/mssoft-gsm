@@ -46,6 +46,19 @@ export async function PATCH(req: Request) {
     data.creditRateUgx = creditRateUgx;
   }
 
+  if ('usdRateAddonUgx' in b) {
+    const addon = typeof b.usdRateAddonUgx === 'number' ? b.usdRateAddonUgx : Number(b.usdRateAddonUgx);
+    // 0 is allowed (price at the plain market rate); the cap catches typos
+    // like an extra zero that would silently inflate every price.
+    if (!Number.isInteger(addon) || addon < 0 || addon > 2000) {
+      return NextResponse.json(
+        { success: false, error: 'Rate add-on must be a whole number between 0 and 2,000' },
+        { status: 400 }
+      );
+    }
+    data.usdRateAddonUgx = addon;
+  }
+
   // Singleton — get-or-create the one row, then update it by its real id
   // (an update keyed on a fixed/guessed id would fail the first time).
   const existing = await getShopProfile();

@@ -299,10 +299,13 @@ model ShopProfile {
   facebook     String?
   address      String?
   tinNumber    String? // Uganda Tax Identification Number — optional, shown on invoices if set
-  // UGX value of 1 "Credit" on the unlock-tool supplier's reseller panel —
-  // fluctuates with the USD/UGX rate, so it's admin-editable here rather
-  // than hardcoded, and every SoftwareTool price derives from it live.
+  // Backup UGX-per-USD rate for unlock-tool prices, used only when the live
+  // market rate can't be fetched (see src/lib/usdRate.ts). Column name kept
+  // from when it was the "UGX per supplier Credit" rate.
   creditRateUgx Int      @default(4300)
+  // UGX added on top of the USD→UGX market rate for unlock-tool prices,
+  // e.g. market 4,131 + 99 → we price at 4,230 per $1.
+  usdRateAddonUgx Int    @default(99)
   updatedAt    DateTime @updatedAt
 }
 

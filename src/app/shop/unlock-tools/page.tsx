@@ -36,7 +36,7 @@ export default async function UnlockToolsPage({
     }),
     getShopProfile(),
   ]);
-  const usdRate = await getUsdRate(profile.creditRateUgx);
+  const usdRate = await getUsdRate(profile);
 
   const whatsappPhone = '256773944288';
 

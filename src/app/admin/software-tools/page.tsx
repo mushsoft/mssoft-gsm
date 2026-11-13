@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 import { isPerCreditProduct } from '@/lib/softwareToolOrderFields';
 import { computeSoftwareToolPriceUsd, formatUsd, usdToUgx, usdToUgxPerCredit } from '@/lib/softwareToolPricing';
-import { getUsdRate, UGX_RATE_ADDON } from '@/lib/usdRate';
+import { getUsdRate } from '@/lib/usdRate';
 import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
@@ -18,7 +18,7 @@ export default async function AdminSoftwareToolsPage() {
     prisma.softwareTool.findMany({ orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }] }),
     getShopProfile(),
   ]);
-  const usdRate = await getUsdRate(profile.creditRateUgx);
+  const usdRate = await getUsdRate(profile);
 
   const grouped = new Map<string, typeof tools>();
   for (const tool of tools) {
@@ -39,11 +39,11 @@ export default async function AdminSoftwareToolsPage() {
             <p className="text-xs text-neutral-500">
               {tools.length} items &middot; $1 = UGX {Math.round(usdRate.rate).toLocaleString()} (
               {usdRate.live
-                ? `live ${usdRate.marketRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} + ${UGX_RATE_ADDON}`
-                : `live rate unavailable, using saved ${usdRate.marketRate.toLocaleString()} + ${UGX_RATE_ADDON}`}
+                ? `live ${usdRate.marketRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} + ${usdRate.addon}`
+                : `live rate unavailable, using backup ${usdRate.marketRate.toLocaleString()} + ${usdRate.addon}`}
               ) &middot;{' '}
               <Link href="/admin/settings" className="font-bold text-amber-500 hover:underline">
-                backup rate
+                change add-on
               </Link>
             </p>
           </div>

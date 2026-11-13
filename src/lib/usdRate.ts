@@ -1,11 +1,12 @@
 import 'server-only';
 
 // The UGX shown under each unlock-tool price follows the live USD→UGX market
-// rate plus a fixed add-on, so shilling prices move with the dollar without
-// anyone editing a setting. Cached for an hour — the sources only update
-// about daily, and this keeps every page view from calling them.
-export const UGX_RATE_ADDON = 99;
+// rate plus an add-on the admin sets (ShopProfile.usdRateAddonUgx), so
+// shilling prices move with the dollar without anyone editing the rate.
+// Cached for an hour — the sources only update about daily, and this keeps
+// every page view from calling them.
 const CACHE_SECONDS = 3600;
+const DEFAULT_ADDON = 99; // matches the column default
 
 // Free, keyless sources, tried in order. fawazahmed0's currency-api tracks
 // close to what Google shows; exchangerate-api is a backup.
@@ -32,7 +33,8 @@ const PLAUSIBLE = { min: 2000, max: 10000 };
 
 export interface UsdRate {
   marketRate: number; // UGX per USD from the source (or the fallback)
-  rate: number; // marketRate + UGX_RATE_ADDON — what prices use
+  addon: number;
+  rate: number; // marketRate + addon — what prices use
   live: boolean; // false when every source failed and the fallback was used
   source: string;
 }
@@ -56,14 +58,19 @@ async function fetchMarketRate(): Promise<{ value: number; source: string } | nu
   return null;
 }
 
-// fallbackMarketRate: used only if every source is down — the admin's saved
-// rate (ShopProfile.creditRateUgx), so the page never shows a missing price.
-export async function getUsdRate(fallbackMarketRate: number): Promise<UsdRate> {
+// Takes the shop profile's two settings: the add-on, and the backup rate
+// (creditRateUgx) used only if every source is down, so the page never
+// shows a missing price.
+export async function getUsdRate(profile: { usdRateAddonUgx: number; creditRateUgx: number }): Promise<UsdRate> {
   const market = await fetchMarketRate();
-  const marketRate = market?.value ?? fallbackMarketRate;
+  const marketRate = market?.value ?? profile.creditRateUgx;
+  // Guard so a missing value (e.g. a stale Prisma client before the column
+  // existed) can never turn every price into NaN.
+  const addon = Number.isFinite(profile.usdRateAddonUgx) ? profile.usdRateAddonUgx : DEFAULT_ADDON;
   return {
     marketRate,
-    rate: marketRate + UGX_RATE_ADDON,
+    addon,
+    rate: marketRate + addon,
     live: market !== null,
     source: market?.source ?? 'saved rate in admin settings',
   };

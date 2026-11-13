@@ -17,6 +17,7 @@ export type ShopProfileFormValues = {
   address: string;
   tinNumber: string;
   creditRateUgx: string;
+  usdRateAddonUgx: string;
 };
 
 export default function ShopProfileForm({ initialValues }: { initialValues: ShopProfileFormValues }) {
@@ -182,6 +183,25 @@ export default function ShopProfileForm({ initialValues }: { initialValues: Shop
       </div>
 
       <div>
+        <label className={labelClass}>Dollar Rate Add-on (UGX)</label>
+        <input
+          type="number"
+          min="0"
+          max="2000"
+          step="1"
+          value={values.usdRateAddonUgx}
+          onChange={(e) => update('usdRateAddonUgx', e.target.value)}
+          disabled={isSubmitting}
+          className={inputClass}
+          placeholder="99"
+        />
+        <p className="mt-1 text-[10px] text-neutral-400">
+          Added to the live dollar rate for Unlock &amp; Flash Tool UGX prices, e.g. live 4,131 + 99 = UGX
+          4,230 per $1. Every UGX price updates the moment you save. USD prices don&apos;t change.
+        </p>
+      </div>
+
+      <div>
         <label className={labelClass}>Backup Dollar Rate (UGX per $1)</label>
         <input
           type="number"
@@ -194,8 +214,8 @@ export default function ShopProfileForm({ initialValues }: { initialValues: Shop
           placeholder="4300"
         />
         <p className="mt-1 text-[10px] text-neutral-400">
-          Unlock &amp; Flash Tool UGX prices follow the live dollar rate + UGX 99 automatically. This
-          rate is only used if the live rate can&apos;t be fetched, so keep it roughly current.
+          Only used if the live dollar rate can&apos;t be fetched (the add-on above still applies), so
+          keep it roughly current.
         </p>
       </div>
 
