@@ -27,6 +27,8 @@ jobs:
 
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+      # prisma.config.ts reads this one for `prisma migrate deploy`.
+      MIGRATE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
       NEXT_PUBLIC_BASE_URL: http://localhost:3000
       NEXT_PUBLIC_SANITY_PROJECT_ID: ci-placeholder
       NEXT_PUBLIC_SANITY_DATASET: production
