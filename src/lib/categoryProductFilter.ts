@@ -1,5 +1,7 @@
 import type { Prisma } from '@prisma/client';
 import type { ProductCategory } from './productSpecFields';
+import { PRODUCT_SEARCH_FIELDS } from './productSearch';
+import { tokenizeQuery, tokenWhereConditions } from './searchQuery';
 
 export interface CategoryMeta {
   type: ProductCategory;
@@ -83,13 +85,12 @@ export function buildCategoryWhere(
   // this (instead of the cross-category /shop search) whenever the shopper
   // is already browsing a specific category, so "iphone" typed on the
   // Phones page only searches phones, not the whole catalog.
+  // Each word of q must match title/brand/modelName (see searchQuery.ts);
+  // these join the specs conditions below in one AND list.
+  const andConditions: Prisma.ProductWhereInput[] = [];
   const q = filters.q?.trim();
   if (q) {
-    where.OR = [
-      { title: { contains: q, mode: 'insensitive' } },
-      { brand: { contains: q, mode: 'insensitive' } },
-      { modelName: { contains: q, mode: 'insensitive' } },
-    ];
+    andConditions.push(...tokenWhereConditions<Prisma.ProductWhereInput>(tokenizeQuery(q), PRODUCT_SEARCH_FIELDS));
   }
   if (mappedSub) {
     where.subcategory = mappedSub;
@@ -115,11 +116,8 @@ export function buildCategoryWhere(
   const mappedQuality = filters.quality ? QUALITY_SLUG_MAP[filters.quality] : undefined;
   if (mappedQuality) specsConditions.push({ specs: { path: ['quality'], equals: mappedQuality } });
 
-  if (specsConditions.length === 1) {
-    Object.assign(where, specsConditions[0]);
-  } else if (specsConditions.length > 1) {
-    where.AND = specsConditions;
-  }
+  andConditions.push(...specsConditions);
+  if (andConditions.length) where.AND = andConditions;
 
   return { meta, where, mappedSub };
 }

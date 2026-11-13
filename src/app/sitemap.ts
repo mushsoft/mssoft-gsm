@@ -20,6 +20,7 @@ const routes = [
   'shop/spares',
   'shop/tools',
   'shop/testpoints',
+  'shop/unlock-tools',
   'shop/kids-tabs',
   'shop/laptops',
 ];

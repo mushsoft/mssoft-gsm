@@ -1,28 +1,43 @@
 import Link from 'next/link';
 import { ArrowLeft, Search, ShoppingBag } from 'lucide-react';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { PRODUCT_SEARCH_FIELDS, productRankFields } from '@/lib/productSearch';
+import { rankByRelevance, tokenizeQuery, tokenWhereConditions } from '@/lib/searchQuery';
 import CatalogProductCard from '@/components/cards/CatalogProductCard';
 
 interface ShopSearchPageProps {
   searchParams: Promise<{ search?: string }>;
 }
 
+// Names the search in the browser tab. Results pages are noindex — endless
+// ?search= variations would only dilute the real category/product pages.
+export async function generateMetadata({ searchParams }: ShopSearchPageProps) {
+  const query = (await searchParams).search?.trim();
+  return {
+    title: query ? `Search: ${query}` : 'Search',
+    robots: { index: false, follow: true },
+  };
+}
+
 export default async function ShopSearchPage({ searchParams }: ShopSearchPageProps) {
   const { search } = await searchParams;
   const query = search?.trim() ?? '';
 
-  const products = query
-    ? await prisma.product.findMany({
-        where: {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { brand: { contains: query, mode: 'insensitive' } },
-            { modelName: { contains: query, mode: 'insensitive' } },
-          ],
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 60,
-      })
+  const tokens = tokenizeQuery(query);
+  // Rank a wider pool than we show, so the best match isn't dropped just
+  // because 60 weaker matches were created more recently.
+  const products = tokens.length
+    ? rankByRelevance(
+        await prisma.product.findMany({
+          where: { AND: tokenWhereConditions<Prisma.ProductWhereInput>(tokens, PRODUCT_SEARCH_FIELDS) },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        }),
+        tokens,
+        query,
+        productRankFields
+      ).slice(0, 60)
     : [];
 
   return (
