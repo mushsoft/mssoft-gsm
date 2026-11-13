@@ -3,6 +3,7 @@ import { requireCustomerPage } from '@/lib/customerAuth';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 import { getUsdRate } from '@/lib/usdRate';
+import { availableTopUpMethods } from '@/lib/wallet';
 import { formatUsdCents } from '@/lib/walletAmounts';
 import { formatDate } from '@/lib/formatDate';
 import AccountLogoutButton from '@/components/account/AccountLogoutButton';
@@ -96,7 +97,11 @@ export default async function WalletPage({ searchParams }: { searchParams: Promi
 
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">
         <h2 className="mb-4 text-sm font-black text-neutral-900 dark:text-white">Top up</h2>
-        <WalletTopUpForm usdRate={usdRate.rate} hasPhone={Boolean(customer.phone)} />
+        <WalletTopUpForm
+          usdRate={usdRate.rate}
+          hasPhone={Boolean(customer.phone)}
+          availableMethods={availableTopUpMethods()}
+        />
         <p className="mt-4 text-[11px] text-neutral-500">
           Wallet credit can be spent on unlock &amp; flash tools on this site. It can&apos;t be withdrawn as cash.
         </p>

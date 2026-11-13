@@ -128,3 +128,19 @@ export function findPawapayTopUp(depositId: string) {
 // Wallet top-up references start with this, so the shared Flutterwave
 // webhook can tell them apart from order references ("PH-...").
 export const TOPUP_TX_REF_PREFIX = 'WT-';
+
+export type TopUpPaymentMethod = 'PAWAPAY' | 'MOBILE_MONEY' | 'CARD' | 'AIRTEL_MONEY';
+
+// Only offer a gateway if we can both start a payment AND receive its
+// confirmation webhook — otherwise a customer could pay and never be
+// credited. Flutterwave needs the webhook secret hash as well as the key.
+export function availableTopUpMethods(): TopUpPaymentMethod[] {
+  const methods: TopUpPaymentMethod[] = [];
+  const baseUrl = Boolean(process.env.NEXT_PUBLIC_BASE_URL);
+  if (baseUrl && process.env.PAWAPAY_API_TOKEN) methods.push('PAWAPAY');
+  if (baseUrl && process.env.FLUTTERWAVE_SECRET_KEY && process.env.FLUTTERWAVE_WEBHOOK_SECRET_HASH) {
+    methods.push('MOBILE_MONEY', 'CARD');
+  }
+  methods.push('AIRTEL_MONEY'); // confirmed by an admin, no gateway needed
+  return methods;
+}

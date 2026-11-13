@@ -4,7 +4,7 @@
 // how concurrently it's confirmed. Requires the local `prisma dev` database.
 import { describe, it, expect, afterEach } from 'vitest';
 import { prisma } from './prisma';
-import { completeTopUp, failTopUp } from './wallet';
+import { availableTopUpMethods, completeTopUp, failTopUp } from './wallet';
 
 const TEST_MARKER = 'WALLET_TEST';
 
@@ -102,5 +102,42 @@ describe('failTopUp', () => {
     expect(await failTopUp(completed.id)).toEqual({ transitioned: false });
 
     expect(await balanceOf(customer.id)).toBe(700);
+  });
+});
+
+describe('availableTopUpMethods', () => {
+  const KEYS = ['NEXT_PUBLIC_BASE_URL', 'PAWAPAY_API_TOKEN', 'FLUTTERWAVE_SECRET_KEY', 'FLUTTERWAVE_WEBHOOK_SECRET_HASH'];
+
+  function withEnv(values: Record<string, string | undefined>, fn: () => void) {
+    const saved = Object.fromEntries(KEYS.map((k) => [k, process.env[k]]));
+    for (const k of KEYS) {
+      if (values[k] === undefined) delete process.env[k];
+      else process.env[k] = values[k];
+    }
+    try {
+      fn();
+    } finally {
+      for (const k of KEYS) {
+        if (saved[k] === undefined) delete process.env[k];
+        else process.env[k] = saved[k];
+      }
+    }
+  }
+
+  it('never offers Flutterwave without its webhook secret (payments could not be confirmed)', () => {
+    withEnv({ NEXT_PUBLIC_BASE_URL: 'https://x', PAWAPAY_API_TOKEN: 't', FLUTTERWAVE_SECRET_KEY: 'k' }, () => {
+      expect(availableTopUpMethods()).toEqual(['PAWAPAY', 'AIRTEL_MONEY']);
+    });
+  });
+
+  it('offers every method when everything is configured', () => {
+    withEnv(
+      { NEXT_PUBLIC_BASE_URL: 'https://x', PAWAPAY_API_TOKEN: 't', FLUTTERWAVE_SECRET_KEY: 'k', FLUTTERWAVE_WEBHOOK_SECRET_HASH: 'h' },
+      () => expect(availableTopUpMethods()).toEqual(['PAWAPAY', 'MOBILE_MONEY', 'CARD', 'AIRTEL_MONEY'])
+    );
+  });
+
+  it('always keeps admin-approved Airtel Money', () => {
+    withEnv({}, () => expect(availableTopUpMethods()).toEqual(['AIRTEL_MONEY']));
   });
 });

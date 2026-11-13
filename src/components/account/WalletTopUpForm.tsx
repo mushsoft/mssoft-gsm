@@ -6,8 +6,9 @@ import { CreditCard, Loader2, Smartphone } from 'lucide-react';
 import { AIRTEL_MERCHANT_ID, AIRTEL_USSD_CODE } from '@/components/checkout/CheckoutFields';
 import { formatUsd } from '@/lib/softwareToolPricing';
 import { parseTopUpAmount, topUpUgx, TOPUP_PRESETS_USD } from '@/lib/walletAmounts';
+import type { TopUpPaymentMethod } from '@/lib/wallet';
 
-type Method = 'PAWAPAY' | 'MOBILE_MONEY' | 'CARD' | 'AIRTEL_MONEY';
+type Method = TopUpPaymentMethod;
 
 const METHODS: { value: Method; label: string; icon: typeof Smartphone }[] = [
   { value: 'PAWAPAY', label: 'Mobile Money (pawaPay)', icon: Smartphone },
@@ -16,10 +17,22 @@ const METHODS: { value: Method; label: string; icon: typeof Smartphone }[] = [
   { value: 'AIRTEL_MONEY', label: 'Airtel Money', icon: Smartphone },
 ];
 
-export default function WalletTopUpForm({ usdRate, hasPhone }: { usdRate: number; hasPhone: boolean }) {
+export default function WalletTopUpForm({
+  usdRate,
+  hasPhone,
+  availableMethods,
+}: {
+  usdRate: number;
+  hasPhone: boolean;
+  // Only methods whose payments the site can actually confirm (see
+  // availableTopUpMethods) — never offer one that could take money without
+  // crediting it.
+  availableMethods: Method[];
+}) {
   const router = useRouter();
+  const methods = METHODS.filter((m) => availableMethods.includes(m.value));
   const [amount, setAmount] = useState('20');
-  const [method, setMethod] = useState<Method>('PAWAPAY');
+  const [method, setMethod] = useState<Method>(methods[0]?.value ?? 'AIRTEL_MONEY');
   const [phone, setPhone] = useState('');
   const [airtelRef, setAirtelRef] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +130,7 @@ export default function WalletTopUpForm({ usdRate, hasPhone }: { usdRate: number
       <div>
         <span className={labelClass}>Pay with</span>
         <div className="grid grid-cols-2 gap-2">
-          {METHODS.map(({ value, label, icon: Icon }) => (
+          {methods.map(({ value, label, icon: Icon }) => (
             <button
               key={value}
               type="button"

@@ -6,11 +6,10 @@ import { createFlutterwavePayment, createPawapayPaymentPage } from '@/lib/paymen
 import { rateLimit } from '@/lib/rateLimit';
 import { getShopProfile } from '@/lib/shopProfile';
 import { getUsdRate } from '@/lib/usdRate';
-import { failTopUp, TOPUP_TX_REF_PREFIX } from '@/lib/wallet';
+import { availableTopUpMethods, failTopUp, TOPUP_TX_REF_PREFIX, type TopUpPaymentMethod } from '@/lib/wallet';
 import { parseTopUpAmount, topUpUgx } from '@/lib/walletAmounts';
 
-const PAYMENT_METHODS = ['PAWAPAY', 'MOBILE_MONEY', 'CARD', 'AIRTEL_MONEY'] as const;
-type TopUpPaymentMethod = (typeof PAYMENT_METHODS)[number];
+const PAYMENT_METHODS: TopUpPaymentMethod[] = ['PAWAPAY', 'MOBILE_MONEY', 'CARD', 'AIRTEL_MONEY'];
 // Same loose check as checkout's Airtel Money transaction ID — an admin
 // cross-checks it against the Airtel SMS/app before approving.
 const AIRTEL_REFERENCE_PATTERN = /^[A-Za-z0-9.-]{6,40}$/;
@@ -60,12 +59,10 @@ export async function POST(req: Request) {
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const gatewayMissing =
-    (paymentMethod !== 'AIRTEL_MONEY' && !baseUrl) ||
-    (usesFlutterwave && !process.env.FLUTTERWAVE_SECRET_KEY) ||
-    (paymentMethod === 'PAWAPAY' && !process.env.PAWAPAY_API_TOKEN);
-  if (gatewayMissing) {
-    console.error('Wallet top-up misconfigured: payment gateway key or NEXT_PUBLIC_BASE_URL is missing', { paymentMethod });
+  if (!availableTopUpMethods().includes(paymentMethod)) {
+    console.error('Wallet top-up method not available: gateway key, webhook secret or NEXT_PUBLIC_BASE_URL is missing', {
+      paymentMethod,
+    });
     return NextResponse.json(
       { success: false, error: 'This payment method is temporarily unavailable. Please try another.' },
       { status: 500 }
