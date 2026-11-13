@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { getOrderFormSpec, isPerCreditProduct, validateCreditQuantity, validateOrderField } from './softwareToolOrderFields';
 import {
-  computeSoftwareToolPrice,
   computeSoftwareToolPriceUsd,
-  computeSoftwareToolUnitPrice,
   formatUsd,
   multiplyUsd,
   roundUpUgx,
+  usdToUgx,
+  usdToUgxPerCredit,
 } from './softwareToolPricing';
 
 // [category, title] pairs taken from the live /shop/unlock-tools listing.
@@ -139,14 +139,19 @@ describe('validateCreditQuantity', () => {
   });
 });
 
-describe('credit pricing', () => {
-  it('rounds only the total, not each credit', () => {
-    // 1.2 credits × 4,300 × 1.5 = 7,740 per credit
-    const unit = computeSoftwareToolUnitPrice(1.2, 4300);
-    expect(unit).toBe(7740);
-    expect(roundUpUgx(unit * 100)).toBe(774000);
-    // The fixed-item price still rounds up to 500.
-    expect(computeSoftwareToolPrice(1.2, 4300)).toBe(8000);
+describe('UGX from USD at our rate (live market rate + 99)', () => {
+  const rate = 4131.05 + 99; // 4,230.05
+
+  it('converts a per-credit price to the whole shilling and rounds only the total', () => {
+    // $1.80 × 4,230.05 = 7,614.09 → 7,615 per credit
+    const unit = usdToUgxPerCredit(1.8, rate);
+    expect(unit).toBe(7615);
+    expect(roundUpUgx(unit * 100)).toBe(761500);
+  });
+
+  it('rounds fixed-price items up to UGX 500', () => {
+    // $161.85 × 4,230.05 = 684,633.6 → 685,000
+    expect(usdToUgx(161.85, rate)).toBe(685000);
   });
 });
 

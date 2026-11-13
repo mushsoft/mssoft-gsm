@@ -3,11 +3,8 @@ import { ArrowLeft, KeyRound, MessageCircle, Sparkles } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 import { isPerCreditProduct } from '@/lib/softwareToolOrderFields';
-import {
-  computeSoftwareToolPrice,
-  computeSoftwareToolPriceUsd,
-  computeSoftwareToolUnitPrice,
-} from '@/lib/softwareToolPricing';
+import { computeSoftwareToolPriceUsd, usdToUgx, usdToUgxPerCredit } from '@/lib/softwareToolPricing';
+import { getUsdRate } from '@/lib/usdRate';
 import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/UnlockToolsBrowser';
 
 export const metadata = {
@@ -19,8 +16,8 @@ export const metadata = {
 
 // No searchParams/cookies/headers usage here, so Next.js would otherwise
 // statically prerender this at build time and freeze it at whatever the DB
-// held then — admin additions/price-rate changes need to show up without a
-// redeploy, so this opts out of that.
+// held then — admin additions and the live dollar rate need to show up
+// without a redeploy, so this opts out of that.
 export const dynamic = 'force-dynamic';
 
 // Flip to true to send every "Order" button to /shop/unlock-tools/maintenance
@@ -39,6 +36,7 @@ export default async function UnlockToolsPage({
     }),
     getShopProfile(),
   ]);
+  const usdRate = await getUsdRate(profile.creditRateUgx);
 
   const whatsappPhone = '256773944288';
 
@@ -46,17 +44,15 @@ export default async function UnlockToolsPage({
   for (const tool of tools) {
     if (!groupsMap.has(tool.category)) groupsMap.set(tool.category, { category: tool.category, items: [] });
     const perCredit = isPerCreditProduct(tool.title);
+    // Only marked-up prices leave the server — creditCost is the raw
+    // supplier cost. For per-credit products these are for one credit.
+    const priceUsd = computeSoftwareToolPriceUsd(tool.creditCost);
     groupsMap.get(tool.category)!.items.push({
       id: tool.id,
       title: tool.title,
       perCredit,
-      // Only the marked-up UGX price leaves the server — creditCost is the
-      // raw supplier cost and shouldn't be visible to customers. For
-      // per-credit products this is the price of one credit.
-      priceUgx: perCredit
-        ? computeSoftwareToolUnitPrice(tool.creditCost, profile.creditRateUgx)
-        : computeSoftwareToolPrice(tool.creditCost, profile.creditRateUgx),
-      priceUsd: computeSoftwareToolPriceUsd(tool.creditCost),
+      priceUsd,
+      priceUgx: perCredit ? usdToUgxPerCredit(priceUsd, usdRate.rate) : usdToUgx(priceUsd, usdRate.rate),
     });
   }
   const groups = Array.from(groupsMap.values());
@@ -106,6 +102,10 @@ export default async function UnlockToolsPage({
             <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-950/60 px-4 py-2 text-center">
               <div className="text-lg font-black text-amber-400">{tools.length}</div>
               <div className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Tools Listed</div>
+            </div>
+            <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-950/60 px-4 py-2 text-center">
+              <div className="text-lg font-black text-amber-400">UGX {Math.round(usdRate.rate).toLocaleString()}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Our rate per $1</div>
             </div>
           </div>
         </div>

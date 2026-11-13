@@ -3,7 +3,9 @@ import { KeyRound, Plus, Pencil } from 'lucide-react';
 import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
-import { computeSoftwareToolPrice } from '@/lib/softwareToolPricing';
+import { isPerCreditProduct } from '@/lib/softwareToolOrderFields';
+import { computeSoftwareToolPriceUsd, formatUsd, usdToUgx, usdToUgxPerCredit } from '@/lib/softwareToolPricing';
+import { getUsdRate, UGX_RATE_ADDON } from '@/lib/usdRate';
 import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
@@ -16,6 +18,7 @@ export default async function AdminSoftwareToolsPage() {
     prisma.softwareTool.findMany({ orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }] }),
     getShopProfile(),
   ]);
+  const usdRate = await getUsdRate(profile.creditRateUgx);
 
   const grouped = new Map<string, typeof tools>();
   for (const tool of tools) {
@@ -34,9 +37,13 @@ export default async function AdminSoftwareToolsPage() {
           <div>
             <h1 className="text-lg font-black text-neutral-900 dark:text-white">Unlock &amp; Flash Tools</h1>
             <p className="text-xs text-neutral-500">
-              {tools.length} items &middot; rate {profile.creditRateUgx.toLocaleString()} UGX/Credit &middot;{' '}
+              {tools.length} items &middot; $1 = UGX {Math.round(usdRate.rate).toLocaleString()} (
+              {usdRate.live
+                ? `live ${usdRate.marketRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} + ${UGX_RATE_ADDON}`
+                : `live rate unavailable, using saved ${usdRate.marketRate.toLocaleString()} + ${UGX_RATE_ADDON}`}
+              ) &middot;{' '}
               <Link href="/admin/settings" className="font-bold text-amber-500 hover:underline">
-                change rate
+                backup rate
               </Link>
             </p>
           </div>
@@ -79,7 +86,18 @@ export default async function AdminSoftwareToolsPage() {
                       <div className="text-[10px] text-neutral-500">{tool.creditCost} Credit</div>
                     </td>
                     <td className="px-4 py-2.5 align-middle text-xs font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                      UGX {computeSoftwareToolPrice(tool.creditCost, profile.creditRateUgx).toLocaleString()}
+                      {(() => {
+                        const usd = computeSoftwareToolPriceUsd(tool.creditCost);
+                        const perCredit = isPerCreditProduct(tool.title);
+                        const ugx = perCredit ? usdToUgxPerCredit(usd, usdRate.rate) : usdToUgx(usd, usdRate.rate);
+                        return (
+                          <>
+                            {formatUsd(usd)}
+                            {perCredit && ' / credit'}
+                            <div className="text-[10px] font-normal text-neutral-500">UGX {ugx.toLocaleString()}</div>
+                          </>
+                        );
+                      })()}
                     </td>
                     <td className="px-4 py-2.5 align-middle">
                       <div className="flex justify-end gap-2">

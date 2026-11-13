@@ -182,7 +182,7 @@ export default function ShopProfileForm({ initialValues }: { initialValues: Shop
       </div>
 
       <div>
-        <label className={labelClass}>Unlock-Tool Credit Rate (UGX per Credit)</label>
+        <label className={labelClass}>Backup Dollar Rate (UGX per $1)</label>
         <input
           type="number"
           min="1"
@@ -194,8 +194,8 @@ export default function ShopProfileForm({ initialValues }: { initialValues: Shop
           placeholder="4300"
         />
         <p className="mt-1 text-[10px] text-neutral-400">
-          What 1 supplier &quot;Credit&quot; costs in UGX right now. Every price on the Unlock &amp; Flash
-          Tools page recalculates from this the moment you save, so update it whenever the rate moves.
+          Unlock &amp; Flash Tool UGX prices follow the live dollar rate + UGX 99 automatically. This
+          rate is only used if the live rate can&apos;t be fetched, so keep it roughly current.
         </p>
       </div>
 
