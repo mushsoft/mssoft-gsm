@@ -30,6 +30,29 @@ export interface OrderFormSpec {
   intro?: string;
 }
 
+// Credit top-ups ("Hydra Any Quantity Credits", "Chimera Tool Credits",
+// "Fenix Utility Pro Credit Refill") are priced per credit and the customer
+// picks how many. Fixed packs ("Z3X Credits Pack 30", "Infinity Server
+// Credits - 10", "1 Pack = 100 Credits") are one item at a fixed price.
+const FIXED_PACK = /\bpack\b|\bpackage\b|\d+\s+(\w+\s+)?credits?\b|credits?\s*-\s*\d+/;
+const PER_CREDIT = /credit|refill|recharge|top up/;
+
+export function isPerCreditProduct(title: string): boolean {
+  const t = title.toLowerCase();
+  if (t.includes('any quantity') || t.includes('any qty')) return true;
+  return PER_CREDIT.test(t) && !FIXED_PACK.test(t);
+}
+
+export const MAX_CREDIT_QUANTITY = 10000;
+
+export function validateCreditQuantity(raw: string): string | null {
+  const n = Number(raw);
+  if (!raw.trim()) return 'Enter how many credits you need.';
+  if (!Number.isInteger(n) || n < 1) return 'Enter a whole number of credits (1 or more).';
+  if (n > MAX_CREDIT_QUANTITY) return `For more than ${MAX_CREDIT_QUANTITY.toLocaleString()} credits, message us directly.`;
+  return null;
+}
+
 type Identity =
   | { kind: 'email' }
   // optional: new customers may leave it blank and get an account created.

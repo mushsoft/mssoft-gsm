@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { getOrderFormSpec, validateOrderField } from './softwareToolOrderFields';
+import { getOrderFormSpec, isPerCreditProduct, validateCreditQuantity, validateOrderField } from './softwareToolOrderFields';
+import { computeSoftwareToolPrice, computeSoftwareToolUnitPrice, roundUpUgx } from './softwareToolPricing';
 
 // [category, title] pairs taken from the live /shop/unlock-tools listing.
 const kinds = (category: string, title: string) =>
@@ -78,5 +79,66 @@ describe('validateOrderField', () => {
   it('checks email format', () => {
     expect(validateOrderField(email, 'not-an-email')).toMatch(/valid email/);
     expect(validateOrderField(email, 'tech@example.com')).toBeNull();
+  });
+});
+
+describe('isPerCreditProduct', () => {
+  // Titles from the live listing.
+  it.each([
+    'Hydra Any Quantity Credits',
+    'Chimera Tool Credits',
+    'Cheetah Tool Credit (Any Quantity, All Modules)',
+    'GAPro Tool Any Quantity Credits (1 Phone = 1 Credit)',
+    'DC-Unlocker/HCU Credits (New/Existing User)',
+    'Octoplus Box Credits (New/Existing User, Instant)',
+    'Fenix Utility Pro Credit Refill',
+    'Ultra Unlock Tool - Recharge Balance',
+    'Z3X Refill Credits',
+    'CF-Tools Credits Top Up',
+    'Golden Unlocker Pro Credits (New User)',
+    'Xiaomi Avatar Tool Credit (AUTH/FRP/FASTBOOT to EDL)',
+  ])('per credit: %s', (title) => {
+    expect(isPerCreditProduct(title)).toBe(true);
+  });
+
+  it.each([
+    'Z3X Credits Pack 30',
+    'MobileSea Tool (MST) - 10 Credit Pack',
+    'Infinity Server Credits - 50 (Instant)',
+    'Infinity Server Logs - 10 Credits',
+    'Infinity Online Service - 20 Credits',
+    'LGE Credits (Setool) - 1 Pack = 100 Credits',
+    'DTpro Credits Package (10 Credits)',
+    'Octoplus Full Digital License 1 Day + 100 Server Credits (No Box)',
+    'Rd Power Tool Activation (RDPowerPlus + Stool) + 10 Gift Credits',
+    'Chimera Tool Basic (100 Devices / 1 Year)',
+    'UnlockTool 12 Months Licence',
+  ])('fixed price: %s', (title) => {
+    expect(isPerCreditProduct(title)).toBe(false);
+  });
+});
+
+describe('validateCreditQuantity', () => {
+  it('accepts whole numbers from 1', () => {
+    expect(validateCreditQuantity('1')).toBeNull();
+    expect(validateCreditQuantity('250')).toBeNull();
+  });
+
+  it('rejects empty, zero, fractions and huge amounts', () => {
+    expect(validateCreditQuantity('')).toMatch(/how many/);
+    expect(validateCreditQuantity('0')).toMatch(/whole number/);
+    expect(validateCreditQuantity('2.5')).toMatch(/whole number/);
+    expect(validateCreditQuantity('20000')).toMatch(/message us/);
+  });
+});
+
+describe('credit pricing', () => {
+  it('rounds only the total, not each credit', () => {
+    // 1.2 credits × 4,300 × 1.5 = 7,740 per credit
+    const unit = computeSoftwareToolUnitPrice(1.2, 4300);
+    expect(unit).toBe(7740);
+    expect(roundUpUgx(unit * 100)).toBe(774000);
+    // The fixed-item price still rounds up to 500.
+    expect(computeSoftwareToolPrice(1.2, 4300)).toBe(8000);
   });
 });

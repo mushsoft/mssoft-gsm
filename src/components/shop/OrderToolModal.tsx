@@ -2,13 +2,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { MessageCircle, ShieldAlert, X } from 'lucide-react';
-import { getOrderFormSpec, validateOrderField } from '@/lib/softwareToolOrderFields';
+import { getOrderFormSpec, MAX_CREDIT_QUANTITY, validateCreditQuantity, validateOrderField } from '@/lib/softwareToolOrderFields';
+import { roundUpUgx } from '@/lib/softwareToolPricing';
 
 export interface OrderableTool {
   id: string;
   title: string;
   category: string;
+  // Price of the item, or of one credit when perCredit is true.
   priceUgx: number;
+  perCredit: boolean;
 }
 
 // Collects the account details this particular tool needs (see
@@ -27,7 +30,11 @@ export default function OrderToolModal({
   const spec = useMemo(() => getOrderFormSpec(tool.category, tool.title), [tool]);
   const [values, setValues] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const quantityValid = tool.perCredit && validateCreditQuantity(quantity) === null;
+  const totalUgx = quantityValid ? roundUpUgx(tool.priceUgx * Number(quantity)) : null;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -42,15 +49,26 @@ export default function OrderToolModal({
       const error = validateOrderField(field, values[field.key] ?? '');
       if (error) nextErrors[field.key] = error;
     }
+    if (tool.perCredit) {
+      const error = validateCreditQuantity(quantity);
+      if (error) nextErrors.quantity = error;
+    }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
+    const priceLines = tool.perCredit
+      ? [
+          `Quantity: ${Number(quantity).toLocaleString()} credits`,
+          `Price per credit: UGX ${tool.priceUgx.toLocaleString()}`,
+          `Total: UGX ${totalUgx!.toLocaleString()}`,
+        ]
+      : [`Price: UGX ${tool.priceUgx.toLocaleString()}`];
     const lines = [
       'Hello MS Soft GSM! I would like to order:',
       '',
       `📌 *${tool.title}*`,
       `Category: ${tool.category}`,
-      `Price: UGX ${tool.priceUgx.toLocaleString()}`,
+      ...priceLines,
       '',
       ...spec.fields
         .filter((f) => (values[f.key] ?? '').trim())
@@ -83,7 +101,10 @@ export default function OrderToolModal({
             <h2 id="order-tool-title" className="mt-0.5 text-sm font-bold text-neutral-900 dark:text-white">
               {tool.title}
             </h2>
-            <div className="mt-1 text-sm font-black text-neutral-900 dark:text-white">UGX {tool.priceUgx.toLocaleString()}</div>
+            <div className="mt-1 text-sm font-black text-neutral-900 dark:text-white">
+              UGX {tool.priceUgx.toLocaleString()}
+              {tool.perCredit && <span className="text-xs font-semibold text-neutral-500"> per credit</span>}
+            </div>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
             <X className="h-5 w-5" />
@@ -92,6 +113,39 @@ export default function OrderToolModal({
 
         <div className="space-y-4 p-5">
           {spec.intro && <p className="text-xs text-neutral-600 dark:text-neutral-400">{spec.intro}</p>}
+
+          {tool.perCredit && (
+            <div>
+              <label htmlFor="order-quantity" className="mb-1.5 block text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                Number of credits
+              </label>
+              <input
+                id="order-quantity"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={MAX_CREDIT_QUANTITY}
+                step={1}
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="e.g. 50"
+                className={inputClass}
+              />
+              {errors.quantity ? (
+                <p className="mt-1 text-[11px] font-semibold text-red-500">{errors.quantity}</p>
+              ) : (
+                <p className="mt-1 text-[11px] text-neutral-500">
+                  {totalUgx !== null ? (
+                    <>
+                      Total: <span className="font-bold text-neutral-900 dark:text-white">UGX {totalUgx.toLocaleString()}</span>
+                    </>
+                  ) : (
+                    'Your total shows here.'
+                  )}
+                </p>
+              )}
+            </div>
+          )}
 
           {spec.fields.map((field) => (
             <div key={field.key}>
@@ -127,7 +181,7 @@ export default function OrderToolModal({
               maxLength={500}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Anything we should know, e.g. quantity of credits"
+              placeholder="Anything else we should know"
               className={inputClass}
             />
           </div>
