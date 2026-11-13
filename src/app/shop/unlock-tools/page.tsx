@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { ArrowLeft, KeyRound, MessageCircle, Sparkles } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import { getShopProfile } from '@/lib/shopProfile';
+import { computeSoftwareToolPrice } from '@/lib/softwareToolPricing';
 import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/UnlockToolsBrowser';
 
 export const metadata = {
   title: 'Unlock & Flash Tool Credits',
   description:
-    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more: unlock/FRP/flash tool credits and activations for repair technicians, priced in Credits at MS Soft GSM.',
+    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more: unlock/FRP/flash tool credits and activations for repair technicians, priced in UGX at MS Soft GSM.',
   alternates: { canonical: '/shop/unlock-tools' },
 };
 
@@ -16,15 +18,22 @@ export const metadata = {
 // redeploy, so this opts out of that.
 export const dynamic = 'force-dynamic';
 
+// Flip to true to send every "Order" button to /shop/unlock-tools/maintenance
+// (e.g. while a supplier is down) instead of opening the order form.
+const UNLOCK_TOOLS_ORDERING_PAUSED = false;
+
 export default async function UnlockToolsPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const tools = await prisma.softwareTool.findMany({
-    orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }],
-  });
+  const [tools, profile] = await Promise.all([
+    prisma.softwareTool.findMany({
+      orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }],
+    }),
+    getShopProfile(),
+  ]);
 
   const whatsappPhone = '256773944288';
 
@@ -34,7 +43,9 @@ export default async function UnlockToolsPage({
     groupsMap.get(tool.category)!.items.push({
       id: tool.id,
       title: tool.title,
-      credits: tool.creditCost,
+      // Only the marked-up UGX price leaves the server — creditCost is the
+      // raw supplier cost and shouldn't be visible to customers.
+      priceUgx: computeSoftwareToolPrice(tool.creditCost, profile.creditRateUgx),
     });
   }
   const groups = Array.from(groupsMap.values());
@@ -113,7 +124,12 @@ export default async function UnlockToolsPage({
           </a>
         </div>
       ) : (
-        <UnlockToolsBrowser groups={groups} initialQuery={q ?? ''} />
+        <UnlockToolsBrowser
+          groups={groups}
+          initialQuery={q ?? ''}
+          whatsappPhone={whatsappPhone}
+          orderingPaused={UNLOCK_TOOLS_ORDERING_PAUSED}
+        />
       )}
     </main>
   );

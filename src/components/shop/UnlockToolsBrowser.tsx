@@ -3,16 +3,16 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { MessageCircle, Search } from 'lucide-react';
+import OrderToolModal, { type OrderableTool } from './OrderToolModal';
 
 export type PricedSoftwareTool = {
   id: string;
   title: string;
-  credits: number;
+  priceUgx: number;
 };
 
-function formatCredits(credits: number): string {
-  return credits.toLocaleString(undefined, { maximumFractionDigits: 3 });
-}
+const orderButtonClass =
+  'inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-emerald-500';
 
 export type SoftwareToolGroup = {
   category: string;
@@ -22,11 +22,17 @@ export type SoftwareToolGroup = {
 export default function UnlockToolsBrowser({
   groups,
   initialQuery = '',
+  whatsappPhone,
+  orderingPaused = false,
 }: {
   groups: SoftwareToolGroup[];
   initialQuery?: string;
+  whatsappPhone: string;
+  // While paused, "Order" goes to the maintenance notice instead of the form.
+  orderingPaused?: boolean;
 }) {
   const [query, setQuery] = useState(initialQuery);
+  const [ordering, setOrdering] = useState<OrderableTool | null>(null);
 
   const filteredGroups = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -75,21 +81,33 @@ export default function UnlockToolsBrowser({
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
                     <span className="text-sm font-black text-neutral-900 dark:text-white whitespace-nowrap">
-                      {formatCredits(item.credits)} Credits
+                      UGX {item.priceUgx.toLocaleString()}
                     </span>
-                    <Link
-                      href="/shop/unlock-tools/maintenance"
-                      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-emerald-500"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5 fill-current" />
-                      Order
-                    </Link>
+                    {orderingPaused ? (
+                      <Link href="/shop/unlock-tools/maintenance" className={orderButtonClass}>
+                        <MessageCircle className="h-3.5 w-3.5 fill-current" />
+                        Order
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setOrdering({ ...item, category: group.category })}
+                        className={orderButtonClass}
+                      >
+                        <MessageCircle className="h-3.5 w-3.5 fill-current" />
+                        Order
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           </div>
         ))
+      )}
+
+      {ordering && (
+        <OrderToolModal tool={ordering} whatsappPhone={whatsappPhone} onClose={() => setOrdering(null)} />
       )}
     </div>
   );
