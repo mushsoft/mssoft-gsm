@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { requireCustomerApi } from '@/lib/customerAuth';
 import { sendNewToolOrderNotification } from '@/lib/email/toolOrderEmails';
+import { notifyCustomer } from '@/lib/notifications';
 import { rateLimit } from '@/lib/rateLimit';
 import { describeToolOrder, purchaseTool, ToolOrderError, type ToolOrderDetail } from '@/lib/toolOrders';
 import { formatUsdCents } from '@/lib/walletAmounts';
@@ -39,6 +40,14 @@ export async function POST(req: Request) {
       details: order.details as unknown as ToolOrderDetail[],
       notes: order.notes,
     });
+    await notifyCustomer(
+      { customerId: customer.id, email: customer.email, name: customer.name },
+      {
+        title: 'Tool order received',
+        body: `We've received your order for ${describeToolOrder(order)} and taken ${formatUsdCents(order.totalCents)} from your wallet. We'll let you know as soon as it's loaded — if we can't, the money goes straight back to your wallet.`,
+        link: '/account/tool-orders',
+      }
+    );
 
     return NextResponse.json({ success: true, orderId: order.id, totalCents: order.totalCents });
   } catch (error) {

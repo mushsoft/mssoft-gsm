@@ -35,6 +35,7 @@ async function balanceOf(customerId: string) {
 
 afterEach(async () => {
   await prisma.walletTransaction.deleteMany({ where: { txRef: { startsWith: `WT-${TEST_MARKER}` } } });
+  await prisma.notification.deleteMany({ where: { customer: { supabaseUserId: { startsWith: TEST_MARKER } } } });
   await prisma.customer.deleteMany({ where: { supabaseUserId: { startsWith: TEST_MARKER } } });
 });
 

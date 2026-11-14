@@ -2,7 +2,9 @@ import 'server-only';
 import * as Sentry from '@sentry/nextjs';
 import type { WalletTransaction } from '@prisma/client';
 import { prisma } from './prisma';
+import { notifyCustomerById } from './notifications';
 import { getPawapayDeposit, verifyFlutterwaveTransaction } from './paymentGateways';
+import { formatUsdCents } from './walletAmounts';
 
 // Customer wallet: a prepaid USD balance (cents) for unlock-tool purchases.
 //
@@ -13,27 +15,49 @@ import { getPawapayDeposit, verifyFlutterwaveTransaction } from './paymentGatewa
 // webhook arrives, can never credit a top-up twice.
 
 export async function completeTopUp(id: string): Promise<{ transitioned: boolean }> {
-  return prisma.$transaction(async (tx) => {
+  const topUp = await prisma.$transaction(async (tx) => {
     const moved = await tx.walletTransaction.updateMany({
       where: { id, type: 'TOPUP', status: 'PENDING' },
       data: { status: 'COMPLETED', completedAt: new Date() },
     });
-    if (moved.count === 0) return { transitioned: false };
-    const topUp = await tx.walletTransaction.findUniqueOrThrow({ where: { id } });
+    if (moved.count === 0) return null;
+    const row = await tx.walletTransaction.findUniqueOrThrow({ where: { id } });
     await tx.customer.update({
-      where: { id: topUp.customerId },
-      data: { walletBalanceCents: { increment: topUp.amountCents } },
+      where: { id: row.customerId },
+      data: { walletBalanceCents: { increment: row.amountCents } },
     });
-    return { transitioned: true };
+    return row;
   });
+  if (!topUp) return { transitioned: false };
+
+  await notifyCustomerById(topUp.customerId, {
+    title: 'Wallet top-up received',
+    body: `${formatUsdCents(topUp.amountCents)} has been added to your MS Soft GSM wallet.`,
+    link: '/account/wallet',
+  });
+  return { transitioned: true };
 }
 
-export async function failTopUp(id: string, note?: string): Promise<{ transitioned: boolean }> {
+// options.notify: false when the customer is still on the page and already
+// sees the failure (e.g. the payment page couldn't be started).
+export async function failTopUp(id: string, note?: string, options: { notify?: boolean } = {}): Promise<{ transitioned: boolean }> {
   const moved = await prisma.walletTransaction.updateMany({
     where: { id, type: 'TOPUP', status: 'PENDING' },
     data: { status: 'FAILED', completedAt: new Date(), ...(note ? { note } : {}) },
   });
-  return { transitioned: moved.count > 0 };
+  if (moved.count === 0) return { transitioned: false };
+
+  if (options.notify !== false) {
+    const topUp = await prisma.walletTransaction.findUnique({ where: { id } });
+    if (topUp) {
+      await notifyCustomerById(topUp.customerId, {
+        title: 'Wallet top-up not completed',
+        body: `Your ${formatUsdCents(topUp.amountCents)} top-up couldn't be confirmed, so nothing was added to your wallet. If money left your account, message us with the transaction ID and we'll sort it out.`,
+        link: '/account/wallet',
+      });
+    }
+  }
+  return { transitioned: true };
 }
 
 // ---- Gateway webhooks ---------------------------------------------------

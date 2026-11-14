@@ -7,7 +7,8 @@ import { rateLimit } from '@/lib/rateLimit';
 import { getShopProfile } from '@/lib/shopProfile';
 import { getUsdRate } from '@/lib/usdRate';
 import { availableTopUpMethods, failTopUp, TOPUP_TX_REF_PREFIX, type TopUpPaymentMethod } from '@/lib/wallet';
-import { parseTopUpAmount, topUpUgx } from '@/lib/walletAmounts';
+import { notifyCustomer } from '@/lib/notifications';
+import { formatUsdCents, parseTopUpAmount, topUpUgx } from '@/lib/walletAmounts';
 
 const PAYMENT_METHODS: TopUpPaymentMethod[] = ['PAWAPAY', 'MOBILE_MONEY', 'CARD', 'AIRTEL_MONEY'];
 // Same loose check as checkout's Airtel Money transaction ID — an admin
@@ -93,6 +94,14 @@ export async function POST(req: Request) {
   // Airtel Money direct: stays PENDING until an admin matches the
   // transaction ID against their Airtel SMS/app and approves it.
   if (paymentMethod === 'AIRTEL_MONEY') {
+    await notifyCustomer(
+      { customerId: customer.id, email: customer.email, name: customer.name },
+      {
+        title: 'Wallet top-up submitted',
+        body: `We've received your ${formatUsdCents(amount.cents)} top-up (Airtel Money ID ${airtelReference}). We'll add it to your wallet as soon as we've confirmed the payment.`,
+        link: '/account/wallet',
+      }
+    );
     return NextResponse.json({ success: true, txRef });
   }
 
@@ -113,7 +122,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Wallet top-up payment start failed', { txRef, paymentMethod, error });
     Sentry.captureException(error, { extra: { txRef, paymentMethod } });
-    await failTopUp(topUp.id, 'Payment page could not be started').catch(() => {});
+    await failTopUp(topUp.id, 'Payment page could not be started', { notify: false }).catch(() => {});
     return NextResponse.json({ success: false, error: 'Unable to start payment. Please try again.' }, { status: 502 });
   }
 }

@@ -52,6 +52,7 @@ afterEach(async () => {
   const ids = customers.map((c) => c.id);
   await prisma.walletTransaction.deleteMany({ where: { customerId: { in: ids } } });
   await prisma.toolOrder.deleteMany({ where: { customerId: { in: ids } } });
+  await prisma.notification.deleteMany({ where: { customerId: { in: ids } } });
   await prisma.customer.deleteMany({ where: { id: { in: ids } } });
   await prisma.softwareTool.deleteMany({ where: { category: { startsWith: TEST_MARKER } } });
 });

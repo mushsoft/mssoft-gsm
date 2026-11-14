@@ -4,7 +4,8 @@ import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateCustomer } from "@/lib/customerAuth";
 import { sendOrderReceivedEmail } from "@/lib/email/orderEmails";
-import { markOrderFailed } from "@/lib/orderFulfillment";
+import { markOrderFailed, orderRef } from "@/lib/orderFulfillment";
+import { notifyCustomer } from "@/lib/notifications";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { isValidEmail } from "@/lib/validation";
 
@@ -248,6 +249,19 @@ export async function POST(req: Request) {
     discountAmount: order.discountAmount ?? 0,
     items: order.items.map((item) => ({ title: item.product.title, quantity: item.quantity, price: item.price })),
   }).catch((error) => console.error("Failed to send order-received email (order already created)", { txRef, error }));
+  // Inbox message for logged-in customers (the email above already went out).
+  await notifyCustomer(
+    { customerId: order.customerId, email: checkout.customerEmail, name: checkout.customerName },
+    {
+      title: "Order received",
+      body:
+        checkout.paymentMethod === "AIRTEL_MONEY"
+          ? `We've received order ${orderRef(txRef)} (UGX ${order.totalAmount.toLocaleString()}). We'll confirm your Airtel Money payment shortly.`
+          : `We've received order ${orderRef(txRef)} (UGX ${order.totalAmount.toLocaleString()}). It's waiting for payment confirmation.`,
+      link: "/account/orders",
+    },
+    { email: false }
+  );
 
   // Airtel Money: nothing left to do here — the order sits PENDING until an
   // admin cross-checks checkout.paymentReference against their Airtel Money
@@ -299,7 +313,7 @@ export async function POST(req: Request) {
     } catch (error) {
       console.error("pawaPay payment page creation failed", { txRef, error });
       Sentry.captureException(error, { extra: { txRef, orderId: order.id } });
-      await markOrderFailed(order.id).catch((releaseError) =>
+      await markOrderFailed(order.id, { notify: false }).catch((releaseError) =>
         console.error("Failed to mark order failed / release coupon after init failure", { txRef, releaseError })
       );
       return NextResponse.json(
@@ -350,7 +364,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Flutterwave payment initialization failed", { txRef, error });
     Sentry.captureException(error, { extra: { txRef, orderId: order.id } });
-    await markOrderFailed(order.id).catch((releaseError) =>
+    await markOrderFailed(order.id, { notify: false }).catch((releaseError) =>
       console.error("Failed to mark order failed / release coupon after init failure", { txRef, releaseError })
     );
     return NextResponse.json(

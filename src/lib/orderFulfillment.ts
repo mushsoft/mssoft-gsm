@@ -1,5 +1,6 @@
 import { prisma } from './prisma';
 import { sendPaymentConfirmedEmail } from './email/orderEmails';
+import { notifyCustomer } from './notifications';
 
 // Shared by the Flutterwave webhook (automatic) and the admin "Mark as
 // Paid"/"Mark as Failed" actions (manual, e.g. cash/in-person payments or
@@ -57,29 +58,57 @@ export async function markOrderPaid(orderId: string): Promise<{ transitioned: bo
   }).catch((error) =>
     console.error('Failed to send payment-confirmed email (order already marked paid)', { orderId, error })
   );
+  // Inbox message only — the payment-confirmed email above already went out.
+  await notifyCustomer(
+    { customerId: order.customerId, email: order.customerEmail, name: order.customerName },
+    {
+      title: 'Payment confirmed',
+      body: `We've received your payment of UGX ${order.totalAmount.toLocaleString()} for order ${orderRef(order.txRef)} and are preparing it.`,
+      link: '/account/orders',
+    },
+    { email: false }
+  );
 
   return { transitioned: true };
+}
+
+// Short, readable order reference for messages ("PH-1a2b3c4d").
+export function orderRef(txRef: string): string {
+  return txRef.slice(0, 11).toUpperCase();
 }
 
 // Releases a coupon reservation made at checkout time (see /api/checkout)
 // when an order that used it never ends up paid — an abandoned or declined
 // payment shouldn't permanently burn a limited-use code.
-export async function markOrderFailed(orderId: string): Promise<{ transitioned: boolean }> {
-  const result = await prisma.$transaction(async (tx) => {
+// options.notify: false when the customer is still on the checkout page and
+// already sees the failure (e.g. the payment page couldn't be started).
+export async function markOrderFailed(orderId: string, options: { notify?: boolean } = {}): Promise<{ transitioned: boolean }> {
+  const order = await prisma.$transaction(async (tx) => {
     const updateResult = await tx.order.updateMany({
       where: { id: orderId, paymentStatus: 'PENDING' },
       data: { paymentStatus: 'FAILED' },
     });
-    if (updateResult.count === 0) return { transitioned: false };
+    if (updateResult.count === 0) return null;
 
-    const order = await tx.order.findUniqueOrThrow({ where: { id: orderId }, select: { couponCode: true } });
-    if (order.couponCode) {
-      await tx.coupon.update({ where: { code: order.couponCode }, data: { usedCount: { decrement: 1 } } });
+    const failed = await tx.order.findUniqueOrThrow({ where: { id: orderId } });
+    if (failed.couponCode) {
+      await tx.coupon.update({ where: { code: failed.couponCode }, data: { usedCount: { decrement: 1 } } });
     }
-    return { transitioned: true };
+    return failed;
   });
 
-  return result;
+  if (!order) return { transitioned: false };
+  if (options.notify !== false) {
+    await notifyCustomer(
+      { customerId: order.customerId, email: order.customerEmail, name: order.customerName },
+      {
+        title: 'Payment not completed',
+        body: `We couldn't confirm payment for order ${orderRef(order.txRef)}, so it has been cancelled. You haven't been charged for it — you can place the order again any time.`,
+        link: '/account/orders',
+      }
+    );
+  }
+  return { transitioned: true };
 }
 
 // Admin-only: reverses a confirmed payment. Restocks the items (mirroring
@@ -106,5 +135,14 @@ export async function markOrderRefunded(orderId: string): Promise<{ transitioned
     return fullOrder;
   });
 
-  return { transitioned: Boolean(order) };
+  if (!order) return { transitioned: false };
+  await notifyCustomer(
+    { customerId: order.customerId, email: order.customerEmail, name: order.customerName },
+    {
+      title: 'Order refunded',
+      body: `Order ${orderRef(order.txRef)} has been refunded (UGX ${order.totalAmount.toLocaleString()}).`,
+      link: '/account/orders',
+    }
+  );
+  return { transitioned: true };
 }

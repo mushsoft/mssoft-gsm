@@ -17,6 +17,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   }
 
   try {
+    // Notifies the customer (failTopUp's default) — they're waiting on approval.
     const { transitioned } = await failTopUp(id, 'Rejected by admin');
     if (!transitioned) {
       return NextResponse.json({ success: false, error: 'Top-up is not pending (already processed)' }, { status: 409 });

@@ -189,6 +189,25 @@ model Customer {
   repairRequests     RepairRequest[]
   walletTransactions WalletTransaction[]
   toolOrders         ToolOrder[]
+  notifications      Notification[]
+}
+
+// A message in the customer's account inbox (My Account → Messages), sent
+// alongside the matching email whenever something happens to their order,
+// top-up or tool order — see src/lib/notifications.ts.
+model Notification {
+  id         String    @id @default(uuid())
+  customerId String
+  title      String
+  body       String
+  link       String? // where "View" goes, e.g. /account/orders
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId, createdAt])
+  @@index([customerId, readAt])
 }
 
 enum WalletTransactionType {

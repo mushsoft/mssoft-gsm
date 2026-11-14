@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
-import { sendToolOrderUpdateEmail } from '@/lib/email/toolOrderEmails';
+import { notifyCustomer } from '@/lib/notifications';
 import { completeToolOrder, describeToolOrder, refundToolOrder } from '@/lib/toolOrders';
 import { formatUsdCents } from '@/lib/walletAmounts';
 
@@ -37,15 +37,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ success: false, error: 'Unable to update the order' }, { status: 500 });
   }
 
-  await sendToolOrderUpdateEmail({
-    orderId: order.id,
-    description: describeToolOrder(order),
-    total: formatUsdCents(order.totalCents),
-    customerName: order.customer.name || order.customer.email,
-    customerEmail: order.customer.email,
-    outcome: action === 'complete' ? 'COMPLETED' : 'REFUNDED',
-    adminNote,
-  });
+  const description = describeToolOrder(order);
+  const noteLine = adminNote ? `\n\nMessage from us: ${adminNote}` : '';
+  await notifyCustomer(
+    { customerId: order.customerId, email: order.customer.email, name: order.customer.name },
+    action === 'complete'
+      ? { title: 'Tool order done', body: `${description} has been loaded to your account.${noteLine}`, link: '/account/tool-orders' }
+      : {
+          title: 'Tool order refunded',
+          body: `We couldn't complete ${description}, so ${formatUsdCents(order.totalCents)} has been returned to your wallet.${noteLine}`,
+          link: '/account/tool-orders',
+        }
+  );
 
   return NextResponse.json({ success: true });
 }

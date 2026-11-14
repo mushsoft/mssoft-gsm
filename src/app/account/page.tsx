@@ -3,12 +3,14 @@ import { requireCustomerPage } from '@/lib/customerAuth';
 import AccountLogoutButton from '@/components/account/AccountLogoutButton';
 import AccountNav from '@/components/account/AccountNav';
 import { formatDate } from '@/lib/formatDate';
+import AutoRefresh from '@/components/AutoRefresh';
 
 export default async function AccountPage() {
   const customer = await requireCustomerPage();
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+      <AutoRefresh intervalMs={10000} />
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
