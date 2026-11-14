@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: GuidePageProps): Promise<Meta
     path: `/learn-to-repair/${guide.id}`,
     image: shareCardUrl({
       title: guide.title,
-      subtitle: guide.brand ? `${kind} · ${guide.brand}` : kind,
+      subtitle: guide.brand && guide.brand !== 'All brands' ? `${kind} · ${guide.brand}` : kind,
       photo: guide.thumbnail || youtubeThumbnail(guide.videoUrl) || '/tips/laptop-and-phone.jpg',
     }),
   });
