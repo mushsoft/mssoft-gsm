@@ -1,3 +1,4 @@
+import { replaceLongDashes, replaceLongDashesDeep } from './plainText';
 import { CATEGORY_SUBCATEGORIES } from './productSpecFields';
 
 const CATEGORIES = ['PHONE', 'ACCESSORY', 'SPARE_PART', 'REPAIR_TOOL', 'KIDS_TAB', 'LAPTOP'] as const;
@@ -84,19 +85,20 @@ export function parseProductInput(body: unknown): ProductInput {
     throw new ProductValidationError('Original price must be a non-negative number');
   }
 
+  // Visible text is saved without long dashes (site rule, see plainText.ts).
   return {
-    title,
+    title: replaceLongDashes(title),
     slug,
-    description,
-    brand,
-    modelName,
+    description: replaceLongDashes(description),
+    brand: replaceLongDashes(brand),
+    modelName: modelName && replaceLongDashes(modelName),
     category: category as (typeof CATEGORIES)[number],
     subcategory,
     price,
     originalPrice,
     isHotDeal,
     stock,
-    specs,
+    specs: replaceLongDashesDeep(specs),
     images,
   };
 }

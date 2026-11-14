@@ -1,3 +1,5 @@
+import { replaceLongDashes } from './plainText';
+
 export class RepairGuideValidationError extends Error {}
 
 export type GuideCategory = 'REPAIR' | 'SOFTWARE';
@@ -44,5 +46,15 @@ export function parseRepairGuideInput(body: unknown): RepairGuideInput {
     throw new RepairGuideValidationError('Video URL must be a valid http(s) URL');
   }
 
-  return { category, title, brand, modelName, videoUrl, thumbnail, content, toolsUsed };
+  // Visible text is saved without long dashes (site rule, see plainText.ts).
+  return {
+    category,
+    title: replaceLongDashes(title),
+    brand: replaceLongDashes(brand),
+    modelName: replaceLongDashes(modelName),
+    videoUrl,
+    thumbnail,
+    content: replaceLongDashes(content),
+    toolsUsed: toolsUsed.map(replaceLongDashes),
+  };
 }

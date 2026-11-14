@@ -1,3 +1,4 @@
+import { replaceLongDashes } from './plainText';
 import { TESTPOINT_TYPES } from './testPointTypes';
 
 export class TestPointValidationError extends Error {}
@@ -34,5 +35,14 @@ export function parseTestPointInput(body: unknown): TestPointInput {
   }
   if (!title) throw new TestPointValidationError('Title is required');
 
-  return { brand, modelName, chipset, pointType, title, diagramUrl, notes };
+  // Visible text is saved without long dashes (site rule, see plainText.ts).
+  return {
+    brand: replaceLongDashes(brand),
+    modelName: replaceLongDashes(modelName),
+    chipset: replaceLongDashes(chipset),
+    pointType,
+    title: replaceLongDashes(title),
+    diagramUrl,
+    notes: notes && replaceLongDashes(notes),
+  };
 }

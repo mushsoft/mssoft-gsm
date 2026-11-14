@@ -1,3 +1,5 @@
+import { replaceLongDashes } from './plainText';
+
 export class SoftwareToolValidationError extends Error {}
 
 export interface SoftwareToolInput {
@@ -28,5 +30,6 @@ export function parseSoftwareToolInput(body: unknown): SoftwareToolInput {
     throw new SoftwareToolValidationError('Order must be a number');
   }
 
-  return { category, title, creditCost, order };
+  // Visible text is saved without long dashes (site rule, see plainText.ts).
+  return { category: replaceLongDashes(category), title: replaceLongDashes(title), creditCost, order };
 }
