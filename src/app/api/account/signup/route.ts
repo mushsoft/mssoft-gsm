@@ -5,9 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { rateLimit, getClientIp } from '@/lib/rateLimit';
 import { REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { COUNTRY_CODES, getPhoneLengthRange } from '@/lib/countryCodes';
-import { isValidFullName, isValidEmail } from '@/lib/validation';
-
-const USERNAME_PATTERN = /^[a-zA-Z0-9_.]{3,20}$/;
+import { isValidFullName, isValidEmail, isValidUsername, USERNAME_RULE_MESSAGE } from '@/lib/validation';
 
 // Supabase's own auth error messages are written for developers, not
 // customers ("email rate limit exceeded", "Signups not allowed for this
@@ -84,11 +82,9 @@ export async function POST(req: Request) {
   if (password.length < 8) {
     return NextResponse.json({ success: false, error: 'Password must be at least 8 characters' }, { status: 400 });
   }
-  if (!USERNAME_PATTERN.test(username)) {
-    return NextResponse.json(
-      { success: false, error: 'Username must be 3-20 characters (letters, numbers, "_" or ".")' },
-      { status: 400 }
-    );
+  if (!isValidUsername(username)) {
+    // field lets the form show this under the username box, not at the bottom.
+    return NextResponse.json({ success: false, error: USERNAME_RULE_MESSAGE, field: 'username' }, { status: 400 });
   }
   const phoneParts = splitPhone(phone);
   if (!phoneParts) {

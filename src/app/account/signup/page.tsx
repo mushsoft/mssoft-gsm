@@ -7,7 +7,16 @@ import { UserPlus, Loader2, MailCheck, Eye, EyeOff } from 'lucide-react';
 import { getPasswordStrength } from '@/lib/passwordStrength';
 import { REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { COUNTRY_CODES, DEFAULT_COUNTRY_ISO2, getPhoneLengthRange } from '@/lib/countryCodes';
-import { isValidFullName, isValidEmail, isValidPhoneForDialCode, digitsOnlyLocalPhone } from '@/lib/validation';
+import {
+  isValidFullName,
+  isValidEmail,
+  isValidPhoneForDialCode,
+  digitsOnlyLocalPhone,
+  isValidUsername,
+  sanitizeUsernameInput,
+  USERNAME_MAX_LENGTH,
+  USERNAME_RULE_MESSAGE,
+} from '@/lib/validation';
 
 const inputClass =
   'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-amber-500/50 disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200 dark:placeholder-neutral-500';
@@ -86,7 +95,7 @@ export default function AccountSignupPage() {
   const phoneDigitRange = getPhoneLengthRange(dialCode);
   const canSubmit =
     isValidFullName(name) &&
-    !!username &&
+    isValidUsername(username) &&
     isValidEmail(email) &&
     isValidPhoneForDialCode(dialCode, localPhone) &&
     !!referralSource &&
@@ -108,6 +117,10 @@ export default function AccountSignupPage() {
     }
     if (!isValidFullName(name)) {
       setFieldErrors({ name: 'Enter your full name using letters only' });
+      return;
+    }
+    if (!isValidUsername(username)) {
+      setFieldErrors({ username: USERNAME_RULE_MESSAGE });
       return;
     }
     if (!isValidEmail(email)) {
@@ -222,16 +235,23 @@ export default function AccountSignupPage() {
               id="signup-username"
               value={username}
               onChange={(e) => {
-                setUsername(e.target.value);
+                setUsername(sanitizeUsernameInput(e.target.value));
                 clearFieldError('username');
               }}
               placeholder="Username"
               autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              maxLength={USERNAME_MAX_LENGTH}
               required
               disabled={isSubmitting}
               className={inputClass}
             />
-            {fieldErrors.username && <p className={fieldErrorClass}>{fieldErrors.username}</p>}
+            {fieldErrors.username ? (
+              <p className={fieldErrorClass}>{fieldErrors.username}</p>
+            ) : (
+              <p className="mt-1 text-[10px] text-neutral-500">3-20 letters or numbers; &quot;_&quot; and &quot;.&quot; allowed, e.g. musa_k</p>
+            )}
           </div>
           <div>
             <label htmlFor="signup-email" className="sr-only">
