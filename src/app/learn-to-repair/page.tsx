@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
 interface LearnToRepairPageProps {
-  searchParams: Promise<{ brand?: string; q?: string }>;
+  searchParams: Promise<{ brand?: string; q?: string; show?: string }>;
 }
 
 export const metadata: Metadata = shareMetadata({
@@ -15,6 +15,6 @@ export const metadata: Metadata = shareMetadata({
 });
 
 export default async function LearnToRepairPage({ searchParams }: LearnToRepairPageProps) {
-  const { brand, q } = await searchParams;
-  return <GuideListing category="REPAIR" brand={brand} q={q} />;
+  const { brand, q, show } = await searchParams;
+  return <GuideListing category="REPAIR" brand={brand} q={q} show={show} />;
 }

@@ -49,6 +49,17 @@ export function parseTopic(value: string | undefined): SoftwareTopic | null {
   return SOFTWARE_TOPICS.find((t) => t.toLowerCase() === wanted) ?? null;
 }
 
+// Cards per "page" on the listing, and the ?show= value for "Show more".
+// Anything missing or invalid shows the first page; huge values are capped.
+export const PAGE_SIZE = 24;
+const MAX_SHOW = 2000;
+
+export function parseShowCount(value: string | undefined): number {
+  const n = Number.parseInt(value ?? '', 10);
+  if (!Number.isFinite(n) || n < PAGE_SIZE) return PAGE_SIZE;
+  return Math.min(n, MAX_SHOW);
+}
+
 export interface SearchableGuide {
   title: string;
   brand: string;

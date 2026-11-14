@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import type { Prisma } from '@prisma/client';
-import { ArrowLeft, CircuitBoard, MessageCircle, Search, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, CircuitBoard, MessageCircle, Sparkles, X } from 'lucide-react';
 import TestpointCard from '@/components/cards/TestpointCard';
+import LiveSearchBox from '@/components/LiveSearchBox';
 import { prisma } from '@/lib/prisma';
 import { rankByRelevance, tokenizeQuery, tokenWhereConditions } from '@/lib/searchQuery';
 import { TESTPOINT_SEARCH_FIELDS, TESTPOINT_SEARCH_IGNORE, testpointRankFields } from '@/lib/testPointSearch';
@@ -116,24 +117,16 @@ export default async function TestpointsPage({
       </div>
 
       <div className="space-y-3">
-        {/* Plain GET form — works without JS, and keeps the active type filter. */}
-        <form action="/shop/testpoints" method="get" className="relative">
-          {sub && mappedType && <input type="hidden" name="sub" value={sub} />}
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-          <input
-            type="search"
-            name="q"
-            defaultValue={trimmedQuery}
-            placeholder="Search by brand, model or chipset, e.g. Redmi Note 9, Spark 8, MT6765"
-            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 py-2.5 pl-9 pr-24 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:border-amber-500 focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-neutral-950 transition-colors hover:bg-amber-400"
-          >
-            Search
-          </button>
-        </form>
+        {/* Results update as you type (no page reload) and keep the active
+            type filter. Still a plain GET form without JS. */}
+        <LiveSearchBox
+          basePath="/shop/testpoints"
+          initialQuery={trimmedQuery ?? ''}
+          keep={{ sub: sub && mappedType ? sub : null }}
+          placeholder="Search by brand, model or chipset, e.g. Redmi Note 9, Spark 8, MT6765"
+          ariaLabel="Search testpoints"
+          tone="amber"
+        />
 
         <div className="flex flex-wrap items-center gap-2">
           {[{ slug: undefined, label: 'All types' }, ...typeChips].map((chip) => {

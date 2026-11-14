@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
 interface SoftwareTipsPageProps {
-  searchParams: Promise<{ topic?: string; q?: string }>;
+  searchParams: Promise<{ topic?: string; q?: string; show?: string }>;
 }
 
 export const metadata: Metadata = shareMetadata({
@@ -15,6 +15,6 @@ export const metadata: Metadata = shareMetadata({
 });
 
 export default async function SoftwareTipsPage({ searchParams }: SoftwareTipsPageProps) {
-  const { topic, q } = await searchParams;
-  return <GuideListing category="SOFTWARE" topic={topic} q={q} />;
+  const { topic, q, show } = await searchParams;
+  return <GuideListing category="SOFTWARE" topic={topic} q={q} show={show} />;
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseTopic, searchGuides, topicForBrand } from './guideTopics';
+import { parseShowCount, parseTopic, searchGuides, topicForBrand } from './guideTopics';
 
 const guide = (title: string, brand = '', content = '', toolsUsed: string[] = [], modelName = '') => ({
   title,
@@ -33,6 +33,16 @@ describe('parseTopic', () => {
     expect(parseTopic('All')).toBeNull();
     expect(parseTopic('nonsense')).toBeNull();
     expect(parseTopic(undefined)).toBeNull();
+  });
+});
+
+describe('parseShowCount', () => {
+  it('defaults to one page and caps huge values', () => {
+    expect(parseShowCount(undefined)).toBe(24);
+    expect(parseShowCount('abc')).toBe(24);
+    expect(parseShowCount('5')).toBe(24);
+    expect(parseShowCount('48')).toBe(48);
+    expect(parseShowCount('999999')).toBe(2000);
   });
 });
 

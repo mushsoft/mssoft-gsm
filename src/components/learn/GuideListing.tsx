@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Code2, GraduationCap, PlayCircle, Search, Sparkles, Wrench } from 'lucide-react';
+import { ArrowLeft, Code2, GraduationCap, PlayCircle, Sparkles, Wrench } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import type { GuideCategory } from '@/lib/validateRepairGuide';
-import { SOFTWARE_TOPICS, parseTopic, searchGuides, topicForBrand } from '@/lib/guideTopics';
+import { PAGE_SIZE, SOFTWARE_TOPICS, parseShowCount, parseTopic, searchGuides, topicForBrand } from '@/lib/guideTopics';
+import LiveSearchBox from '@/components/LiveSearchBox';
 import Reveal from '@/components/motion/Reveal';
 
 // Shared by /learn-to-repair (hardware repair guides) and
@@ -44,11 +45,13 @@ export default async function GuideListing({
   brand,
   topic,
   q,
+  show,
 }: {
   category: GuideCategory;
   brand?: string;
   topic?: string;
   q?: string;
+  show?: string;
 }) {
   const copy = COPY[category];
   const basePath = TABS.find((t) => t.category === category)!.href;
@@ -78,13 +81,19 @@ export default async function GuideListing({
     ...chipValues.map((value) => ({ label: value, value, count: searched.filter((g) => chipOf(g) === value).length })),
   ].filter((chip) => chip.value === null || chip.count > 0 || chip.value === selectedChip);
 
-  const hrefFor = (value: string | null) => {
+  const hrefFor = (value: string | null, showCount?: number) => {
     const params = new URLSearchParams();
     if (query) params.set('q', query);
     if (value) params.set(chipParam, value);
+    if (showCount) params.set('show', String(showCount));
     const qs = params.toString();
     return qs ? `${basePath}?${qs}` : basePath;
   };
+
+  // Render one page of cards at a time. All 500 tips at once made the page
+  // about 2 MB of HTML before any photos, slow on mobile data.
+  const visibleCount = Math.min(filtered.length, parseShowCount(show));
+  const visible = filtered.slice(0, visibleCount);
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 px-4 py-8">
@@ -149,26 +158,15 @@ export default async function GuideListing({
 
       {guides.length > 0 && (
         <div className="space-y-3">
-          {/* Search keeps the chosen chip (hidden field). Chips are links so
-              pressing Enter in the box can't trigger a chip by accident. */}
-          <form action={basePath} className="flex gap-2">
-            <input
-              type="search"
-              name="q"
-              defaultValue={query}
-              placeholder={copy.search}
-              aria-label={isSoftware ? 'Search software tips' : 'Search repair guides'}
-              className="min-w-0 flex-1 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2.5 text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20"
-            />
-            {selectedChip && <input type="hidden" name={chipParam} value={selectedChip} />}
-            <button
-              type="submit"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-emerald-400"
-            >
-              <Search className="h-4 w-4" />
-              <span className="hidden sm:inline">Search</span>
-            </button>
-          </form>
+          {/* Results update as you type (no page reload) and keep the chosen
+              chip. Chips are links, so Enter in the box can't trigger one. */}
+          <LiveSearchBox
+            basePath={basePath}
+            initialQuery={query}
+            keep={{ [chipParam]: selectedChip }}
+            placeholder={copy.search}
+            ariaLabel={isSoftware ? 'Search software tips' : 'Search repair guides'}
+          />
 
           {chipValues.length > 0 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
@@ -231,8 +229,9 @@ export default async function GuideListing({
         // whole-grid trigger (StaggerGroup) never fired on long lists: it
         // waits for 15% of the grid to be on screen, which a 100-card grid
         // is taller than, so the cards stayed invisible.
+        <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((guide) => (
+          {visible.map((guide) => (
             <Reveal key={guide.id} className="h-full">
               <Link
                 href={`/learn-to-repair/${guide.id}`}
@@ -293,6 +292,22 @@ export default async function GuideListing({
               </Link>
             </Reveal>
           ))}
+        </div>
+
+        {visibleCount < filtered.length && (
+          <div className="flex flex-col items-center gap-2">
+            <Link
+              href={hrefFor(selectedChip, visibleCount + PAGE_SIZE)}
+              scroll={false}
+              className="rounded-full border border-emerald-500/40 px-6 py-2.5 text-sm font-bold text-emerald-500 transition-colors hover:bg-emerald-500 hover:text-black"
+            >
+              Show more
+            </Link>
+            <p className="text-xs text-neutral-500">
+              Showing {visibleCount} of {filtered.length}
+            </p>
+          </div>
+        )}
         </div>
       )}
 
