@@ -3,8 +3,11 @@ import { requireAdminPage } from '@/lib/adminAuth';
 import RepairGuideForm from '@/components/admin/RepairGuideForm';
 import AdminBackLink from '@/components/admin/AdminBackLink';
 
-export default async function NewRepairGuidePage() {
+// ?type=software opens the form with "Software tip" already selected.
+export default async function NewRepairGuidePage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
   await requireAdminPage();
+  const { type } = await searchParams;
+  const isSoftware = type === 'software';
 
   return (
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
@@ -15,7 +18,9 @@ export default async function NewRepairGuidePage() {
           <GraduationCap className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-lg font-black text-neutral-900 dark:text-white">New Repair Guide</h1>
+          <h1 className="text-lg font-black text-neutral-900 dark:text-white">
+            {isSoftware ? 'New Software Tip' : 'New Repair Guide'}
+          </h1>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Create the entry, then add its photo and video on the next screen.
           </p>
@@ -26,6 +31,7 @@ export default async function NewRepairGuidePage() {
         <RepairGuideForm
           mode="create"
           initialValues={{
+            category: isSoftware ? 'SOFTWARE' : 'REPAIR',
             title: '',
             brand: '',
             modelName: '',

@@ -30,7 +30,14 @@ export default async function AdminRepairGuidesPage() {
 
       <AdminNav />
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Link
+          href="/admin/repair-guides/new?type=software"
+          className="flex items-center gap-1.5 rounded-lg border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-600 transition-colors hover:bg-emerald-600 hover:text-white dark:text-emerald-400"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          New Software Tip
+        </Link>
         <Link
           href="/admin/repair-guides/new"
           className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-500"
@@ -64,9 +71,16 @@ export default async function AdminRepairGuidesPage() {
                       )}
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-neutral-800 dark:text-neutral-200">{guide.title}</div>
+                      <div className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                        {guide.title}
+                        {guide.category === 'SOFTWARE' && (
+                          <span className="ml-1.5 rounded bg-sky-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-500">
+                            Software tip
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[10px] text-neutral-500">
-                        {guide.brand} · {guide.modelName}
+                        {[guide.brand, guide.modelName].filter(Boolean).join(' · ') || 'All phones'}
                       </div>
                     </div>
                   </div>

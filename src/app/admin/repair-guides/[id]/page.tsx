@@ -53,6 +53,7 @@ export default async function EditRepairGuidePage({ params }: { params: Promise<
           mode="edit"
           guideId={guide.id}
           initialValues={{
+            category: guide.category,
             title: guide.title,
             brand: guide.brand,
             modelName: guide.modelName,

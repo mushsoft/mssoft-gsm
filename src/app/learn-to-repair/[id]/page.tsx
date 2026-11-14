@@ -19,27 +19,31 @@ export default async function RepairGuideDetailPage({ params }: GuidePageProps) 
     notFound();
   }
 
-  const waMessage = `Hello MS Soft GSM! I followed your "${guide.title}" guide but would like professional help.`;
+  const isSoftware = guide.category === 'SOFTWARE';
+  const waMessage = `Hello MS Soft GSM! I followed your "${guide.title}" ${isSoftware ? 'tip' : 'guide'} but would like professional help.`;
   const whatsappUrl = `https://wa.me/256773944288?text=${encodeURIComponent(waMessage)}`;
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <div>
         <Link
-          href="/learn-to-repair"
+          href={isSoftware ? '/learn-to-repair/software-tips' : '/learn-to-repair'}
           className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-emerald-400"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Guides</span>
+          <span>{isSoftware ? 'Back to Software Tips' : 'Back to Guides'}</span>
         </Link>
       </div>
 
       <Reveal>
         <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1">
-            {guide.brand}
-          </span>
-          <span className="text-neutral-500">{guide.modelName}</span>
+          {isSoftware && (
+            <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 text-sky-400">Software tip</span>
+          )}
+          {guide.brand && (
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1">{guide.brand}</span>
+          )}
+          {guide.modelName && <span className="text-neutral-500">{guide.modelName}</span>}
         </div>
         <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white sm:text-3xl">{guide.title}</h1>
       </Reveal>

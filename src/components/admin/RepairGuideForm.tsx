@@ -3,8 +3,10 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
+import type { GuideCategory } from '@/lib/validateRepairGuide';
 
 export type RepairGuideFormValues = {
+  category: GuideCategory;
   title: string;
   brand: string;
   modelName: string;
@@ -53,6 +55,7 @@ export default function RepairGuideForm({
     // directly to their own endpoints. Sending them here would risk
     // overwriting an already-uploaded photo/video with a stale value.
     const payload = {
+      category: values.category,
       title: values.title,
       brand: values.brand,
       modelName: values.modelName,
@@ -95,6 +98,33 @@ export default function RepairGuideForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
+        <label className={labelClass}>Type</label>
+        <div className="grid grid-cols-2 gap-2">
+          {(
+            [
+              { value: 'REPAIR', label: 'Repair guide', hint: 'Listed under Learn to Repair' },
+              { value: 'SOFTWARE', label: 'Software tip', hint: 'Listed under Software Tips' },
+            ] as const
+          ).map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => update('category', option.value)}
+              className={`rounded-lg border px-3 py-2 text-left transition-colors disabled:opacity-60 ${
+                values.category === option.value
+                  ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  : 'border-neutral-200 dark:border-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-200'
+              }`}
+            >
+              <span className="block text-xs font-bold">{option.label}</span>
+              <span className="block text-[10px] opacity-80">{option.hint}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
         <label className={labelClass}>Title</label>
         <input
           required
@@ -108,9 +138,9 @@ export default function RepairGuideForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className={labelClass}>Brand</label>
+          <label className={labelClass}>Brand{values.category === 'SOFTWARE' && ' (optional)'}</label>
           <input
-            required
+            required={values.category === 'REPAIR'}
             value={values.brand}
             onChange={(e) => update('brand', e.target.value)}
             disabled={isSubmitting}
@@ -119,9 +149,9 @@ export default function RepairGuideForm({
           />
         </div>
         <div>
-          <label className={labelClass}>Model Name</label>
+          <label className={labelClass}>Model Name{values.category === 'SOFTWARE' && ' (optional)'}</label>
           <input
-            required
+            required={values.category === 'REPAIR'}
             value={values.modelName}
             onChange={(e) => update('modelName', e.target.value)}
             disabled={isSubmitting}

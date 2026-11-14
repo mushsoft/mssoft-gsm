@@ -22,6 +22,7 @@ import {
   UserCircle,
   Laptop,
   KeyRound,
+  Code2,
   type LucideIcon
 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -159,6 +160,12 @@ const PRIMARY_CATEGORY_TITLES = new Set([
   'ACCESSORIES',
   'REPAIR TOOLS',
 ]);
+
+// LEARN TO REPAIR dropdown (desktop).
+const LEARN_LINKS: { title: string; href: string; icon: LucideIcon }[] = [
+  { title: 'Repair Guides', href: '/learn-to-repair', icon: Wrench },
+  { title: 'Software Tips', href: '/learn-to-repair/software-tips', icon: Code2 },
+];
 
 export default function Header() {
   // The home page's own hero already has a prominent search bar directly
@@ -355,14 +362,28 @@ export default function Header() {
               </a>
             </li>
 
-            <li className="py-2.5">
+            <li className="relative group py-2.5">
               <Link
                 href="/learn-to-repair"
                 className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors"
               >
                 <GraduationCap className="w-3.5 h-3.5" />
                 <span>LEARN TO REPAIR</span>
+                <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" />
               </Link>
+
+              <div className="absolute left-0 top-full hidden group-hover:block group-focus-within:block w-48 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl py-2 z-50">
+                {LEARN_LINKS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                  >
+                    <item.icon className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
+                    <span>{item.title}</span>
+                  </Link>
+                ))}
+              </div>
             </li>
 
             <li className="py-2.5">
@@ -456,6 +477,14 @@ export default function Header() {
           >
             <GraduationCap className="w-4 h-4" />
             <span>LEARN TO REPAIR</span>
+          </Link>
+          <Link
+            href="/learn-to-repair/software-tips"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center gap-2 py-1.5 pl-6 text-xs font-semibold text-emerald-600/80 dark:text-emerald-400/80"
+          >
+            <Code2 className="w-3.5 h-3.5" />
+            <span>Software Tips</span>
           </Link>
 
           <Link

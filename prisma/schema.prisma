@@ -99,11 +99,17 @@ model SoftwareTool {
   @@index([category])
 }
 
+enum GuideCategory {
+  REPAIR // hardware repair guide, listed on /learn-to-repair
+  SOFTWARE // software tip (flashing, FRP, unlocking…), listed on /learn-to-repair/software-tips
+}
+
 model RepairGuide {
   id        String   @id @default(uuid())
+  category  GuideCategory @default(REPAIR)
   title     String   // e.g. Tecno Camon 18 Charging Flex Fix
-  brand     String
-  modelName String
+  brand     String   // may be '' for a general software tip
+  modelName String   // may be '' for a general software tip
   videoUrl  String?  // YouTube embed link
   thumbnail String
   content   String   // Written step-by-step

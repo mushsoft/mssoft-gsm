@@ -29,10 +29,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   // them (needed for create, where Prisma requires a thumbnail value), but
   // this form never sends them, so including them here would wipe out
   // whatever the admin already uploaded on every text-field save.
-  const { title, brand, modelName, content, toolsUsed } = input;
+  const { category, title, brand, modelName, content, toolsUsed } = input;
 
   try {
-    const guide = await prisma.repairGuide.update({ where: { id }, data: { title, brand, modelName, content, toolsUsed } });
+    const guide = await prisma.repairGuide.update({
+      where: { id },
+      data: { category, title, brand, modelName, content, toolsUsed },
+    });
     return NextResponse.json({ success: true, guide });
   } catch (error) {
     if (isNotFoundError(error)) {

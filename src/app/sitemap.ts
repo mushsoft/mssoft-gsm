@@ -11,6 +11,7 @@ const routes = [
   'terms',
   'shipping-returns',
   'learn-to-repair',
+  'learn-to-repair/software-tips',
   'wholesale',
   'new-arrivals',
   'deals',

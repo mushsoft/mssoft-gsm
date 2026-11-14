@@ -1,6 +1,9 @@
 export class RepairGuideValidationError extends Error {}
 
+export type GuideCategory = 'REPAIR' | 'SOFTWARE';
+
 export interface RepairGuideInput {
+  category: GuideCategory;
   title: string;
   brand: string;
   modelName: string;
@@ -16,6 +19,11 @@ export function parseRepairGuideInput(body: unknown): RepairGuideInput {
   }
   const b = body as Record<string, unknown>;
 
+  // Missing means a repair guide, so older clients keep working.
+  const category = b.category === undefined ? 'REPAIR' : b.category;
+  if (category !== 'REPAIR' && category !== 'SOFTWARE') {
+    throw new RepairGuideValidationError('Type must be a repair guide or a software tip');
+  }
   const title = typeof b.title === 'string' ? b.title.trim() : '';
   const brand = typeof b.brand === 'string' ? b.brand.trim() : '';
   const modelName = typeof b.modelName === 'string' ? b.modelName.trim() : '';
@@ -27,12 +35,14 @@ export function parseRepairGuideInput(body: unknown): RepairGuideInput {
     : [];
 
   if (!title) throw new RepairGuideValidationError('Title is required');
-  if (!brand) throw new RepairGuideValidationError('Brand is required');
-  if (!modelName) throw new RepairGuideValidationError('Model name is required');
+  // A software tip can be general (e.g. "FRP bypass on Android 14"), so
+  // brand and model are only required for hardware repair guides.
+  if (category === 'REPAIR' && !brand) throw new RepairGuideValidationError('Brand is required');
+  if (category === 'REPAIR' && !modelName) throw new RepairGuideValidationError('Model name is required');
   if (!content) throw new RepairGuideValidationError('Content is required');
   if (videoUrl && !/^https?:\/\//.test(videoUrl)) {
     throw new RepairGuideValidationError('Video URL must be a valid http(s) URL');
   }
 
-  return { title, brand, modelName, videoUrl, thumbnail, content, toolsUsed };
+  return { category, title, brand, modelName, videoUrl, thumbnail, content, toolsUsed };
 }
