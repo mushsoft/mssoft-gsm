@@ -4,7 +4,6 @@ import { ArrowLeft, Code2, GraduationCap, PlayCircle, Sparkles, Wrench } from 'l
 import { prisma } from '@/lib/prisma';
 import type { GuideCategory } from '@/lib/validateRepairGuide';
 import Reveal from '@/components/motion/Reveal';
-import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
 
 // Shared by /learn-to-repair (hardware repair guides) and
 // /learn-to-repair/software-tips (software tips) — same guides table,
@@ -175,9 +174,13 @@ export default async function GuideListing({
           </div>
         </div>
       ) : (
-        <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        // Each card fades in on its own as it scrolls into view. A single
+        // whole-grid trigger (StaggerGroup) never fired on long lists: it
+        // waits for 15% of the grid to be on screen, which a 100-card grid
+        // is taller than, so the cards stayed invisible.
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((guide) => (
-            <StaggerItem key={guide.id}>
+            <Reveal key={guide.id} className="h-full">
               <Link
                 href={`/learn-to-repair/${guide.id}`}
                 className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10"
@@ -188,6 +191,7 @@ export default async function GuideListing({
                       src={guide.thumbnail}
                       alt={guide.title}
                       fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
@@ -234,9 +238,9 @@ export default async function GuideListing({
                   )}
                 </div>
               </Link>
-            </StaggerItem>
+            </Reveal>
           ))}
-        </StaggerGroup>
+        </div>
       )}
 
       <Reveal className="rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-6 text-center">
