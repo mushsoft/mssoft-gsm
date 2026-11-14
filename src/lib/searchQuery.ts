@@ -23,6 +23,8 @@ const ALIASES: Record<string, string[]> = {
   redmi: ['xiaomi'],
   poco: ['xiaomi'],
   iphone: ['apple'],
+  // Stored as "Wi-Fi", usually typed as one word.
+  wifi: ['wi-fi'],
 };
 
 // "note9" / "spark8" / "9pro" are usually typed for "Note 9" / "Spark 8" /

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Code2, GraduationCap, PlayCircle, Sparkles, Wrench } from 'lucide-react';
+import { ArrowLeft, Code2, GraduationCap, PlayCircle, Search, Sparkles, Wrench } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import type { GuideCategory } from '@/lib/validateRepairGuide';
+import { SOFTWARE_TOPICS, parseTopic, searchGuides, topicForBrand } from '@/lib/guideTopics';
 import Reveal from '@/components/motion/Reveal';
 
 // Shared by /learn-to-repair (hardware repair guides) and
@@ -26,8 +27,8 @@ const COPY: Record<
     eyebrow: 'Free Technician Tips',
     title: 'Software Tips',
     intro:
-      'Flashing, FRP removal, unlocking and firmware tips for technicians: step by step, with the tools to use. Free to follow, or let us do it for you.',
-    search: 'Search tips by model, brand, tool, or topic...',
+      'Settings, fixes and how-tos for iPhone, Android, Windows and Linux, plus flashing and unlocking tips for technicians. Step by step and free to follow, or let us do it for you.',
+    search: 'Search tips, for example "wifi password" or "iphone battery"',
     emptyTitle: 'No software tips published yet',
     emptyHint: 'We publish new software tips regularly. Check back soon.',
   },
@@ -41,31 +42,49 @@ const TABS: { category: GuideCategory; label: string; href: string; icon: typeof
 export default async function GuideListing({
   category,
   brand,
+  topic,
   q,
 }: {
   category: GuideCategory;
   brand?: string;
+  topic?: string;
   q?: string;
 }) {
   const copy = COPY[category];
+  const basePath = TABS.find((t) => t.category === category)!.href;
   const guides = await prisma.repairGuide
     .findMany({ where: { category }, orderBy: { createdAt: 'desc' } })
     .catch(() => []);
 
-  // Software tips can be general (no brand), so blanks aren't filter chips.
-  const brands = Array.from(new Set(guides.map((g) => g.brand).filter(Boolean))).sort();
+  const query = q?.trim() ?? '';
+  const searched = searchGuides(guides, query);
 
-  const query = q?.trim().toLowerCase() ?? '';
-  const filtered = guides.filter((guide) => {
-    const matchesBrand = !brand || brand === 'All' || guide.brand === brand;
-    const matchesQuery =
-      !query ||
-      guide.title.toLowerCase().includes(query) ||
-      guide.modelName.toLowerCase().includes(query) ||
-      guide.brand.toLowerCase().includes(query) ||
-      guide.toolsUsed.some((tool) => tool.toLowerCase().includes(query));
-    return matchesBrand && matchesQuery;
-  });
+  // Chips: software tips filter by topic (iPhone, Android, ...), repair
+  // guides by brand. Each chip shows how many of the search results it holds.
+  // Software tips can be general (no brand), so blanks aren't brand chips.
+  const isSoftware = category === 'SOFTWARE';
+  const selectedTopic = isSoftware ? parseTopic(topic) : null;
+  const selectedBrand = !isSoftware && brand && brand !== 'All' ? brand : null;
+  const chipParam = isSoftware ? 'topic' : 'brand';
+  const chipValues: string[] = isSoftware
+    ? [...SOFTWARE_TOPICS]
+    : Array.from(new Set(guides.map((g) => g.brand).filter(Boolean))).sort();
+  const chipOf = (g: (typeof guides)[number]) => (isSoftware ? topicForBrand(g.brand) : g.brand);
+  const selectedChip = isSoftware ? selectedTopic : selectedBrand;
+
+  const filtered = selectedChip ? searched.filter((g) => chipOf(g) === selectedChip) : searched;
+  const chips = [
+    { label: 'All', value: null as string | null, count: searched.length },
+    ...chipValues.map((value) => ({ label: value, value, count: searched.filter((g) => chipOf(g) === value).length })),
+  ].filter((chip) => chip.value === null || chip.count > 0 || chip.value === selectedChip);
+
+  const hrefFor = (value: string | null) => {
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    if (value) params.set(chipParam, value);
+    const qs = params.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
+  };
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 px-4 py-8">
@@ -129,34 +148,66 @@ export default async function GuideListing({
       </nav>
 
       {guides.length > 0 && (
-        <form className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <input
-            type="text"
-            name="q"
-            defaultValue={q}
-            placeholder={copy.search}
-            className="flex-1 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2.5 text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20"
-          />
-          {brands.length > 0 && (
+        <div className="space-y-3">
+          {/* Search keeps the chosen chip (hidden field). Chips are links so
+              pressing Enter in the box can't trigger a chip by accident. */}
+          <form action={basePath} className="flex gap-2">
+            <input
+              type="search"
+              name="q"
+              defaultValue={query}
+              placeholder={copy.search}
+              aria-label={isSoftware ? 'Search software tips' : 'Search repair guides'}
+              className="min-w-0 flex-1 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2.5 text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20"
+            />
+            {selectedChip && <input type="hidden" name={chipParam} value={selectedChip} />}
+            <button
+              type="submit"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-emerald-400"
+            >
+              <Search className="h-4 w-4" />
+              <span className="hidden sm:inline">Search</span>
+            </button>
+          </form>
+
+          {chipValues.length > 0 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
-              {['All', ...brands].map((b) => (
-                <button
-                  key={b}
-                  type="submit"
-                  name="brand"
-                  value={b}
-                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
-                    (brand ?? 'All') === b
-                      ? 'bg-emerald-500 text-black'
-                      : 'bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-800 dark:hover:text-neutral-200'
-                  }`}
-                >
-                  {b}
-                </button>
-              ))}
+              {chips.map((chip) => {
+                const active = chip.value === selectedChip;
+                return (
+                  <Link
+                    key={chip.label}
+                    href={hrefFor(chip.value)}
+                    scroll={false}
+                    aria-current={active ? 'true' : undefined}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
+                      active
+                        ? 'bg-emerald-500 text-black'
+                        : 'border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-800 dark:hover:text-neutral-200'
+                    }`}
+                  >
+                    {chip.label}
+                    <span className={`text-[10px] font-semibold ${active ? 'text-black/60' : 'text-neutral-400'}`}>
+                      {chip.count}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           )}
-        </form>
+
+          {(query || selectedChip) && (
+            <p className="text-xs text-neutral-500">
+              {filtered.length} {filtered.length === 1 ? (isSoftware ? 'tip' : 'guide') : isSoftware ? 'tips' : 'guides'}
+              {query && <> for &ldquo;{query}&rdquo;</>}
+              {selectedChip && <> in {selectedChip}</>}
+              {' · '}
+              <Link href={basePath} scroll={false} className="font-semibold text-emerald-500 hover:underline">
+                Clear
+              </Link>
+            </p>
+          )}
+        </div>
       )}
 
       {filtered.length === 0 ? (
@@ -169,7 +220,9 @@ export default async function GuideListing({
               {guides.length === 0 ? copy.emptyTitle : 'Nothing matches your search'}
             </h3>
             <p className="mx-auto mt-1 max-w-sm text-xs text-neutral-500">
-              {guides.length === 0 ? copy.emptyHint : 'Try a different search term or brand.'}
+              {guides.length === 0
+                ? copy.emptyHint
+                : `Try different words, or another ${isSoftware ? 'topic' : 'brand'}.`}
             </p>
           </div>
         </div>
