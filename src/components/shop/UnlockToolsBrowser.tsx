@@ -1,8 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
-import { MessageCircle, Search } from 'lucide-react';
+import { MessageCircle, Search, Wrench } from 'lucide-react';
 import { formatUsd } from '@/lib/softwareToolPricing';
 import OrderToolModal, { type OrderableTool, type WalletState } from './OrderToolModal';
 
@@ -14,6 +13,12 @@ export type PricedSoftwareTool = {
   priceUsd: number;
   perCredit: boolean;
 };
+
+// Repeating diagonal "UNDER MAINTENANCE" tile, drawn over the tool list while
+// ordering is paused.
+const MAINTENANCE_WATERMARK = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' width='340' height='200'><text x='170' y='110' text-anchor='middle' transform='rotate(-24 170 100)' font-family='Arial, sans-serif' font-size='26' font-weight='900' letter-spacing='2' fill='rgba(245,158,11,0.32)'>UNDER MAINTENANCE</text></svg>`
+)}")`;
 
 const orderButtonClass =
   'inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-emerald-500';
@@ -55,6 +60,19 @@ export default function UnlockToolsBrowser({
 
   return (
     <div className="space-y-6">
+      {orderingPaused && (
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
+          <Wrench className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+          <div>
+            <p className="text-sm font-black text-neutral-900 dark:text-white">Under maintenance</p>
+            <p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-300">
+              Ordering unlock &amp; flash tools is paused while we update things. You can still browse and search
+              prices — please check back soon.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
         <input
@@ -66,6 +84,14 @@ export default function UnlockToolsBrowser({
         />
       </div>
 
+      {/* Maintenance: the list is softly blurred under a repeating watermark
+          and made inert (no clicks, taps or keyboard focus), but still
+          scrolls and stays readable so customers can see prices. */}
+      <div className="relative">
+      <div
+        inert={orderingPaused}
+        className={orderingPaused ? 'select-none space-y-6 blur-[1px] opacity-80' : 'space-y-6'}
+      >
       {filteredGroups.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-10 text-center text-sm text-neutral-500">
           No matches for &quot;{query}&quot;. Message us on WhatsApp, we likely still have it.
@@ -93,21 +119,15 @@ export default function UnlockToolsBrowser({
                       </span>
                       <span className="text-[10px] text-neutral-500">≈ UGX {item.priceUgx.toLocaleString()}</span>
                     </span>
-                    {orderingPaused ? (
-                      <Link href="/shop/unlock-tools/maintenance" className={orderButtonClass}>
-                        <MessageCircle className="h-3.5 w-3.5 fill-current" />
-                        Order
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setOrdering({ ...item, category: group.category })}
-                        className={orderButtonClass}
-                      >
-                        <MessageCircle className="h-3.5 w-3.5 fill-current" />
-                        Order
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      disabled={orderingPaused}
+                      onClick={() => setOrdering({ ...item, category: group.category })}
+                      className={`${orderButtonClass} disabled:bg-neutral-400 disabled:dark:bg-neutral-700`}
+                    >
+                      <MessageCircle className="h-3.5 w-3.5 fill-current" />
+                      Order
+                    </button>
                   </div>
                 </div>
               ))}
@@ -115,6 +135,15 @@ export default function UnlockToolsBrowser({
           </div>
         ))
       )}
+      </div>
+      {orderingPaused && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-2xl"
+          style={{ backgroundImage: MAINTENANCE_WATERMARK, backgroundRepeat: 'repeat', backgroundSize: '340px 200px' }}
+        />
+      )}
+      </div>
 
       {ordering && (
         <OrderToolModal tool={ordering} whatsappPhone={whatsappPhone} wallet={wallet} onClose={() => setOrdering(null)} />

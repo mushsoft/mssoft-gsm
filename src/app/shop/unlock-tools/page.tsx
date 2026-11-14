@@ -6,6 +6,7 @@ import { getShopProfile } from '@/lib/shopProfile';
 import { isPerCreditProduct } from '@/lib/softwareToolOrderFields';
 import { computeSoftwareToolPriceUsd, usdToUgx, usdToUgxPerCredit } from '@/lib/softwareToolPricing';
 import { getUsdRate } from '@/lib/usdRate';
+import { UNLOCK_TOOLS_UNDER_MAINTENANCE } from '@/lib/unlockToolsStatus';
 import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/UnlockToolsBrowser';
 
 export const metadata = {
@@ -20,10 +21,6 @@ export const metadata = {
 // held then — admin additions and the live dollar rate need to show up
 // without a redeploy, so this opts out of that.
 export const dynamic = 'force-dynamic';
-
-// Flip to true to send every "Order" button to /shop/unlock-tools/maintenance
-// (e.g. while a supplier is down) instead of opening the order form.
-const UNLOCK_TOOLS_ORDERING_PAUSED = false;
 
 export default async function UnlockToolsPage({
   searchParams,
@@ -145,7 +142,7 @@ export default async function UnlockToolsPage({
           initialQuery={q ?? ''}
           whatsappPhone={whatsappPhone}
           wallet={wallet}
-          orderingPaused={UNLOCK_TOOLS_ORDERING_PAUSED}
+          orderingPaused={UNLOCK_TOOLS_UNDER_MAINTENANCE}
         />
       )}
     </main>

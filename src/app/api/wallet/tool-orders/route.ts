@@ -5,11 +5,21 @@ import { sendNewToolOrderNotification } from '@/lib/email/toolOrderEmails';
 import { notifyCustomer } from '@/lib/notifications';
 import { rateLimit } from '@/lib/rateLimit';
 import { describeToolOrder, purchaseTool, ToolOrderError, type ToolOrderDetail } from '@/lib/toolOrders';
+import { UNLOCK_TOOLS_UNDER_MAINTENANCE } from '@/lib/unlockToolsStatus';
 import { formatUsdCents } from '@/lib/walletAmounts';
 
 // Buys an unlock/flash tool with wallet balance. Price, validation and the
 // guarded debit all happen in purchaseTool (src/lib/toolOrders.ts).
 export async function POST(req: Request) {
+  // Checked before anything else so no order can slip in through the API
+  // while the page shows "Under maintenance".
+  if (UNLOCK_TOOLS_UNDER_MAINTENANCE) {
+    return NextResponse.json(
+      { success: false, error: 'Unlock & flash tool ordering is under maintenance. Please check back soon.' },
+      { status: 503 }
+    );
+  }
+
   const customer = await requireCustomerApi();
   if (!customer) {
     return NextResponse.json({ success: false, error: 'Please log in to pay from your wallet.' }, { status: 401 });
