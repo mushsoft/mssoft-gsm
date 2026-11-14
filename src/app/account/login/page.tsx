@@ -2,11 +2,9 @@
 
 import { useState, useEffect, type FormEvent } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { LogIn, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function AccountLoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +47,9 @@ export default function AccountLoginPage() {
         return;
       }
 
-      router.push('/account');
-      router.refresh();
+      // Full page load (not router.push + refresh, which could stall with the
+      // spinner showing) so the next page is rendered with the new session cookie.
+      window.location.assign('/account');
     } catch {
       setError('Network error. Please try again.');
       setIsSubmitting(false);

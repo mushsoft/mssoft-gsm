@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import { Loader2, ShieldCheck } from 'lucide-react';
 
 export default function AdminMfaVerifyPage() {
-  const router = useRouter();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,8 +25,9 @@ export default function AdminMfaVerifyPage() {
         setIsSubmitting(false);
         return;
       }
-      router.push('/admin');
-      router.refresh();
+      // Full page load (not router.push + refresh, which could stall with the
+      // spinner showing) so the next page is rendered with the new session cookie.
+      window.location.assign('/admin');
     } catch {
       setError('Network error. Please try again.');
       setIsSubmitting(false);

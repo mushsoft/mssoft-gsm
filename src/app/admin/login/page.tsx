@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import { Loader2, Lock } from 'lucide-react';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +28,9 @@ export default function AdminLoginPage() {
         return;
       }
 
-      router.push(data.nextStep === 'mfa-setup' ? '/admin/mfa-setup' : '/admin/mfa-verify');
-      router.refresh();
+      // Full page load (not router.push + refresh, which could stall with the
+      // spinner showing) so the next page is rendered with the new session cookie.
+      window.location.assign(data.nextStep === 'mfa-setup' ? '/admin/mfa-setup' : '/admin/mfa-verify');
     } catch {
       setError('Network error. Please try again.');
       setIsSubmitting(false);

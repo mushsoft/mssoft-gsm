@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { UserPlus, Loader2, MailCheck, Eye, EyeOff } from 'lucide-react';
 import { getPasswordStrength } from '@/lib/passwordStrength';
 import { REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
@@ -76,7 +75,6 @@ function PasswordField({
 }
 
 export default function AccountSignupPage() {
-  const router = useRouter();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -162,8 +160,9 @@ export default function AccountSignupPage() {
         return;
       }
 
-      router.push('/account');
-      router.refresh();
+      // Full page load (not router.push + refresh, which could stall with the
+      // spinner showing) so the next page is rendered with the new session cookie.
+      window.location.assign('/account');
     } catch {
       setError('Network error. Please try again.');
       setIsSubmitting(false);

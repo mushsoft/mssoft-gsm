@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import { Loader2, KeyRound } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
@@ -10,7 +9,6 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 // of the URL hash and calls setSession() directly — see the comment in the
 // effect below for why this app's browser client doesn't auto-detect it.
 export default function ResetPasswordPage() {
-  const router = useRouter();
   const [ready, setReady] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -91,8 +89,9 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    router.push(data.user?.app_metadata?.role === 'admin' ? '/admin' : '/account');
-    router.refresh();
+    // Full page load (not router.push + refresh, which could stall with the
+    // spinner showing) so the next page is rendered with the new session cookie.
+    window.location.assign(data.user?.app_metadata?.role === 'admin' ? '/admin' : '/account');
   }
 
   return (
