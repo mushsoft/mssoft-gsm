@@ -27,6 +27,7 @@ export default function AdminMfaVerifyPage() {
       }
       // Full page load (not router.push + refresh, which could stall with the
       // spinner showing) so the next page is rendered with the new session cookie.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- deliberate full load, see above
       window.location.assign('/admin');
     } catch {
       setError('Network error. Please try again.');
