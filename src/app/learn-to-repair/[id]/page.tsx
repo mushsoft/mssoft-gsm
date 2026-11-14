@@ -1,3 +1,5 @@
+import { cache } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -5,15 +7,40 @@ import { ArrowLeft, MessageCircle, Wrench } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import Reveal from '@/components/motion/Reveal';
 import { isDirectVideoFile } from '@/lib/repairGuideMedia';
+import { shareCardUrl, shareDescription, shareMetadata, youtubeThumbnail } from '@/lib/shareMetadata';
 
 interface GuidePageProps {
   params: Promise<{ id: string }>;
 }
 
+// Shared with generateMetadata so the DB is only hit once per request.
+const getGuide = cache((id: string) => prisma.repairGuide.findUnique({ where: { id } }).catch(() => null));
+
+// A shared tip or guide link previews with its own title and photo (the
+// guide's thumbnail, or its YouTube thumbnail for video-only guides).
+export async function generateMetadata({ params }: GuidePageProps): Promise<Metadata> {
+  const { id } = await params;
+  const guide = await getGuide(id);
+  if (!guide) return {};
+
+  const isSoftware = guide.category === 'SOFTWARE';
+  const kind = isSoftware ? 'Software tip' : 'Repair guide';
+  return shareMetadata({
+    title: guide.title,
+    description: shareDescription(guide.content),
+    path: `/learn-to-repair/${guide.id}`,
+    image: shareCardUrl({
+      title: guide.title,
+      subtitle: guide.brand ? `${kind} · ${guide.brand}` : kind,
+      photo: guide.thumbnail || youtubeThumbnail(guide.videoUrl) || '/tips/laptop-and-phone.jpg',
+    }),
+  });
+}
+
 export default async function RepairGuideDetailPage({ params }: GuidePageProps) {
   const { id } = await params;
 
-  const guide = await prisma.repairGuide.findUnique({ where: { id } }).catch(() => null);
+  const guide = await getGuide(id);
 
   if (!guide) {
     notFound();

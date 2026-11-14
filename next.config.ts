@@ -55,6 +55,10 @@ const studioSafeHeaders = securityHeaders.filter(
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // The link-preview card generator reads its fonts and the logo from disk.
+  outputFileTracingIncludes: {
+    '/api/og': ['./src/app/api/og/fonts/*.ttf', './public/logo-mark.png'],
+  },
   images: {
     // Vercel's Image Optimization has a monthly quota of distinct source
     // images; once it's exhausted, any URL the optimizer hasn't already

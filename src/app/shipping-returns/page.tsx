@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck, Truck, BadgeCheck, MapPin, Clock, Wallet } from 'lucide-react';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'Shipping, Warranty & Returns',
+export const metadata: Metadata = shareMetadata({
+  title: "Shipping, Warranty & Returns",
   description:
-    'Delivery costs and timelines, our UK-used grading scale, what "tested" means, warranty coverage, and returns at MS Soft GSM.',
-  alternates: { canonical: '/shipping-returns' },
-};
+    "Delivery costs and timelines, our UK-used grading scale, what \"tested\" means, warranty coverage, and returns at MS Soft GSM.",
+  path: "/shipping-returns",
+  image: shareCardUrl({ title: "Shipping, Warranty & Returns", subtitle: "Delivery across Kampala and Uganda", photo: "/og/shipping.jpg" }),
+});
 
 const sectionClass = 'space-y-3';
 const headingClass = 'flex items-center gap-2 text-sm font-bold text-neutral-900 dark:text-white';

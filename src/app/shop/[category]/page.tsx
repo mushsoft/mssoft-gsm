@@ -7,6 +7,7 @@ import AutoRefresh from '@/components/AutoRefresh';
 import CategoryProductGrid from '@/components/shop/CategoryProductGrid';
 import { CATEGORY_SUBCATEGORIES } from '@/lib/productSpecFields';
 import { CATEGORY_MAP, buildCategoryWhere } from '@/lib/categoryProductFilter';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
 // Icons are a page-only presentation concern, kept separate from
 // categoryProductFilter's query-building source of truth.
@@ -34,15 +35,34 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
   const description = `Shop ${meta.label.toLowerCase()} at MS Soft GSM: genuine stock, competitive prices, fast delivery across Kampala and Uganda-wide on request.`;
 
-  return {
+  // Share preview: the category's own banner when it has one, otherwise a
+  // card with the category name over its newest product photo.
+  let image = meta.banner;
+  if (!image) {
+    const built = buildCategoryWhere(category, {});
+    const latest = built
+      ? await prisma.product
+          .findFirst({
+            where: { AND: [built.where, { images: { isEmpty: false } }] },
+            orderBy: { createdAt: 'desc' },
+            select: { images: true },
+          })
+          .catch(() => null)
+      : null;
+    image = shareCardUrl({
+      title: meta.label,
+      subtitle: 'Genuine stock, fast delivery',
+      photo: latest?.images[0] ?? '/tips/phone-model-specs.jpg',
+    });
+  }
+
+  return shareMetadata({
     title: meta.label,
     description,
-    alternates: { canonical: `/shop/${category}` },
-    ...(meta.banner && {
-      openGraph: { title: meta.label, description, images: [{ url: meta.banner }] },
-      twitter: { card: 'summary_large_image', title: meta.label, description, images: [meta.banner] },
-    }),
-  };
+    path: `/shop/${category}`,
+    image,
+    imageSize: meta.banner ? null : undefined,
+  });
 }
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {

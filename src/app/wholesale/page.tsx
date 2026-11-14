@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import { ArrowLeft, Boxes, MessageCircle, ShieldCheck, Timer, Wrench } from 'lucide-react';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'Technician Wholesale',
-  description: 'Bulk pricing, priority stock, and dedicated support for repair technicians and shops.',
-};
+export const metadata: Metadata = shareMetadata({
+  title: "Technician Wholesale",
+  description:
+    "Bulk pricing, priority stock, and dedicated support for repair technicians and shops.",
+  path: "/wholesale",
+  image: shareCardUrl({ title: "Technician Wholesale", subtitle: "Bulk prices for repair shops", photo: "/tips/phone-model-specs.jpg" }),
+});
 
 const PERKS = [
   {

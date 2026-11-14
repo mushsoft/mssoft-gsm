@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Phone, Mail, MessageCircle, Clock } from 'lucide-react';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'Contact Us',
-  description: 'Get in touch with MS Soft GSM by phone, WhatsApp, or email, and find our shop location in Kampala, Uganda.',
-  alternates: { canonical: '/contact' },
-};
+export const metadata: Metadata = shareMetadata({
+  title: "Contact Us",
+  description:
+    "Get in touch with MS Soft GSM by phone, WhatsApp, or email, and find our shop location in Kampala, Uganda.",
+  path: "/contact",
+  image: shareCardUrl({ title: "Contact Us", subtitle: "Call, WhatsApp or visit us in Kampala", photo: "/tips/calls-dropping-volte.jpg" }),
+});
 
 const whatsappUrl = `https://wa.me/256773944288?text=${encodeURIComponent('Hello MS Soft GSM, I would like to get in touch.')}`;
 

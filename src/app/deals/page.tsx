@@ -3,14 +3,18 @@ import { ArrowLeft, Flame, Package } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import CatalogProductCard from '@/components/cards/CatalogProductCard';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
 export const revalidate = 60;
 
-export const metadata = {
-  title: 'Hot Deals on Phones and Spares',
-  description: 'Discounted genuine phones, screens, batteries, and repair tools at MS Soft GSM. Limited-time pricing, updated live.',
-  alternates: { canonical: '/deals' },
-};
+export const metadata: Metadata = shareMetadata({
+  title: "Hot Deals on Phones and Spares",
+  description:
+    "Discounted genuine phones, screens, batteries, and repair tools at MS Soft GSM. Limited-time pricing, updated live.",
+  path: "/deals",
+  image: shareCardUrl({ title: "Hot Deals on Phones and Spares", subtitle: "Limited time prices", photo: "/og/deals.jpg" }),
+});
 
 export default async function DealsPage() {
   const hotDeals = await prisma.product

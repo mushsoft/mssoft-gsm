@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import { ArrowLeft, FileText } from 'lucide-react';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'Terms of Service',
-  description: 'The terms that apply when you buy from or use the MS Soft GSM website.',
-};
+export const metadata: Metadata = shareMetadata({
+  title: "Terms of Service",
+  description:
+    "The terms that apply when you buy from or use the MS Soft GSM website.",
+  path: "/terms",
+  image: shareCardUrl({ title: "Terms of Service", subtitle: "Buying from MS Soft GSM", photo: "/tips/iphone-scan-documents.jpg" }),
+});
 
 const sectionClass = 'space-y-2';
 const headingClass = 'text-sm font-bold text-neutral-900 dark:text-white';

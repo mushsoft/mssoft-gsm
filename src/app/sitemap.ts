@@ -41,5 +41,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: product.updatedAt,
   }));
 
-  return [...staticEntries, ...productEntries];
+  // Every repair guide and software tip has its own page too.
+  const guides = await prisma.repairGuide.findMany({ select: { id: true, createdAt: true } }).catch(() => []);
+  const guideEntries = guides.map((guide) => ({
+    url: `${baseUrl}/learn-to-repair/${guide.id}`,
+    lastModified: guide.createdAt,
+  }));
+
+  return [...staticEntries, ...productEntries, ...guideEntries];
 }

@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'Privacy Policy',
-  description: 'How MS Soft GSM collects, uses, and protects your personal information.',
-};
+export const metadata: Metadata = shareMetadata({
+  title: "Privacy Policy",
+  description:
+    "How MS Soft GSM collects, uses, and protects your personal information.",
+  path: "/privacy",
+  image: shareCardUrl({ title: "Privacy Policy", subtitle: "How we protect your information", photo: "/tips/strong-passwords.jpg" }),
+});
 
 const sectionClass = 'space-y-2';
 const headingClass = 'text-sm font-bold text-neutral-900 dark:text-white';

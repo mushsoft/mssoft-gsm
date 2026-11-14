@@ -3,11 +3,16 @@ import { ArrowLeft, Package, Sparkles } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import AutoRefresh from '@/components/AutoRefresh';
 import CatalogProductCard from '@/components/cards/CatalogProductCard';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'New Arrivals',
-  description: 'The newest phones, spares, accessories, and tools just added to MS Soft GSM.',
-};
+export const metadata: Metadata = shareMetadata({
+  title: "New Arrivals",
+  description:
+    "The newest phones, spares, accessories, and tools just added to MS Soft GSM.",
+  path: "/new-arrivals",
+  image: shareCardUrl({ title: "New Arrivals", subtitle: "The latest phones, spares and tools", photo: "/tips/iphone-check-genuine.jpg" }),
+});
 
 export const revalidate = 60;
 

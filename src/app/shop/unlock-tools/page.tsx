@@ -8,13 +8,16 @@ import { computeSoftwareToolPriceUsd, usdToUgx, usdToUgxPerCredit } from '@/lib/
 import { getUsdRate } from '@/lib/usdRate';
 import { UNLOCK_TOOLS_UNDER_MAINTENANCE } from '@/lib/unlockToolsStatus';
 import UnlockToolsBrowser, { type SoftwareToolGroup } from '@/components/shop/UnlockToolsBrowser';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'Unlock & Flash Tool Credits',
+export const metadata: Metadata = shareMetadata({
+  title: "Unlock & Flash Tool Credits",
   description:
-    'DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more: unlock/FRP/flash tool credits and activations for repair technicians, priced in USD at MS Soft GSM.',
-  alternates: { canonical: '/shop/unlock-tools' },
-};
+    "DC-Unlocker, Octoplus, NCK, Miracle, UnlockTool, Chimera and more: unlock/FRP/flash tool credits and activations for repair technicians, priced in USD at MS Soft GSM.",
+  path: "/shop/unlock-tools",
+  image: shareCardUrl({ title: "Unlock & Flash Tool Credits", subtitle: "Credits and activations for technicians", photo: "/tips/qfil-qualcomm.jpg" }),
+});
 
 // No searchParams/cookies/headers usage here, so Next.js would otherwise
 // statically prerender this at build time and freeze it at whatever the DB

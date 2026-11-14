@@ -6,12 +6,16 @@ import { prisma } from '@/lib/prisma';
 import { rankByRelevance, tokenizeQuery, tokenWhereConditions } from '@/lib/searchQuery';
 import { TESTPOINT_SEARCH_FIELDS, TESTPOINT_SEARCH_IGNORE, testpointRankFields } from '@/lib/testPointSearch';
 import { TESTPOINT_SLUG_MAP, TESTPOINT_TYPES } from '@/lib/testPointTypes';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'Testpoint Diagrams: EDL, BROM & ISP',
-  description: 'Qualcomm EDL, MediaTek BROM and ISP testpoint diagrams for phone repair technicians. Find the exact testpoint for your device model at MS Soft GSM.',
-  alternates: { canonical: '/shop/testpoints' },
-};
+export const metadata: Metadata = shareMetadata({
+  title: "Testpoint Diagrams: EDL, BROM & ISP",
+  description:
+    "Qualcomm EDL, MediaTek BROM and ISP testpoint diagrams for phone repair technicians. Find the exact testpoint for your device model at MS Soft GSM.",
+  path: "/shop/testpoints",
+  image: shareCardUrl({ title: "Testpoint Diagrams", subtitle: "EDL, BROM and ISP for technicians", photo: "/tips/boot-modes.jpg" }),
+});
 
 export default async function TestpointsPage({
   searchParams,

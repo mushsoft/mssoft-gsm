@@ -13,12 +13,16 @@ import {
 } from 'lucide-react';
 import Reveal from '@/components/motion/Reveal';
 import { StaggerGroup, StaggerItem } from '@/components/motion/StaggerGroup';
+import type { Metadata } from 'next';
+import { shareCardUrl, shareMetadata } from '@/lib/shareMetadata';
 
-export const metadata = {
-  title: 'About Us',
+export const metadata: Metadata = shareMetadata({
+  title: "About Us",
   description:
     "The story behind MS Soft GSM: from electrician to phone repair specialist to software engineer, now dealing in genuine phones, repairs, and spares in Kampala, Uganda.",
-};
+  path: "/about",
+  image: shareCardUrl({ title: "About Us", subtitle: "Phones, repairs and spares in Kampala", photo: "/tips/man-repairing-phone.jpg" }),
+});
 
 const TIMELINE = [
   {
