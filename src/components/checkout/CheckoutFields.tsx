@@ -4,7 +4,8 @@ import { CreditCard, Copy, Smartphone, Truck } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-export type PaymentMethod = 'MOBILE_MONEY' | 'CARD' | 'AIRTEL_MONEY' | 'PAWAPAY';
+export type { PaymentMethod } from '@/lib/paymentConfig';
+import type { PaymentMethod } from '@/lib/paymentConfig';
 
 export const AIRTEL_MERCHANT_ID = '6923944';
 export const AIRTEL_USSD_CODE = '*185*9#';
@@ -28,6 +29,7 @@ export default function CheckoutFields({
   onChange,
   paymentMethod,
   onPaymentMethodChange,
+  availableMethods,
   isSubmitting,
   amount,
 }: {
@@ -35,6 +37,8 @@ export default function CheckoutFields({
   onChange: (field: keyof CheckoutFieldValues, value: string) => void;
   paymentMethod: PaymentMethod;
   onPaymentMethodChange: (method: PaymentMethod) => void;
+  /** Only these payment buttons are shown (see src/lib/paymentConfig.ts). */
+  availableMethods: PaymentMethod[];
   isSubmitting: boolean;
   /** Total due, shown in the Airtel Money pay-this-amount instructions. */
   amount: number;
@@ -113,58 +117,66 @@ export default function CheckoutFields({
       <div>
         <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-neutral-500">Payment Method</label>
         <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            disabled={isSubmitting}
-            onClick={() => onPaymentMethodChange('MOBILE_MONEY')}
-            className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
-              paymentMethod === 'MOBILE_MONEY'
-                ? 'border-amber-500/50 bg-amber-500/10 text-amber-500 dark:text-amber-400'
-                : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
-            }`}
-          >
-            <Smartphone className="h-3.5 w-3.5" />
-            Mobile Money
-          </button>
-          <button
-            type="button"
-            disabled={isSubmitting}
-            onClick={() => onPaymentMethodChange('CARD')}
-            className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
-              paymentMethod === 'CARD'
-                ? 'border-amber-500/50 bg-amber-500/10 text-amber-500 dark:text-amber-400'
-                : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
-            }`}
-          >
-            <CreditCard className="h-3.5 w-3.5" />
-            Card
-          </button>
-          <button
-            type="button"
-            disabled={isSubmitting}
-            onClick={() => onPaymentMethodChange('AIRTEL_MONEY')}
-            className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
-              paymentMethod === 'AIRTEL_MONEY'
-                ? 'border-red-500/50 bg-red-500/10 text-red-500 dark:text-red-400'
-                : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
-            }`}
-          >
-            <Smartphone className="h-3.5 w-3.5" />
-            Airtel Money
-          </button>
-          <button
-            type="button"
-            disabled={isSubmitting}
-            onClick={() => onPaymentMethodChange('PAWAPAY')}
-            className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
-              paymentMethod === 'PAWAPAY'
-                ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400'
-                : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
-            }`}
-          >
-            <Smartphone className="h-3.5 w-3.5" />
-            Mobile Money (pawaPay)
-          </button>
+          {availableMethods.includes('MOBILE_MONEY') && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => onPaymentMethodChange('MOBILE_MONEY')}
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
+                paymentMethod === 'MOBILE_MONEY'
+                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-500 dark:text-amber-400'
+                  : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+              }`}
+            >
+              <Smartphone className="h-3.5 w-3.5" />
+              Mobile Money
+            </button>
+          )}
+          {availableMethods.includes('CARD') && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => onPaymentMethodChange('CARD')}
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
+                paymentMethod === 'CARD'
+                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-500 dark:text-amber-400'
+                  : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+              }`}
+            >
+              <CreditCard className="h-3.5 w-3.5" />
+              Card
+            </button>
+          )}
+          {availableMethods.includes('AIRTEL_MONEY') && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => onPaymentMethodChange('AIRTEL_MONEY')}
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
+                paymentMethod === 'AIRTEL_MONEY'
+                  ? 'border-red-500/50 bg-red-500/10 text-red-500 dark:text-red-400'
+                  : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+              }`}
+            >
+              <Smartphone className="h-3.5 w-3.5" />
+              Airtel Money
+            </button>
+          )}
+          {availableMethods.includes('PAWAPAY') && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => onPaymentMethodChange('PAWAPAY')}
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-bold transition-colors disabled:opacity-60 ${
+                paymentMethod === 'PAWAPAY'
+                  ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400'
+                  : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+              }`}
+            >
+              <Smartphone className="h-3.5 w-3.5" />
+              Mobile Money (pawaPay)
+            </button>
+          )}
         </div>
       </div>
 

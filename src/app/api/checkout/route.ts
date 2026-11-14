@@ -6,6 +6,7 @@ import { getOrCreateCustomer } from "@/lib/customerAuth";
 import { sendOrderReceivedEmail } from "@/lib/email/orderEmails";
 import { markOrderFailed, orderRef } from "@/lib/orderFulfillment";
 import { notifyCustomer } from "@/lib/notifications";
+import { availableCheckoutMethods, type PaymentMethod } from "@/lib/paymentConfig";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { isValidEmail } from "@/lib/validation";
 
@@ -109,24 +110,16 @@ export async function POST(req: Request) {
   const flutterwaveSecretKey = process.env.FLUTTERWAVE_SECRET_KEY;
   const pawapayApiToken = process.env.PAWAPAY_API_TOKEN;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  // Airtel Money is a direct-to-merchant-ID payment with no gateway
-  // involved (see markOrderPaid / admin "Mark as Paid") — it doesn't need
-  // Flutterwave configured, so it shouldn't be blocked by it being down.
-  const needsFlutterwave = checkout.paymentMethod === "MOBILE_MONEY" || checkout.paymentMethod === "CARD";
-  const needsPawapay = checkout.paymentMethod === "PAWAPAY";
-
-  const needsGateway = needsFlutterwave || needsPawapay;
-  if (
-    (needsGateway && !baseUrl) ||
-    (needsFlutterwave && !flutterwaveSecretKey) ||
-    (needsPawapay && !pawapayApiToken)
-  ) {
-    console.error("Checkout misconfigured: payment gateway key or NEXT_PUBLIC_BASE_URL is missing", {
+  // Also refuses gateway TEST credentials on the live site, so a sandbox
+  // payment can never become a real paid order — see paymentConfig.ts.
+  // Airtel Money (admin-confirmed, no gateway) is always available.
+  if (!availableCheckoutMethods().includes(checkout.paymentMethod as PaymentMethod)) {
+    console.error("Checkout: payment method not available (gateway not configured, or test credentials on the live site)", {
       paymentMethod: checkout.paymentMethod,
     });
     return NextResponse.json(
-      { success: false, error: "Checkout is temporarily unavailable. Please try again later." },
-      { status: 500 }
+      { success: false, error: "This payment method isn't available right now. Please choose another." },
+      { status: 400 }
     );
   }
 

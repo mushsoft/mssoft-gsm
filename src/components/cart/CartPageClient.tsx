@@ -17,7 +17,9 @@ interface CartDisplayLine {
   product: CatalogProduct;
 }
 
-export default function CartPageClient() {
+// availableMethods comes from the server (see src/lib/paymentConfig.ts) —
+// only payment methods that are actually set up for this site are shown.
+export default function CartPageClient({ availableMethods }: { availableMethods: PaymentMethod[] }) {
   const { lines, isHydrated, setQuantity, removeItem, clear } = useCart();
 
   const [products, setProducts] = useState<CatalogProduct[]>([]);
@@ -32,7 +34,7 @@ export default function CartPageClient() {
     couponCode: '',
     paymentReference: '',
   });
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MOBILE_MONEY');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(availableMethods[0] ?? 'AIRTEL_MONEY');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -296,6 +298,7 @@ export default function CartPageClient() {
                 onChange={updateField}
                 paymentMethod={paymentMethod}
                 onPaymentMethodChange={setPaymentMethod}
+                availableMethods={availableMethods}
                 isSubmitting={isSubmitting}
                 amount={subtotal}
               />
