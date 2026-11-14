@@ -89,7 +89,7 @@ export default async function AdminRepairRequestsPage({ searchParams }: { search
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
             {requests.map((request) => {
-              const device = [request.brand, request.modelName].filter(Boolean).join(' ') || '—';
+              const device = [request.brand, request.modelName].filter(Boolean).join(' ') || 'Not specified';
               return (
                 <tr key={request.id} className="bg-neutral-50/40 dark:bg-neutral-950/40">
                   <td className="px-4 py-3 align-top">

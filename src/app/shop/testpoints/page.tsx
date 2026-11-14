@@ -86,7 +86,7 @@ export default async function TestpointsPage({
                 Testpoints &amp; Schematics
               </h1>
               <p className="mt-1 max-w-xl text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
-                Free testpoint and hardware diagrams for repair technicians — Qualcomm EDL,
+                Free testpoint and hardware diagrams for repair technicians: Qualcomm EDL,
                 MTK BROM, Samsung ISP and more, added as we document them. Zoom in for detail.
               </p>
             </div>
@@ -120,7 +120,7 @@ export default async function TestpointsPage({
             type="search"
             name="q"
             defaultValue={trimmedQuery}
-            placeholder="Search by brand, model or chipset — e.g. Redmi Note 9, Spark 8, MT6765"
+            placeholder="Search by brand, model or chipset, e.g. Redmi Note 9, Spark 8, MT6765"
             className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 py-2.5 pl-9 pr-24 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:border-amber-500 focus:outline-none"
           />
           <button

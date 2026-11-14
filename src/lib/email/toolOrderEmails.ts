@@ -39,7 +39,7 @@ export async function sendNewToolOrderNotification(data: ToolOrderEmailData): Pr
   const html = `
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#171717;">
       <h1 style="font-size:18px;">New paid tool order</h1>
-      <p style="font-size:14px;"><strong>${escapeHtml(data.description)}</strong> — ${escapeHtml(data.total)}, paid from wallet</p>
+      <p style="font-size:14px;"><strong>${escapeHtml(data.description)}</strong>: ${escapeHtml(data.total)}, paid from wallet</p>
       <p style="font-size:14px;">${escapeHtml(data.customerName)} (${escapeHtml(data.customerEmail)})</p>
       <table style="font-size:14px;margin-top:8px;">${rows}</table>
       ${data.notes ? `<p style="font-size:14px;background:#f5f5f5;padding:12px;border-radius:8px;">${escapeHtml(data.notes)}</p>` : ''}

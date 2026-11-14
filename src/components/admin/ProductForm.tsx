@@ -514,7 +514,7 @@ export default function ProductForm({
                       disabled={isSubmitting}
                       className={inputClass}
                     >
-                      <option value="">—</option>
+                      <option value="">None</option>
                       {values.specs[field.key] && !field.options?.includes(values.specs[field.key]) && (
                         <option value={values.specs[field.key]}>{values.specs[field.key]}</option>
                       )}

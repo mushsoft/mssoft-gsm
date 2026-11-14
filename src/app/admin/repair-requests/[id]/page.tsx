@@ -48,11 +48,11 @@ export default async function AdminRepairRequestDetailPage({ params }: { params:
           <dl className="space-y-2 text-xs">
             <div className="flex justify-between gap-3">
               <dt className="text-neutral-500">Name</dt>
-              <dd className="font-bold text-neutral-800 dark:text-neutral-200">{request.customer.name || '—'}</dd>
+              <dd className="font-bold text-neutral-800 dark:text-neutral-200">{request.customer.name || 'Not provided'}</dd>
             </div>
             <div className="flex justify-between gap-3">
               <dt className="text-neutral-500">Phone</dt>
-              <dd className="font-bold text-neutral-800 dark:text-neutral-200">{request.customer.phone || '—'}</dd>
+              <dd className="font-bold text-neutral-800 dark:text-neutral-200">{request.customer.phone || 'Not provided'}</dd>
             </div>
             <div className="flex justify-between gap-3">
               <dt className="text-neutral-500">Email</dt>

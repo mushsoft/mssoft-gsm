@@ -72,7 +72,7 @@ export default async function AdminReceiptsListPage() {
                     {DOC_LABELS[receipt.docType] ?? receipt.docType}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs text-neutral-600 dark:text-neutral-300">
-                    {receipt.customerName || <span className="text-neutral-400">—</span>}
+                    {receipt.customerName || <span className="text-neutral-400">No name</span>}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs text-neutral-600 dark:text-neutral-300">
                     UGX {total.toLocaleString()}

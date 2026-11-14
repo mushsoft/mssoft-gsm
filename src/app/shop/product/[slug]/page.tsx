@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // off, so lead the preview title with it instead of leaving it to the
   // (often price-less) product description.
   const priceLabel = `UGX ${product.price.toLocaleString()}`;
-  const shareTitle = `${product.title} — ${priceLabel}`;
+  const shareTitle = `${product.title} | ${priceLabel}`;
   const description = truncate(product.description);
   const image = product.images[0];
   const url = `${baseUrl}/shop/product/${product.slug}`;

@@ -70,7 +70,7 @@ export default async function AdminCouponsPage() {
                     {coupon.maxUses !== null ? ` / ${coupon.maxUses}` : ''}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs text-neutral-600 dark:text-neutral-300">
-                    {coupon.expiresAt ? formatDate(coupon.expiresAt) : '—'}
+                    {coupon.expiresAt ? formatDate(coupon.expiresAt) : 'No expiry'}
                   </td>
                   <td className="px-4 py-3 align-middle">
                     <span

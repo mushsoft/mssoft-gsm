@@ -30,7 +30,7 @@ export default async function AccountPage() {
 
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 text-sm text-neutral-600 dark:text-neutral-300">
         <p>
-          <span className="font-bold text-neutral-800 dark:text-neutral-200">Name:</span> {customer.name ?? '—'}
+          <span className="font-bold text-neutral-800 dark:text-neutral-200">Name:</span> {customer.name ?? 'Not set'}
         </p>
         <p className="mt-1">
           <span className="font-bold text-neutral-800 dark:text-neutral-200">Email:</span> {customer.email}

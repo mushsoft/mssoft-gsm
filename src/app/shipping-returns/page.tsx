@@ -20,7 +20,7 @@ const GRADES = [
 
 const DELIVERY = [
   { area: 'Within Kampala', timing: 'Usually same-day', cost: 'From UGX 10,000 (free on orders above UGX 500,000)' },
-  { area: 'Rest of Uganda', timing: '1–3 business days', cost: 'From UGX 15,000, depending on destination' },
+  { area: 'Rest of Uganda', timing: '1 to 3 business days', cost: 'From UGX 15,000, depending on destination' },
   { area: 'Wider East Africa', timing: 'On request', cost: 'Message us on WhatsApp for a delivery quote' },
 ];
 
@@ -131,7 +131,7 @@ export default function ShippingReturnsPage() {
           <p className={bodyClass}>Kampala Centre Point, AC 19, opposite ABSA Bank, Kampala, Uganda.</p>
           <p className={`${bodyClass} flex items-center gap-1.5`}>
             <Clock className="h-3.5 w-3.5 shrink-0" />
-            Monday – Saturday, 9:00 AM – 7:00 PM. Closed Sundays.
+            Monday to Saturday, 9:00 AM to 7:00 PM. Closed Sundays.
           </p>
           <p className={bodyClass}>
             WhatsApp{' '}

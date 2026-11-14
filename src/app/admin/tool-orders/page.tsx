@@ -39,7 +39,7 @@ export default async function AdminToolOrdersPage() {
           </div>
           <div>
             <h1 className="text-lg font-black text-neutral-900 dark:text-white">Tool Orders</h1>
-            <p className="text-xs text-neutral-500">Paid from customer wallets — load them, then mark Done</p>
+            <p className="text-xs text-neutral-500">Paid from customer wallets. Load them, then mark Done.</p>
           </div>
         </div>
         <LogoutButton />

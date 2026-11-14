@@ -72,7 +72,7 @@ export default async function AdminRepairGuidesPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 align-middle text-[10px] text-neutral-500">
-                  {guide.toolsUsed.length > 0 ? guide.toolsUsed.join(', ') : '—'}
+                  {guide.toolsUsed.length > 0 ? guide.toolsUsed.join(', ') : 'None'}
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <Link

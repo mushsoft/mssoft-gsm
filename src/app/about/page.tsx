@@ -22,7 +22,7 @@ export const metadata = {
 
 const TIMELINE = [
   {
-    year: '2016 – 2020',
+    year: '2016 to 2020',
     icon: Zap,
     title: 'Started as an Electrician',
     description:

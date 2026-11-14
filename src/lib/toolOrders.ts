@@ -86,7 +86,7 @@ export async function purchaseTool(
       data: { walletBalanceCents: { decrement: price.totalCents } },
     });
     if (debited.count === 0) {
-      throw new ToolOrderError(`Not enough wallet balance — this costs ${formatUsdCents(price.totalCents)}.`, 402);
+      throw new ToolOrderError(`Not enough wallet balance. This costs ${formatUsdCents(price.totalCents)}.`, 402);
     }
 
     const order = await tx.toolOrder.create({

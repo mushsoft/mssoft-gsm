@@ -67,7 +67,7 @@ export default function UnlockToolsBrowser({
             <p className="text-sm font-black text-neutral-900 dark:text-white">Under maintenance</p>
             <p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-300">
               Ordering unlock &amp; flash tools is paused while we update things. You can still browse and search
-              prices — please check back soon.
+              prices. Please check back soon.
             </p>
           </div>
         </div>

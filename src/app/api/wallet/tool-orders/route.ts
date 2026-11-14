@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       { customerId: customer.id, email: customer.email, name: customer.name },
       {
         title: 'Tool order received',
-        body: `We've received your order for ${describeToolOrder(order)} and taken ${formatUsdCents(order.totalCents)} from your wallet. We'll let you know as soon as it's loaded — if we can't, the money goes straight back to your wallet.`,
+        body: `We've received your order for ${describeToolOrder(order)} and taken ${formatUsdCents(order.totalCents)} from your wallet. We'll let you know as soon as it's loaded. If we can't load it, the money goes straight back to your wallet.`,
         link: '/account/tool-orders',
       }
     );

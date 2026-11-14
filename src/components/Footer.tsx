@@ -58,7 +58,7 @@ export default function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-bold text-neutral-900 dark:text-white">Fast WhatsApp Replies</h4>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Mon–Sat, 9am–7pm</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Mon to Sat, 9am to 7pm</p>
             </div>
           </div>
         </div>

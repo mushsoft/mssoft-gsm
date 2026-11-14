@@ -94,7 +94,7 @@ const RULES: Rule[] = [
   { match: /octoplus.*(digital|no box)/, name: 'Octoplus', identity: { kind: 'code' } },
   { match: /octoplus.*credit/, name: 'Octoplus', identity: { kind: 'username', label: 'Octoplus credits login', placeholder: 'lowercase', help: 'Your existing credits account login. Leave blank if you are new and we will create one.', optional: true } },
   { match: /octoplus|boot loader activation code/, name: 'Octoplus', identity: { kind: 'serial', label: 'Octoplus box/dongle serial' } },
-  { match: /z3x.*(credit|refill|samstool online)/, name: 'Z3X', identity: { kind: 'username', label: 'Z3X login', placeholder: 'zsc_XXxxXXxX', help: 'Leave blank only if you have no Z3X credits account yet — credits on a new account cannot be merged later.', optional: true } },
+  { match: /z3x.*(credit|refill|samstool online)/, name: 'Z3X', identity: { kind: 'username', label: 'Z3X login', placeholder: 'zsc_XXxxXXxX', help: 'Leave blank only if you have no Z3X credits account yet. Credits on a new account cannot be merged later.', optional: true } },
   { match: /z3x/, name: 'Z3X', identity: { kind: 'serial', label: 'Z3X card serial (SN)' } },
   { match: /nck online tool/, name: 'NCK Online Tool', identity: { kind: 'both' } },
   { match: /nck/, name: 'NCK', identity: { kind: 'serial', label: 'NCK box/dongle serial', placeholder: 'NCKXXXXXXXXX', help: 'Must be the exact serial from your box/dongle.' } },
@@ -109,7 +109,7 @@ const RULES: Rule[] = [
   // email-keyed account product.
   { match: /eft dongle/, name: 'EFT', identity: { kind: 'serial', label: 'EFT dongle serial', help: 'Plug in the dongle and open EFT PRO to see it.' } },
   { match: /eft/, name: 'EFT PRO', identity: { kind: 'email' } },
-  { match: /umt/, name: 'UMT', identity: { kind: 'serial', label: 'UMT box/dongle serial', placeholder: 'e.g. UMT1234567', help: 'Needs your existing UMT box/dongle — read it in UMT Card Manager → Get Card Info.' } },
+  { match: /umt/, name: 'UMT', identity: { kind: 'serial', label: 'UMT box/dongle serial', placeholder: 'e.g. UMT1234567', help: 'Needs your existing UMT box/dongle. Read it in UMT Card Manager → Get Card Info.' } },
   { match: /avator/, name: 'Avator Pro', identity: { kind: 'hwid', label: 'Dongle HWID', help: 'Copy it from Card Information in AvatorPro Dongle Manager.' } },
   { match: /polar box 3/, name: 'Polar Box 3', identity: { kind: 'serial', label: 'Polar Box 3 serial' } },
   // Not researched — stop it falling through to the "EFT / UMT / Polar Box"
@@ -117,7 +117,7 @@ const RULES: Rule[] = [
   { match: /polar box server/, name: 'Polar Box', identity: { kind: 'unknown' } },
   { match: /atf/, name: 'ATF', identity: { kind: 'serial', label: 'ATF box serial', help: '24 digits.' } },
   { match: /furious/, name: 'Furious Gold', identity: { kind: 'serial', label: 'Furious box serial', withUsername: true, help: 'Both are in Maintenance → Support → Dashboard → Account Info.' } },
-  { match: /nspro|ns pro/, name: 'NS PRO', identity: { kind: 'serial', label: 'NS PRO Card ID', help: 'Read it in the NS PRO software — not the serial on the label.' } },
+  { match: /nspro|ns pro/, name: 'NS PRO', identity: { kind: 'serial', label: 'NS PRO Card ID', help: 'Read it in the NS PRO software, not the serial on the label.' } },
   { match: /s-module|cs-tool/, name: 'CS-Tool', identity: { kind: 'serial', label: 'SWID' } },
   { match: /inferno/, name: 'Inferno', identity: { kind: 'serial', label: 'Inferno Dog ID (dongle serial)' } },
   { match: /micro-box|sl-box|htc activation|lg\/zte activation|blackberry mep0|alcatel activation/, name: 'Micro-Box', identity: { kind: 'serial', label: 'Micro-Box serial' } },
@@ -222,7 +222,7 @@ export function getOrderFormSpec(category: string, title: string): OrderFormSpec
 
   switch (identity.kind) {
     case 'code':
-      return { fields: [], intro: 'Nothing needed from you — we send the activation code to you on WhatsApp.' };
+      return { fields: [], intro: 'Nothing needed from you. We send the activation code to you on WhatsApp.' };
 
     case 'token':
       return { fields: [{ key: 'token', kind: 'token', label: identity.label, help: identity.help, required: true }] };

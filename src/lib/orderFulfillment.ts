@@ -103,7 +103,7 @@ export async function markOrderFailed(orderId: string, options: { notify?: boole
       { customerId: order.customerId, email: order.customerEmail, name: order.customerName },
       {
         title: 'Payment not completed',
-        body: `We couldn't confirm payment for order ${orderRef(order.txRef)}, so it has been cancelled. You haven't been charged for it — you can place the order again any time.`,
+        body: `We couldn't confirm payment for order ${orderRef(order.txRef)}, so it has been cancelled. You haven't been charged for it. You can place the order again any time.`,
         link: '/account/orders',
       }
     );
