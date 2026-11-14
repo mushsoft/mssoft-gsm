@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { MessageCircle, Search } from 'lucide-react';
 import { formatUsd } from '@/lib/softwareToolPricing';
-import OrderToolModal, { type OrderableTool } from './OrderToolModal';
+import OrderToolModal, { type OrderableTool, type WalletState } from './OrderToolModal';
 
 export type PricedSoftwareTool = {
   id: string;
@@ -27,11 +27,13 @@ export default function UnlockToolsBrowser({
   groups,
   initialQuery = '',
   whatsappPhone,
+  wallet,
   orderingPaused = false,
 }: {
   groups: SoftwareToolGroup[];
   initialQuery?: string;
   whatsappPhone: string;
+  wallet: WalletState;
   // While paused, "Order" goes to the maintenance notice instead of the form.
   orderingPaused?: boolean;
 }) {
@@ -115,7 +117,7 @@ export default function UnlockToolsBrowser({
       )}
 
       {ordering && (
-        <OrderToolModal tool={ordering} whatsappPhone={whatsappPhone} onClose={() => setOrdering(null)} />
+        <OrderToolModal tool={ordering} whatsappPhone={whatsappPhone} wallet={wallet} onClose={() => setOrdering(null)} />
       )}
     </div>
   );

@@ -15,6 +15,7 @@ const TABS = [
   { href: '/admin/repair-requests', label: 'Ask a Tech', icon: Wrench },
   { href: '/admin/testpoints', label: 'Test Points', icon: CircuitBoard },
   { href: '/admin/software-tools', label: 'Software Tools', icon: KeyRound },
+  { href: '/admin/tool-orders', label: 'Tool Orders', icon: KeyRound },
   { href: '/admin/wallet', label: 'Wallets', icon: Wallet },
   { href: '/admin/analytics', label: 'Analytics', icon: Activity },
   { href: '/admin/settings', label: 'Settings', icon: Settings },

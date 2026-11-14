@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ClipboardList, Heart, UserCircle, Wallet, Wrench } from 'lucide-react';
+import { ClipboardList, Heart, KeyRound, UserCircle, Wallet, Wrench } from 'lucide-react';
 
 const TABS = [
   { href: '/account', label: 'Profile', icon: UserCircle },
   { href: '/account/wallet', label: 'Wallet', icon: Wallet },
+  { href: '/account/tool-orders', label: 'Tool Orders', icon: KeyRound },
   { href: '/account/orders', label: 'Orders', icon: ClipboardList },
   { href: '/account/wishlist', label: 'Wishlist', icon: Heart },
   { href: '/account/repair-requests', label: 'Ask a Tech', icon: Wrench },

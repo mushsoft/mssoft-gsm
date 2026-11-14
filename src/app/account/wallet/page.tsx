@@ -127,6 +127,7 @@ export default async function WalletPage({ searchParams }: { searchParams: Promi
                   <div className="text-[10px] text-neutral-500">
                     {formatDate(t.createdAt)}
                     {t.amountUgx !== null && <> · UGX {t.amountUgx.toLocaleString()}</>}
+                    {(t.type === 'PURCHASE' || t.type === 'REFUND') && t.note && <> · {t.note}</>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

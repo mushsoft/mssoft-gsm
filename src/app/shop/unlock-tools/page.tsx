@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, KeyRound, MessageCircle, Sparkles } from 'lucide-react';
+import { getOrCreateCustomer } from '@/lib/customerAuth';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 import { isPerCreditProduct } from '@/lib/softwareToolOrderFields';
@@ -30,13 +31,17 @@ export default async function UnlockToolsPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const [tools, profile] = await Promise.all([
+  const [tools, profile, customer] = await Promise.all([
     prisma.softwareTool.findMany({
       orderBy: [{ category: 'asc' }, { order: 'asc' }, { title: 'asc' }],
     }),
     getShopProfile(),
+    // Only to show the wallet balance / "Pay from wallet" — the page works
+    // the same for guests, and the purchase API re-checks everything.
+    getOrCreateCustomer().catch(() => null),
   ]);
   const usdRate = await getUsdRate(profile);
+  const wallet = customer ? { balanceCents: customer.walletBalanceCents } : null;
 
   const whatsappPhone = '256773944288';
 
@@ -139,6 +144,7 @@ export default async function UnlockToolsPage({
           groups={groups}
           initialQuery={q ?? ''}
           whatsappPhone={whatsappPhone}
+          wallet={wallet}
           orderingPaused={UNLOCK_TOOLS_ORDERING_PAUSED}
         />
       )}

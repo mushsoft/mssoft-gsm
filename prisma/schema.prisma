@@ -94,6 +94,8 @@ model SoftwareTool {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  toolOrders ToolOrder[]
+
   @@index([category])
 }
 
@@ -186,6 +188,7 @@ model Customer {
   wishlistItems      WishlistItem[]
   repairRequests     RepairRequest[]
   walletTransactions WalletTransaction[]
+  toolOrders         ToolOrder[]
 }
 
 enum WalletTransactionType {
@@ -218,18 +221,60 @@ model WalletTransaction {
   amountUgx        Int?
   usdRate          Float?
   paymentMethod    String? // PAWAPAY, MOBILE_MONEY, CARD or AIRTEL_MONEY
-  txRef            String                  @unique // our reference, "WT-<uuid>"
+  txRef            String                  @unique // our reference: "WT-" top-up, "WP-" purchase, "WR-" refund
   // pawaPay depositId, or the Airtel Money transaction ID the customer typed.
   paymentReference String?
   note             String?
+  // PURCHASE / REFUND rows point at the tool order they paid for / refunded.
+  toolOrderId      String?
   createdAt        DateTime                @default(now())
   completedAt      DateTime?
 
-  customer Customer @relation(fields: [customerId], references: [id])
+  customer  Customer   @relation(fields: [customerId], references: [id])
+  toolOrder ToolOrder? @relation(fields: [toolOrderId], references: [id])
 
   @@index([customerId, createdAt])
   @@index([status, paymentMethod])
   @@index([paymentReference])
+  @@index([toolOrderId])
+}
+
+enum ToolOrderStatus {
+  PAID // paid from the wallet, waiting for the admin to load it
+  COMPLETED // admin loaded the credits/activation on the supplier panel
+  REFUNDED // couldn't be fulfilled; the amount went back to the wallet
+}
+
+// An unlock/flash tool bought with wallet balance. Tool name and prices are
+// copied in at purchase time so later edits/deletes of the SoftwareTool
+// listing (or rate changes) never alter what the customer paid for.
+model ToolOrder {
+  id             String          @id @default(uuid())
+  customerId     String
+  softwareToolId String?
+  toolTitle      String
+  toolCategory   String
+  perCredit      Boolean
+  quantity       Int             @default(1) // credits for per-credit products, else 1
+  unitPriceCents Int
+  totalCents     Int
+  // What the customer entered for this tool's order form, in form order:
+  // [{ "label": "Hydra email", "value": "tech@example.com" }, ...]
+  details        Json
+  notes          String?
+  status         ToolOrderStatus @default(PAID)
+  // Shown to the customer — e.g. an activation code, or why it was refunded.
+  adminNote      String?
+  createdAt      DateTime        @default(now())
+  completedAt    DateTime?
+  refundedAt     DateTime?
+
+  customer           Customer            @relation(fields: [customerId], references: [id])
+  softwareTool       SoftwareTool?       @relation(fields: [softwareToolId], references: [id], onDelete: SetNull)
+  walletTransactions WalletTransaction[]
+
+  @@index([status, createdAt])
+  @@index([customerId, createdAt])
 }
 
 // A private "ask a technician" request — separate from RepairGuide, which is
