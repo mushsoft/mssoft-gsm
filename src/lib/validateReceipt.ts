@@ -1,4 +1,5 @@
-const DOC_TYPES = ['INVOICE', 'RECEIPT', 'DELIVERY_NOTE', 'QUOTATION'] as const;
+import { DOC_TYPE_KEYS, isDocType, type DocType } from './receiptDocTypes';
+
 const PAYMENT_STATUSES = ['PENDING', 'SUCCESSFUL'] as const;
 
 export class ReceiptValidationError extends Error {}
@@ -21,7 +22,7 @@ export interface ReceiptItemInput {
 }
 
 export interface ReceiptInput {
-  docType: (typeof DOC_TYPES)[number];
+  docType: DocType;
   reference: string;
   orderId: string | null;
   documentDate: Date;
@@ -35,6 +36,7 @@ export interface ReceiptInput {
   paymentMethod: string;
   paymentReference: string | null;
   notes: Record<string, string>;
+  extra: Record<string, string>;
 }
 
 function parseItems(raw: unknown): ReceiptItemInput[] {
@@ -89,8 +91,8 @@ export function parseReceiptInput(body: unknown): ReceiptInput {
   const b = body as Record<string, unknown>;
 
   const docType = typeof b.docType === 'string' ? b.docType : '';
-  if (!DOC_TYPES.includes(docType as (typeof DOC_TYPES)[number])) {
-    throw new ReceiptValidationError(`docType must be one of: ${DOC_TYPES.join(', ')}`);
+  if (!isDocType(docType)) {
+    throw new ReceiptValidationError(`docType must be one of: ${DOC_TYPE_KEYS.join(', ')}`);
   }
 
   const reference = typeof b.reference === 'string' ? b.reference.trim() : '';
@@ -136,8 +138,19 @@ export function parseReceiptInput(body: unknown): ReceiptInput {
     }
   }
 
+  // Type-specific fields (see receiptDocTypes.ts): short strings only.
+  const extraRaw = b.extra;
+  const extra: Record<string, string> = {};
+  if (typeof extraRaw === 'object' && extraRaw !== null && !Array.isArray(extraRaw)) {
+    for (const [key, value] of Object.entries(extraRaw as Record<string, unknown>).slice(0, 40)) {
+      if (typeof value === 'string' && /^[A-Za-z][A-Za-z0-9]{0,40}$/.test(key) && value.trim()) {
+        extra[key] = value.trim().slice(0, 2000);
+      }
+    }
+  }
+
   return {
-    docType: docType as (typeof DOC_TYPES)[number],
+    docType,
     reference,
     orderId,
     documentDate,
@@ -151,5 +164,6 @@ export function parseReceiptInput(body: unknown): ReceiptInput {
     paymentMethod,
     paymentReference,
     notes,
+    extra,
   };
 }

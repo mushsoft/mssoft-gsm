@@ -454,6 +454,7 @@ model Receipt {
   paymentMethod    String
   paymentReference String?
   notes            Json? // { [docType]: string } — per-type notes, so switching tabs keeps each type's text
+  extra            Json? // type-specific fields (job card device/fault, warranty period, credit note original doc...), see receiptDocTypes.ts
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

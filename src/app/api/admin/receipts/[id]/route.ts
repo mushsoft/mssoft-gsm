@@ -26,7 +26,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   try {
     const receipt = await prisma.receipt.update({
       where: { id },
-      data: { ...input, items: input.items as unknown as Prisma.InputJsonValue, notes: input.notes as Prisma.InputJsonValue },
+      data: { ...input, items: input.items as unknown as Prisma.InputJsonValue, notes: input.notes as Prisma.InputJsonValue, extra: input.extra as Prisma.InputJsonValue },
     });
     return NextResponse.json({ success: true, receipt });
   } catch (error) {

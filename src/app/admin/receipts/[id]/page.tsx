@@ -3,7 +3,7 @@ import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 import ReceiptDocument, { type ReceiptItemData } from '@/components/admin/ReceiptDocument';
-import { DOC_TYPES, type DocType } from '@/lib/receiptDocTypes';
+import { extraFrom, isDocType, notesByTypeFrom } from '@/lib/receiptDocTypes';
 
 export default async function EditReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -16,20 +16,13 @@ export default async function EditReceiptPage({ params }: { params: Promise<{ id
   }
 
   const items = Array.isArray(receipt.items) ? (receipt.items as unknown as ReceiptItemData[]) : [];
-  const storedNotes =
-    typeof receipt.notes === 'object' && receipt.notes !== null && !Array.isArray(receipt.notes)
-      ? (receipt.notes as Record<string, string>)
-      : {};
-  const notesByType = Object.fromEntries(
-    DOC_TYPES.map((d) => [d.key, storedNotes[d.key] ?? d.defaultNotes])
-  ) as Record<DocType, string>;
 
   return (
     <ReceiptDocument
       initial={{
         receiptId: receipt.id,
         orderId: receipt.orderId,
-        docType: (receipt.docType as DocType) ?? 'INVOICE',
+        docType: isDocType(receipt.docType) ? receipt.docType : 'INVOICE',
         reference: receipt.reference,
         customerName: receipt.customerName,
         customerPhone: receipt.customerPhone,
@@ -42,7 +35,8 @@ export default async function EditReceiptPage({ params }: { params: Promise<{ id
         paymentStatus: receipt.paymentStatus,
         paymentMethod: receipt.paymentMethod,
         paymentReference: receipt.paymentReference ?? '',
-        notesByType,
+        notesByType: notesByTypeFrom(receipt.notes),
+        extra: extraFrom(receipt.extra),
       }}
       shopProfile={{
         businessName: profile.businessName,

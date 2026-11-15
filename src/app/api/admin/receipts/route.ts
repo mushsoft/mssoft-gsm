@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   try {
     const receipt = await prisma.receipt.create({
-      data: { ...input, items: input.items as unknown as Prisma.InputJsonValue, notes: input.notes as Prisma.InputJsonValue },
+      data: { ...input, items: input.items as unknown as Prisma.InputJsonValue, notes: input.notes as Prisma.InputJsonValue, extra: input.extra as Prisma.InputJsonValue },
     });
     return NextResponse.json({ success: true, receipt });
   } catch (error) {

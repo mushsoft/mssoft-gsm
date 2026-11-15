@@ -1,10 +1,12 @@
 import { requireAdminPage } from '@/lib/adminAuth';
 import { getShopProfile } from '@/lib/shopProfile';
 import ReceiptDocument from '@/components/admin/ReceiptDocument';
-import { DOC_TYPES, type DocType } from '@/lib/receiptDocTypes';
+import { defaultNotesByType, isDocType } from '@/lib/receiptDocTypes';
 
-export default async function NewReceiptPage() {
+// ?type=JOB_CARD (or any document type key) opens the form on that type.
+export default async function NewReceiptPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
   await requireAdminPage();
+  const { type } = await searchParams;
 
   const profile = await getShopProfile();
   const now = new Date();
@@ -15,7 +17,7 @@ export default async function NewReceiptPage() {
       initial={{
         receiptId: null,
         orderId: null,
-        docType: 'INVOICE',
+        docType: isDocType(type) ? type : 'INVOICE',
         reference,
         customerName: '',
         customerPhone: '',
@@ -28,7 +30,8 @@ export default async function NewReceiptPage() {
         paymentStatus: 'PENDING',
         paymentMethod: 'Cash',
         paymentReference: '',
-        notesByType: Object.fromEntries(DOC_TYPES.map((d) => [d.key, d.defaultNotes])) as Record<DocType, string>,
+        notesByType: defaultNotesByType(),
+        extra: {},
       }}
       shopProfile={{
         businessName: profile.businessName,

@@ -3,7 +3,7 @@ import { requireAdminPage } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 import ReceiptDocument from '@/components/admin/ReceiptDocument';
-import { DOC_TYPES, type DocType } from '@/lib/receiptDocTypes';
+import { defaultNotesByType, extraFrom, isDocType, notesByTypeFrom, type DocType } from '@/lib/receiptDocTypes';
 
 export default async function OrderReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPage();
@@ -30,7 +30,7 @@ export default async function OrderReceiptPage({ params }: { params: Promise<{ i
     ? {
         receiptId: existingReceipt.id,
         orderId: existingReceipt.orderId,
-        docType: (existingReceipt.docType as DocType) ?? 'INVOICE',
+        docType: isDocType(existingReceipt.docType) ? existingReceipt.docType : ('INVOICE' as DocType),
         reference: existingReceipt.reference,
         customerName: existingReceipt.customerName,
         customerPhone: existingReceipt.customerPhone,
@@ -45,13 +45,8 @@ export default async function OrderReceiptPage({ params }: { params: Promise<{ i
         paymentStatus: existingReceipt.paymentStatus,
         paymentMethod: existingReceipt.paymentMethod,
         paymentReference: existingReceipt.paymentReference ?? '',
-        notesByType: (() => {
-          const stored =
-            typeof existingReceipt.notes === 'object' && existingReceipt.notes !== null && !Array.isArray(existingReceipt.notes)
-              ? (existingReceipt.notes as Record<string, string>)
-              : {};
-          return Object.fromEntries(DOC_TYPES.map((d) => [d.key, stored[d.key] ?? d.defaultNotes])) as Record<DocType, string>;
-        })(),
+        notesByType: notesByTypeFrom(existingReceipt.notes),
+        extra: extraFrom(existingReceipt.extra),
       }
     : {
         receiptId: null,
@@ -73,7 +68,8 @@ export default async function OrderReceiptPage({ params }: { params: Promise<{ i
         paymentStatus: order.paymentStatus,
         paymentMethod: order.paymentMethod,
         paymentReference: order.paymentReference ?? '',
-        notesByType: Object.fromEntries(DOC_TYPES.map((d) => [d.key, d.defaultNotes])) as Record<DocType, string>,
+        notesByType: defaultNotesByType(),
+        extra: {},
       };
 
   return (
