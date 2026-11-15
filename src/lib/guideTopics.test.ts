@@ -28,6 +28,10 @@ describe('hardwareTopicFor', () => {
     expect(hardwareTopicFor('Tablet Not Charging')).toBe('Laptops and Tablets');
     expect(hardwareTopicFor('Wireless Earbuds: One Side Not Working')).toBe('Accessories');
     expect(hardwareTopicFor('Smartwatch Not Charging')).toBe('Accessories');
+    expect(hardwareTopicFor('Bluetooth Speaker Got Wet')).toBe('Accessories');
+    expect(hardwareTopicFor('Game Controller Drift')).toBe('Accessories');
+    expect(hardwareTopicFor('Headphone Jack Not Working')).toBe('Parts');
+    expect(hardwareTopicFor('Choosing a Good Extension Lead')).toBe('Charging');
   });
 
   it('matches whole words only', () => {

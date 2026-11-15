@@ -69,14 +69,15 @@ export type HardwareTopic = (typeof HARDWARE_TOPICS)[number];
 
 const HARDWARE_RULES: [HardwareTopic, RegExp][] = [
   ['Laptops and Tablets', /\b(laptops?|tablets?|ipads?|macbooks?|keyboards?|trackpad|touchpad|hinges?|ssd|hard drives?|hdd|ram)\b/],
-  ['Accessories', /\b(earbuds?|earphones?|airpods|headsets?|smartwatch(es)?|watch(es)?)\b/],
+  // "Headphone jack" is a phone part, so it is left to the Parts rule.
+  ['Accessories', /\b(earbuds?|earphones?|airpods|headsets?|headphones?(?! jack)|smartwatch(es)?|watch(es)?|bluetooth speakers?|memory cards?|sd cards?|flash drives?|controllers?|gamepads?|mouse|mice|phone cases?|accessories)\b/],
   ['Water Damage', /\b(water|liquid|wet|rain|moisture|corrosion|corroded|rust)\b/],
   ['Batteries', /\b(battery|batteries|swollen|power banks?|18650)\b/],
   // No bare "cable": a screen or button flex cable isn't a charging topic.
-  ['Charging', /\b(charg\w*|usb|ports?|adapters?|plugs?|wireless)\b/],
+  ['Charging', /\b(charg\w*|usb|ports?|adapters?|plugs?|wireless|sockets?|extension (leads?|cords?)|power strips?)\b/],
   ['Screens', /\b(screens?|displays?|lcd|oled|touch|digitizer|screen protectors?)\b/],
   ['Parts', /\b(speakers?|earpiece|mic|microphones?|cameras?|lens|buttons?|vibrat\w*|sim|fingerprint|face id|back glass|back covers?|housing|flex|antennas?|signal|jack|headphones?|sensors?)\b/],
-  ['Board Repair', /\b(boards?|motherboards?|solder\w*|short(ed)?|short circuit|ics?|chips?|reball\w*|jumpers?|bga|emmc|ufs|cpu|no power|dead|boot ?loop|capacitors?|resistors?|traces?)\b/],
+  ['Board Repair', /\b(boards?|motherboards?|solder\w*|desolder\w*|short(ed)?|short circuit|ics?|chips?|reball\w*|jumpers?|bga|emmc|ufs|cpu|no power|dead|boot ?loop|capacitors?|resistors?|traces?)\b/],
   ['Tools', /\b(tools?|screws?|screwdrivers?|multimeter|heat gun|hot air|flux|tweezers?|workbench|workshop|esd|static|power supply|microscope|glue|separator|uv|alcohol|magnif\w*|clean\w*)\b/],
 ];
 
