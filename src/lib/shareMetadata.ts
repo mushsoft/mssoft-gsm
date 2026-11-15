@@ -43,10 +43,23 @@ export function supabaseHostname(): string | null {
 
 // Root-relative URL of a branded share card. Relative is fine: metadataBase
 // (set in the root layout) turns it into an absolute URL in the page head.
-export function shareCardUrl({ title, subtitle, photo }: { title: string; subtitle?: string; photo?: string | null }): string {
+// layout "product" shows the whole product photo on a white panel beside the
+// name and price, instead of a photo behind the title.
+export function shareCardUrl({
+  title,
+  subtitle,
+  photo,
+  layout,
+}: {
+  title: string;
+  subtitle?: string;
+  photo?: string | null;
+  layout?: 'product';
+}): string {
   const params = new URLSearchParams({ title: title.slice(0, 120) });
   if (subtitle) params.set('subtitle', subtitle.slice(0, 90));
   if (photo) params.set('photo', photo);
+  if (layout) params.set('layout', layout);
   return `/api/og?${params.toString()}`;
 }
 

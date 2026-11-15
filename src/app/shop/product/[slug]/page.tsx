@@ -14,7 +14,7 @@ import AddToCartButton from '@/components/cart/AddToCartButton';
 import { getSpecFields, type ProductCategory } from '@/lib/productSpecFields';
 import { getRelatedProducts } from '@/lib/relatedProducts';
 import { getOrCreateCustomer } from '@/lib/customerAuth';
-import { SITE_NAME, pageTitle, shareCardUrl, shareDescription } from '@/lib/shareMetadata';
+import { SHARE_IMAGE_SIZE, SITE_NAME, pageTitle, shareCardUrl, shareDescription } from '@/lib/shareMetadata';
 
 const WHATSAPP_PHONE = '256773944288';
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -41,11 +41,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const priceLabel = `UGX ${product.price.toLocaleString('en-US')}`;
   const shareTitle = `${product.title} | ${priceLabel}`;
   const description = productDescription(product.title, product.description, priceLabel, product.stock > 0);
-  // Products without photos still share a proper image: a branded card with
-  // the name and price.
-  const image =
-    product.images[0] ??
-    shareCardUrl({ title: product.title, subtitle: priceLabel, photo: '/tips/phone-model-specs.jpg' });
+  // Every product shares a 1200x630 branded card (name, price and the whole
+  // product photo) instead of the raw photo: most product photos are tall,
+  // which WhatsApp shows as a small cropped square, and some are several MB,
+  // which WhatsApp skips entirely.
+  const image = shareCardUrl({
+    title: product.title,
+    subtitle: priceLabel,
+    photo: product.images[0] ?? null,
+    layout: 'product',
+  });
   const url = `${baseUrl}/shop/product/${product.slug}`;
 
   return {
@@ -59,7 +64,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: shareTitle,
       description,
       url,
-      images: [{ url: image }],
+      images: [{ url: image, ...SHARE_IMAGE_SIZE, alt: product.title }],
     },
     twitter: {
       card: 'summary_large_image',

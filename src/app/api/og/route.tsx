@@ -31,18 +31,49 @@ const assets = Promise.all([
   }),
 ]);
 
-async function fetchAsJpegDataUri(url: URL, resize: { width: number; height: number }): Promise<string | null> {
+// "cover" fills the box (background photos). "contain" keeps the whole
+// photo on white (product photos: often tall, and a crop would cut off the
+// product). Transparent PNGs are put on white first.
+async function fetchAsJpegDataUri(
+  url: URL,
+  resize: { width: number; height: number; fit: 'cover' | 'contain' }
+): Promise<string | null> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
     if (!res.ok || !(res.headers.get('content-type') ?? '').startsWith('image/')) return null;
     const jpeg = await sharp(Buffer.from(await res.arrayBuffer()))
-      .resize(resize.width, resize.height, { fit: 'cover', position: 'attention' })
+      .rotate()
+      .flatten({ background: '#ffffff' })
+      .resize(resize.width, resize.height, {
+        fit: resize.fit,
+        position: resize.fit === 'cover' ? 'attention' : 'centre',
+        background: '#ffffff',
+      })
       .jpeg({ quality: 82 })
       .toBuffer();
     return `data:image/jpeg;base64,${jpeg.toString('base64')}`;
   } catch {
     return null;
   }
+}
+
+// Product cards: name and price on the left, the whole product photo on a
+// white panel on the right.
+const PRODUCT_PANEL = 480;
+const PRODUCT_PHOTO = { width: 440, height: 560 };
+
+function productTitleFontSize(title: string): number {
+  if (title.length <= 30) return 58;
+  if (title.length <= 55) return 48;
+  if (title.length <= 80) return 40;
+  return 34;
+}
+
+function shorten(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
 
 function titleFontSize(title: string): number {
@@ -57,6 +88,7 @@ export async function GET(request: NextRequest) {
   const title = (params.get('title') || 'MS Soft GSM').slice(0, 120);
   const subtitle = (params.get('subtitle') || '').slice(0, 90);
   const photo = params.get('photo') || '';
+  const isProduct = params.get('layout') === 'product';
   const origin = request.nextUrl.origin;
 
   const photoUrl =
@@ -67,12 +99,97 @@ export async function GET(request: NextRequest) {
       : null;
 
   const [photoUri, [geistBold, geistBlack, logo]] = await Promise.all([
-    photoUrl ? fetchAsJpegDataUri(photoUrl, { width, height }) : Promise.resolve(null),
+    photoUrl
+      ? fetchAsJpegDataUri(photoUrl, isProduct ? { ...PRODUCT_PHOTO, fit: 'contain' } : { width, height, fit: 'cover' })
+      : Promise.resolve(null),
     assets,
   ]);
 
+  const brand = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+      <div style={{ display: 'flex', padding: '14px 18px', borderRadius: 18, background: 'white' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- Satori (ImageResponse) only accepts a raw <img> */}
+        <img src={logo.uri} width={logo.width} height={LOGO_HEIGHT} alt="" />
+      </div>
+      <div style={{ display: 'flex', fontSize: 42, fontWeight: 900, color: 'white', letterSpacing: -1 }}>
+        MS Soft&nbsp;<span style={{ color: '#f59e0b' }}>GSM</span>
+      </div>
+    </div>
+  );
+
+  const productTitle = shorten(title, 95);
+  const productCard = (
+    <div style={{ width, height, display: 'flex', background: '#0a0a0a', fontFamily: 'Geist' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          width: width - PRODUCT_PANEL,
+          height,
+          padding: '56px 56px 52px 64px',
+          backgroundImage: 'linear-gradient(135deg, #0a0a0a 0%, #111827 100%)',
+        }}
+      >
+        {brand}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div
+            style={{
+              display: 'flex',
+              fontSize: productTitleFontSize(productTitle),
+              fontWeight: 900,
+              lineHeight: 1.1,
+              color: 'white',
+              letterSpacing: -1,
+            }}
+          >
+            {productTitle}
+          </div>
+          {subtitle && (
+            <div
+              style={{
+                display: 'flex',
+                alignSelf: 'flex-start',
+                marginTop: 26,
+                padding: '10px 22px',
+                borderRadius: 14,
+                background: '#f59e0b',
+                fontSize: 38,
+                fontWeight: 900,
+                color: '#0a0a0a',
+              }}
+            >
+              {subtitle}
+            </div>
+          )}
+        </div>
+        <div style={{ display: 'flex', fontSize: 24, fontWeight: 600, color: '#a3a3a3' }}>
+          Order on WhatsApp · www.mssoft-gsm.com
+        </div>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: PRODUCT_PANEL,
+          height,
+          background: '#ffffff',
+        }}
+      >
+        {photoUri ? (
+          // eslint-disable-next-line @next/next/no-img-element -- Satori (ImageResponse) only accepts a raw <img>
+          <img src={photoUri} width={PRODUCT_PHOTO.width} height={PRODUCT_PHOTO.height} alt="" />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element -- Satori (ImageResponse) only accepts a raw <img>
+          <img src={logo.uri} width={logo.width * 2} height={LOGO_HEIGHT * 2} alt="" />
+        )}
+      </div>
+    </div>
+  );
+
   const png = new ImageResponse(
-    (
+    isProduct ? productCard : (
       <div style={{ width, height, display: 'flex', position: 'relative', background: '#0a0a0a', fontFamily: 'Geist' }}>
         {photoUri && (
           // eslint-disable-next-line @next/next/no-img-element -- Satori (ImageResponse) only accepts a raw <img>
@@ -102,15 +219,7 @@ export async function GET(request: NextRequest) {
             padding: '56px 64px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <div style={{ display: 'flex', padding: '14px 18px', borderRadius: 18, background: 'white' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- Satori (ImageResponse) only accepts a raw <img> */}
-              <img src={logo.uri} width={logo.width} height={LOGO_HEIGHT} alt="" />
-            </div>
-            <div style={{ display: 'flex', fontSize: 42, fontWeight: 900, color: 'white', letterSpacing: -1 }}>
-              MS Soft&nbsp;<span style={{ color: '#f59e0b' }}>GSM</span>
-            </div>
-          </div>
+          {brand}
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {subtitle && (
