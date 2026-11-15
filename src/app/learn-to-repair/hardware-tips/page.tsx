@@ -9,7 +9,7 @@ interface HardwareTipsPageProps {
 export const metadata: Metadata = shareMetadata({
   title: "Hardware Tips",
   description:
-    "Free phone hardware tips: screens, batteries, charging ports, water damage, board repair and workshop tools, explained step by step for technicians and owners.",
+    "Free hardware tips for phones, laptops, tablets and earbuds: screens, batteries, charging, water damage, board repair and tools, step by step.",
   path: "/learn-to-repair/hardware-tips",
   image: shareCardUrl({
     title: "Hardware Tips",

@@ -47,7 +47,7 @@ const COPY: Record<
     eyebrow: 'Free Technician Tips',
     title: 'Hardware Tips',
     intro:
-      'Practical tips on screens, batteries, charging, water damage, board repair and tools, for technicians and phone owners. Free to follow, or bring it to us and we fix it.',
+      'Practical tips on screens, batteries, charging, water damage, board repair and tools, plus laptops, tablets and earbuds. For technicians and owners. Free to follow, or bring it to us and we fix it.',
     search: 'Search tips, for example "swollen battery" or "charging port"',
     emptyTitle: 'No hardware tips published yet',
     emptyHint: 'We publish new hardware tips regularly. Check back soon.',

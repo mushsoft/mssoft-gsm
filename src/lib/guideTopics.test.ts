@@ -24,6 +24,10 @@ describe('hardwareTopicFor', () => {
     expect(hardwareTopicFor('Charging Port Corrosion After Rain')).toBe('Water Damage');
     expect(hardwareTopicFor('Battery Not Charging Past 80%')).toBe('Batteries');
     expect(hardwareTopicFor('Stuck Power Button: Flex Cable Fixes')).toBe('Parts');
+    expect(hardwareTopicFor('Laptop Battery Swelling: Raised Touchpad')).toBe('Laptops and Tablets');
+    expect(hardwareTopicFor('Tablet Not Charging')).toBe('Laptops and Tablets');
+    expect(hardwareTopicFor('Wireless Earbuds: One Side Not Working')).toBe('Accessories');
+    expect(hardwareTopicFor('Smartwatch Not Charging')).toBe('Accessories');
   });
 
   it('matches whole words only', () => {

@@ -50,7 +50,9 @@ export function parseTopic(value: string | undefined): SoftwareTopic | null {
 // Hardware tips are grouped by the part they're about, worked out from the
 // title, so a tip added in the admin lands under the right chip with no extra
 // field to fill in. Rules run in order: "Charging port after water damage"
-// is a water damage tip, "Battery not charging" a battery tip.
+// is a water damage tip, "Battery not charging" a battery tip. Laptop,
+// tablet and accessory tips come first, so "Laptop battery swelling" stays
+// with the laptop tips instead of mixing into phone batteries.
 export const HARDWARE_TOPICS = [
   'Screens',
   'Batteries',
@@ -59,11 +61,15 @@ export const HARDWARE_TOPICS = [
   'Parts',
   'Board Repair',
   'Tools',
+  'Laptops and Tablets',
+  'Accessories',
   'General',
 ] as const;
 export type HardwareTopic = (typeof HARDWARE_TOPICS)[number];
 
 const HARDWARE_RULES: [HardwareTopic, RegExp][] = [
+  ['Laptops and Tablets', /\b(laptops?|tablets?|ipads?|macbooks?|keyboards?|trackpad|touchpad|hinges?|ssd|hard drives?|hdd|ram)\b/],
+  ['Accessories', /\b(earbuds?|earphones?|airpods|headsets?|smartwatch(es)?|watch(es)?)\b/],
   ['Water Damage', /\b(water|liquid|wet|rain|moisture|corrosion|corroded|rust)\b/],
   ['Batteries', /\b(battery|batteries|swollen|power banks?|18650)\b/],
   // No bare "cable": a screen or button flex cable isn't a charging topic.
