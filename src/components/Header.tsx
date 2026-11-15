@@ -165,6 +165,7 @@ const PRIMARY_CATEGORY_TITLES = new Set([
 const LEARN_LINKS: { title: string; href: string; icon: LucideIcon }[] = [
   { title: 'Repair Guides', href: '/learn-to-repair', icon: Wrench },
   { title: 'Software Tips', href: '/learn-to-repair/software-tips', icon: Code2 },
+  { title: 'Hardware Tips', href: '/learn-to-repair/hardware-tips', icon: Cpu },
 ];
 
 export default function Header() {
@@ -483,6 +484,14 @@ export default function Header() {
           >
             <Code2 className="w-3.5 h-3.5" />
             <span>Software Tips</span>
+          </Link>
+          <Link
+            href="/learn-to-repair/hardware-tips"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center gap-2 py-1.5 pl-6 text-xs font-semibold text-emerald-600/80 dark:text-emerald-400/80"
+          >
+            <Cpu className="w-3.5 h-3.5" />
+            <span>Hardware Tips</span>
           </Link>
 
           <Link

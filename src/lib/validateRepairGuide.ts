@@ -2,7 +2,9 @@ import { replaceLongDashes } from './plainText';
 
 export class RepairGuideValidationError extends Error {}
 
-export type GuideCategory = 'REPAIR' | 'SOFTWARE';
+export type GuideCategory = 'REPAIR' | 'SOFTWARE' | 'HARDWARE';
+
+export const GUIDE_CATEGORIES: readonly GuideCategory[] = ['REPAIR', 'SOFTWARE', 'HARDWARE'];
 
 export interface RepairGuideInput {
   category: GuideCategory;
@@ -23,8 +25,8 @@ export function parseRepairGuideInput(body: unknown): RepairGuideInput {
 
   // Missing means a repair guide, so older clients keep working.
   const category = b.category === undefined ? 'REPAIR' : b.category;
-  if (category !== 'REPAIR' && category !== 'SOFTWARE') {
-    throw new RepairGuideValidationError('Type must be a repair guide or a software tip');
+  if (!GUIDE_CATEGORIES.includes(category as GuideCategory)) {
+    throw new RepairGuideValidationError('Type must be a repair guide, a software tip or a hardware tip');
   }
   const title = typeof b.title === 'string' ? b.title.trim() : '';
   const brand = typeof b.brand === 'string' ? b.brand.trim() : '';
@@ -37,8 +39,8 @@ export function parseRepairGuideInput(body: unknown): RepairGuideInput {
     : [];
 
   if (!title) throw new RepairGuideValidationError('Title is required');
-  // A software tip can be general (e.g. "FRP bypass on Android 14"), so
-  // brand and model are only required for hardware repair guides.
+  // Software and hardware tips can be general (e.g. "Signs of a swollen
+  // battery"), so brand and model are only required for repair guides.
   if (category === 'REPAIR' && !brand) throw new RepairGuideValidationError('Brand is required');
   if (category === 'REPAIR' && !modelName) throw new RepairGuideValidationError('Model name is required');
   if (!content) throw new RepairGuideValidationError('Content is required');
@@ -48,7 +50,7 @@ export function parseRepairGuideInput(body: unknown): RepairGuideInput {
 
   // Visible text is saved without long dashes (site rule, see plainText.ts).
   return {
-    category,
+    category: category as GuideCategory,
     title: replaceLongDashes(title),
     brand: replaceLongDashes(brand),
     modelName: replaceLongDashes(modelName),

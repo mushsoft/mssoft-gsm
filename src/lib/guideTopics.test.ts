@@ -1,5 +1,43 @@
 import { describe, it, expect } from 'vitest';
-import { parseShowCount, parseTopic, searchGuides, topicForBrand } from './guideTopics';
+import {
+  hardwareTopicFor,
+  parseHardwareTopic,
+  parseShowCount,
+  parseTopic,
+  searchGuides,
+  topicForBrand,
+} from './guideTopics';
+
+describe('hardwareTopicFor', () => {
+  it('groups hardware tips by the part in the title', () => {
+    expect(hardwareTopicFor('Lines on the Screen After a Drop')).toBe('Screens');
+    expect(hardwareTopicFor('Signs of a Swollen Battery')).toBe('Batteries');
+    expect(hardwareTopicFor('Clean a Charging Port Safely')).toBe('Charging');
+    expect(hardwareTopicFor('Phone Fell in Water: First 10 Minutes')).toBe('Water Damage');
+    expect(hardwareTopicFor('Fix a Muffled Earpiece Speaker')).toBe('Parts');
+    expect(hardwareTopicFor('Find a Short Circuit with a Multimeter')).toBe('Board Repair');
+    expect(hardwareTopicFor('Choosing a Good Soldering Iron')).toBe('Board Repair');
+    expect(hardwareTopicFor('Set Up a Microscope for Phone Work')).toBe('Tools');
+  });
+
+  it('checks topics in order, so the most specific problem wins', () => {
+    expect(hardwareTopicFor('Charging Port Corrosion After Rain')).toBe('Water Damage');
+    expect(hardwareTopicFor('Battery Not Charging Past 80%')).toBe('Batteries');
+    expect(hardwareTopicFor('Stuck Power Button: Flex Cable Fixes')).toBe('Parts');
+  });
+
+  it('matches whole words only', () => {
+    // "microscope" is not "mic", "simple" is not "sim", "portable" is not "port".
+    expect(hardwareTopicFor('Simple Microscope Habits')).toBe('Tools');
+    expect(hardwareTopicFor('Portable Kit Ideas')).toBe('General');
+  });
+
+  it('parses hardware topic chips from the URL', () => {
+    expect(parseHardwareTopic('water damage')).toBe('Water Damage');
+    expect(parseHardwareTopic('Screens')).toBe('Screens');
+    expect(parseHardwareTopic('iPhone')).toBeNull();
+  });
+});
 
 const guide = (title: string, brand = '', content = '', toolsUsed: string[] = [], modelName = '') => ({
   title,

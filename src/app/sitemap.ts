@@ -12,6 +12,7 @@ const routes = [
   'shipping-returns',
   'learn-to-repair',
   'learn-to-repair/software-tips',
+  'learn-to-repair/hardware-tips',
   'wholesale',
   'new-arrivals',
   'deals',

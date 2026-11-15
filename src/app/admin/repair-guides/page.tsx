@@ -30,7 +30,14 @@ export default async function AdminRepairGuidesPage() {
 
       <AdminNav />
 
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
+        <Link
+          href="/admin/repair-guides/new?type=hardware"
+          className="flex items-center gap-1.5 rounded-lg border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-600 transition-colors hover:bg-emerald-600 hover:text-white dark:text-emerald-400"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          New Hardware Tip
+        </Link>
         <Link
           href="/admin/repair-guides/new?type=software"
           className="flex items-center gap-1.5 rounded-lg border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-600 transition-colors hover:bg-emerald-600 hover:text-white dark:text-emerald-400"
@@ -76,6 +83,11 @@ export default async function AdminRepairGuidesPage() {
                         {guide.category === 'SOFTWARE' && (
                           <span className="ml-1.5 rounded bg-sky-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-500">
                             Software tip
+                          </span>
+                        )}
+                        {guide.category === 'HARDWARE' && (
+                          <span className="ml-1.5 rounded bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-600">
+                            Hardware tip
                           </span>
                         )}
                       </div>

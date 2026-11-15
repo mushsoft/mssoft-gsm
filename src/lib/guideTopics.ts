@@ -44,9 +44,49 @@ export function topicForBrand(brand: string): SoftwareTopic {
 // Matches the chip value from the URL case-insensitively; anything else
 // (missing, "All", junk) means no topic filter.
 export function parseTopic(value: string | undefined): SoftwareTopic | null {
+  return matchTopic(SOFTWARE_TOPICS, value);
+}
+
+// Hardware tips are grouped by the part they're about, worked out from the
+// title, so a tip added in the admin lands under the right chip with no extra
+// field to fill in. Rules run in order: "Charging port after water damage"
+// is a water damage tip, "Battery not charging" a battery tip.
+export const HARDWARE_TOPICS = [
+  'Screens',
+  'Batteries',
+  'Charging',
+  'Water Damage',
+  'Parts',
+  'Board Repair',
+  'Tools',
+  'General',
+] as const;
+export type HardwareTopic = (typeof HARDWARE_TOPICS)[number];
+
+const HARDWARE_RULES: [HardwareTopic, RegExp][] = [
+  ['Water Damage', /\b(water|liquid|wet|rain|moisture|corrosion|corroded|rust)\b/],
+  ['Batteries', /\b(battery|batteries|swollen|power banks?|18650)\b/],
+  // No bare "cable": a screen or button flex cable isn't a charging topic.
+  ['Charging', /\b(charg\w*|usb|ports?|adapters?|plugs?|wireless)\b/],
+  ['Screens', /\b(screens?|displays?|lcd|oled|touch|digitizer|screen protectors?)\b/],
+  ['Parts', /\b(speakers?|earpiece|mic|microphones?|cameras?|lens|buttons?|vibrat\w*|sim|fingerprint|face id|back glass|back covers?|housing|flex|antennas?|signal|jack|headphones?|sensors?)\b/],
+  ['Board Repair', /\b(boards?|motherboards?|solder\w*|short(ed)?|short circuit|ics?|chips?|reball\w*|jumpers?|bga|emmc|ufs|cpu|no power|dead|boot ?loop|capacitors?|resistors?|traces?)\b/],
+  ['Tools', /\b(tools?|screws?|screwdrivers?|multimeter|heat gun|hot air|flux|tweezers?|workbench|workshop|esd|static|power supply|microscope|glue|separator|uv|alcohol|magnif\w*|clean\w*)\b/],
+];
+
+export function hardwareTopicFor(title: string): HardwareTopic {
+  const text = title.toLowerCase();
+  return HARDWARE_RULES.find(([, rule]) => rule.test(text))?.[0] ?? 'General';
+}
+
+export function parseHardwareTopic(value: string | undefined): HardwareTopic | null {
+  return matchTopic(HARDWARE_TOPICS, value);
+}
+
+function matchTopic<T extends string>(topics: readonly T[], value: string | undefined): T | null {
   if (!value) return null;
   const wanted = value.trim().toLowerCase();
-  return SOFTWARE_TOPICS.find((t) => t.toLowerCase() === wanted) ?? null;
+  return topics.find((t) => t.toLowerCase() === wanted) ?? null;
 }
 
 // Cards per "page" on the listing, and the ?show= value for "Show more".

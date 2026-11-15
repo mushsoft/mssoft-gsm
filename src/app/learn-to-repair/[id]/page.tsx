@@ -13,6 +13,25 @@ interface GuidePageProps {
   params: Promise<{ id: string }>;
 }
 
+// How each kind of entry is labelled, and where its "Back" link goes.
+const KINDS = {
+  REPAIR: { label: 'Repair guide', word: 'guide', back: '/learn-to-repair', backLabel: 'Back to Guides', badge: null },
+  SOFTWARE: {
+    label: 'Software tip',
+    word: 'tip',
+    back: '/learn-to-repair/software-tips',
+    backLabel: 'Back to Software Tips',
+    badge: 'border-sky-500/30 bg-sky-500/10 text-sky-400',
+  },
+  HARDWARE: {
+    label: 'Hardware tip',
+    word: 'tip',
+    back: '/learn-to-repair/hardware-tips',
+    backLabel: 'Back to Hardware Tips',
+    badge: 'border-amber-500/30 bg-amber-500/10 text-amber-500',
+  },
+} as const;
+
 // Shared with generateMetadata so the DB is only hit once per request.
 const getGuide = cache((id: string) => prisma.repairGuide.findUnique({ where: { id } }).catch(() => null));
 
@@ -23,8 +42,7 @@ export async function generateMetadata({ params }: GuidePageProps): Promise<Meta
   const guide = await getGuide(id);
   if (!guide) return {};
 
-  const isSoftware = guide.category === 'SOFTWARE';
-  const kind = isSoftware ? 'Software tip' : 'Repair guide';
+  const kind = KINDS[guide.category].label;
   return shareMetadata({
     title: guide.title,
     description: shareDescription(guide.content),
@@ -46,27 +64,25 @@ export default async function RepairGuideDetailPage({ params }: GuidePageProps) 
     notFound();
   }
 
-  const isSoftware = guide.category === 'SOFTWARE';
-  const waMessage = `Hello MS Soft GSM! I followed your "${guide.title}" ${isSoftware ? 'tip' : 'guide'} but would like professional help.`;
+  const kind = KINDS[guide.category];
+  const waMessage = `Hello MS Soft GSM! I followed your "${guide.title}" ${kind.word} but would like professional help.`;
   const whatsappUrl = `https://wa.me/256773944288?text=${encodeURIComponent(waMessage)}`;
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <div>
         <Link
-          href={isSoftware ? '/learn-to-repair/software-tips' : '/learn-to-repair'}
+          href={kind.back}
           className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 transition-colors hover:text-emerald-400"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>{isSoftware ? 'Back to Software Tips' : 'Back to Guides'}</span>
+          <span>{kind.backLabel}</span>
         </Link>
       </div>
 
       <Reveal>
         <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-          {isSoftware && (
-            <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 text-sky-400">Software tip</span>
-          )}
+          {kind.badge && <span className={`rounded-full border px-2.5 py-1 ${kind.badge}`}>{kind.label}</span>}
           {guide.brand && (
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1">{guide.brand}</span>
           )}

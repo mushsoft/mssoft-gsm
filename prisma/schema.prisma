@@ -102,6 +102,7 @@ model SoftwareTool {
 enum GuideCategory {
   REPAIR // hardware repair guide, listed on /learn-to-repair
   SOFTWARE // software tip (flashing, FRP, unlocking…), listed on /learn-to-repair/software-tips
+  HARDWARE // hardware tip (screens, batteries, charging, boards...), listed on /learn-to-repair/hardware-tips
 }
 
 model RepairGuide {

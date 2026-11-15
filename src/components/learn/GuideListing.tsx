@@ -1,15 +1,25 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Code2, GraduationCap, PlayCircle, Sparkles, Wrench } from 'lucide-react';
+import { ArrowLeft, Code2, Cpu, GraduationCap, PlayCircle, Sparkles, Wrench } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import type { GuideCategory } from '@/lib/validateRepairGuide';
-import { PAGE_SIZE, SOFTWARE_TOPICS, parseShowCount, parseTopic, searchGuides, topicForBrand } from '@/lib/guideTopics';
+import {
+  HARDWARE_TOPICS,
+  PAGE_SIZE,
+  SOFTWARE_TOPICS,
+  hardwareTopicFor,
+  parseHardwareTopic,
+  parseShowCount,
+  parseTopic,
+  searchGuides,
+  topicForBrand,
+} from '@/lib/guideTopics';
 import LiveSearchBox from '@/components/LiveSearchBox';
 import Reveal from '@/components/motion/Reveal';
 
-// Shared by /learn-to-repair (hardware repair guides) and
-// /learn-to-repair/software-tips (software tips) — same guides table,
-// filtered by category, with tabs to switch between the two.
+// Shared by /learn-to-repair (repair guides), /learn-to-repair/software-tips
+// and /learn-to-repair/hardware-tips: same guides table, filtered by
+// category, with tabs to switch between them.
 
 const COPY: Record<
   GuideCategory,
@@ -33,11 +43,45 @@ const COPY: Record<
     emptyTitle: 'No software tips published yet',
     emptyHint: 'We publish new software tips regularly. Check back soon.',
   },
+  HARDWARE: {
+    eyebrow: 'Free Technician Tips',
+    title: 'Hardware Tips',
+    intro:
+      'Practical tips on screens, batteries, charging, water damage, board repair and tools, for technicians and phone owners. Free to follow, or bring it to us and we fix it.',
+    search: 'Search tips, for example "swollen battery" or "charging port"',
+    emptyTitle: 'No hardware tips published yet',
+    emptyHint: 'We publish new hardware tips regularly. Check back soon.',
+  },
 };
+
+// What each listing calls one entry, and what the "help" link asks for.
+const KIND: Record<GuideCategory, { one: string; many: string; help: string; helpLink: string }> = {
+  REPAIR: {
+    one: 'guide',
+    many: 'guides',
+    help: 'Hello MS Soft GSM, I need a technician for a repair.',
+    helpLink: 'Book a professional repair via WhatsApp →',
+  },
+  SOFTWARE: {
+    one: 'tip',
+    many: 'tips',
+    help: 'Hello MS Soft GSM, I need help with a software job (flashing / FRP / unlocking).',
+    helpLink: 'Ask us to do it for you on WhatsApp →',
+  },
+  HARDWARE: {
+    one: 'tip',
+    many: 'tips',
+    help: 'Hello MS Soft GSM, I need a technician for a hardware repair.',
+    helpLink: 'Book a professional repair via WhatsApp →',
+  },
+};
+
+const ICON: Record<GuideCategory, typeof Wrench> = { REPAIR: Wrench, SOFTWARE: Code2, HARDWARE: Cpu };
 
 const TABS: { category: GuideCategory; label: string; href: string; icon: typeof Wrench }[] = [
   { category: 'REPAIR', label: 'Repair Guides', href: '/learn-to-repair', icon: Wrench },
   { category: 'SOFTWARE', label: 'Software Tips', href: '/learn-to-repair/software-tips', icon: Code2 },
+  { category: 'HARDWARE', label: 'Hardware Tips', href: '/learn-to-repair/hardware-tips', icon: Cpu },
 ];
 
 export default async function GuideListing({
@@ -62,18 +106,30 @@ export default async function GuideListing({
   const query = q?.trim() ?? '';
   const searched = searchGuides(guides, query);
 
-  // Chips: software tips filter by topic (iPhone, Android, ...), repair
-  // guides by brand. Each chip shows how many of the search results it holds.
-  // Software tips can be general (no brand), so blanks aren't brand chips.
-  const isSoftware = category === 'SOFTWARE';
-  const selectedTopic = isSoftware ? parseTopic(topic) : null;
-  const selectedBrand = !isSoftware && brand && brand !== 'All' ? brand : null;
-  const chipParam = isSoftware ? 'topic' : 'brand';
-  const chipValues: string[] = isSoftware
-    ? [...SOFTWARE_TOPICS]
-    : Array.from(new Set(guides.map((g) => g.brand).filter(Boolean))).sort();
-  const chipOf = (g: (typeof guides)[number]) => (isSoftware ? topicForBrand(g.brand) : g.brand);
-  const selectedChip = isSoftware ? selectedTopic : selectedBrand;
+  // Chips: software tips filter by topic (iPhone, Android, ...), hardware
+  // tips by part (Screens, Batteries, ...), repair guides by brand. Each chip
+  // shows how many of the search results it holds. Tips can be general (no
+  // brand), so blanks aren't brand chips.
+  const kind = KIND[category];
+  const Icon = ICON[category];
+  const isTopical = category !== 'REPAIR';
+  const selectedChip: string | null =
+    category === 'SOFTWARE'
+      ? parseTopic(topic)
+      : category === 'HARDWARE'
+        ? parseHardwareTopic(topic)
+        : brand && brand !== 'All'
+          ? brand
+          : null;
+  const chipParam = isTopical ? 'topic' : 'brand';
+  const chipValues: string[] =
+    category === 'SOFTWARE'
+      ? [...SOFTWARE_TOPICS]
+      : category === 'HARDWARE'
+        ? [...HARDWARE_TOPICS]
+        : Array.from(new Set(guides.map((g) => g.brand).filter(Boolean))).sort();
+  const chipOf = (g: (typeof guides)[number]) =>
+    category === 'SOFTWARE' ? topicForBrand(g.brand) : category === 'HARDWARE' ? hardwareTopicFor(g.title) : g.brand;
 
   const filtered = selectedChip ? searched.filter((g) => chipOf(g) === selectedChip) : searched;
   const chips = [
@@ -117,10 +173,10 @@ export default async function GuideListing({
         />
         <div className="relative flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/10 shadow-lg shadow-emerald-500/10">
-            {category === 'SOFTWARE' ? (
-              <Code2 className="h-7 w-7 text-emerald-400" />
-            ) : (
+            {category === 'REPAIR' ? (
               <GraduationCap className="h-7 w-7 text-emerald-400" />
+            ) : (
+              <Icon className="h-7 w-7 text-emerald-400" />
             )}
           </div>
           <div>
@@ -134,10 +190,10 @@ export default async function GuideListing({
         </div>
       </div>
 
-      <nav className="flex gap-2">
+      <nav className="flex flex-wrap gap-2">
         {TABS.map((tab) => {
           const active = tab.category === category;
-          const Icon = tab.icon;
+          const TabIcon = tab.icon;
           return (
             <Link
               key={tab.category}
@@ -149,7 +205,7 @@ export default async function GuideListing({
                   : 'border border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <TabIcon className="h-3.5 w-3.5" />
               {tab.label}
             </Link>
           );
@@ -165,7 +221,7 @@ export default async function GuideListing({
             initialQuery={query}
             keep={{ [chipParam]: selectedChip }}
             placeholder={copy.search}
-            ariaLabel={isSoftware ? 'Search software tips' : 'Search repair guides'}
+            ariaLabel={`Search ${copy.title.toLowerCase()}`}
           />
 
           {chipValues.length > 0 && (
@@ -196,7 +252,7 @@ export default async function GuideListing({
 
           {(query || selectedChip) && (
             <p className="text-xs text-neutral-500">
-              {filtered.length} {filtered.length === 1 ? (isSoftware ? 'tip' : 'guide') : isSoftware ? 'tips' : 'guides'}
+              {filtered.length} {filtered.length === 1 ? kind.one : kind.many}
               {query && <> for &ldquo;{query}&rdquo;</>}
               {selectedChip && <> in {selectedChip}</>}
               {' · '}
@@ -211,7 +267,7 @@ export default async function GuideListing({
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-12 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-            {category === 'SOFTWARE' ? <Code2 className="h-7 w-7" /> : <Wrench className="h-7 w-7" />}
+            <Icon className="h-7 w-7" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
@@ -220,7 +276,7 @@ export default async function GuideListing({
             <p className="mx-auto mt-1 max-w-sm text-xs text-neutral-500">
               {guides.length === 0
                 ? copy.emptyHint
-                : `Try different words, or another ${isSoftware ? 'topic' : 'brand'}.`}
+                : `Try different words, or another ${isTopical ? 'topic' : 'brand'}.`}
             </p>
           </div>
         </div>
@@ -248,11 +304,7 @@ export default async function GuideListing({
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
-                      {category === 'SOFTWARE' ? (
-                        <Code2 className="h-10 w-10 text-neutral-700" />
-                      ) : (
-                        <Wrench className="h-10 w-10 text-neutral-700" />
-                      )}
+                      <Icon className="h-10 w-10 text-neutral-700" />
                     </div>
                   )}
                   {guide.videoUrl && (
@@ -315,16 +367,12 @@ export default async function GuideListing({
         <p className="text-xs text-neutral-500">
           Not confident doing it yourself?{' '}
           <a
-            href={`https://wa.me/256773944288?text=${encodeURIComponent(
-              category === 'SOFTWARE'
-                ? 'Hello MS Soft GSM, I need help with a software job (flashing / FRP / unlocking).'
-                : 'Hello MS Soft GSM, I need a technician for a repair.'
-            )}`}
+            href={`https://wa.me/256773944288?text=${encodeURIComponent(kind.help)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="font-bold text-emerald-400 hover:underline"
           >
-            {category === 'SOFTWARE' ? 'Ask us to do it for you on WhatsApp →' : 'Book a professional repair via WhatsApp →'}
+            {kind.helpLink}
           </a>
         </p>
       </Reveal>

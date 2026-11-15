@@ -99,11 +99,12 @@ export default function RepairGuideForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className={labelClass}>Type</label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {(
             [
               { value: 'REPAIR', label: 'Repair guide', hint: 'Listed under Learn to Repair' },
               { value: 'SOFTWARE', label: 'Software tip', hint: 'Listed under Software Tips' },
+              { value: 'HARDWARE', label: 'Hardware tip', hint: 'Listed under Hardware Tips' },
             ] as const
           ).map((option) => (
             <button
@@ -138,7 +139,7 @@ export default function RepairGuideForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className={labelClass}>Brand{values.category === 'SOFTWARE' && ' (optional)'}</label>
+          <label className={labelClass}>Brand{values.category !== 'REPAIR' && ' (optional)'}</label>
           <input
             required={values.category === 'REPAIR'}
             value={values.brand}
@@ -149,7 +150,7 @@ export default function RepairGuideForm({
           />
         </div>
         <div>
-          <label className={labelClass}>Model Name{values.category === 'SOFTWARE' && ' (optional)'}</label>
+          <label className={labelClass}>Model Name{values.category !== 'REPAIR' && ' (optional)'}</label>
           <input
             required={values.category === 'REPAIR'}
             value={values.modelName}
