@@ -217,7 +217,7 @@ export default async function AdminProductsPage({
                   {product.subcategory ? ` · ${product.subcategory}` : ''}
                 </td>
                 <td className="px-4 py-3 align-middle text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                  UGX {product.price.toLocaleString()}
+                  UGX {product.price.toLocaleString('en-US')}
                 </td>
                 <td className="px-4 py-3 align-middle text-xs">
                   <span

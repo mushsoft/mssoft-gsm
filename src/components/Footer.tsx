@@ -22,7 +22,7 @@ export default function Footer() {
 
         {/* 1. TRUST BADGES */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pb-12 border-b border-neutral-200 dark:border-neutral-800">
-          <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
             <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
               <ShieldCheck className="w-6 h-6" />
             </div>
@@ -32,7 +32,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
             <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
               <Truck className="w-6 h-6" />
             </div>
@@ -42,7 +42,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
             <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
               <Wrench className="w-6 h-6" />
             </div>
@@ -52,7 +52,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4 bg-neutral-50 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80">
             <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
               <Headphones className="w-6 h-6" />
             </div>

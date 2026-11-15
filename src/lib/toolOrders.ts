@@ -66,7 +66,7 @@ export function validateToolOrderInput(
 }
 
 export function describeToolOrder(order: Pick<ToolOrder, 'toolTitle' | 'perCredit' | 'quantity'>): string {
-  return order.perCredit ? `${order.toolTitle} × ${order.quantity.toLocaleString()} credits` : order.toolTitle;
+  return order.perCredit ? `${order.toolTitle} × ${order.quantity.toLocaleString('en-US')} credits` : order.toolTitle;
 }
 
 export async function purchaseTool(

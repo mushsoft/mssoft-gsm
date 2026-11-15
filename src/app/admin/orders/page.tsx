@@ -123,7 +123,7 @@ export default async function AdminOrdersPage({
                   {order.items.length} item{order.items.length === 1 ? '' : 's'}
                 </td>
                 <td className="px-4 py-3 align-middle text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                  UGX {order.totalAmount.toLocaleString()}
+                  UGX {order.totalAmount.toLocaleString('en-US')}
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <PaymentStatusBadge status={order.paymentStatus} />

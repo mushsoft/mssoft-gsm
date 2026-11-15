@@ -80,11 +80,11 @@ export default function OrderToolModal({
 
     const priceLines = tool.perCredit
       ? [
-          `Quantity: ${Number(quantity).toLocaleString()} credits`,
-          `Price per credit: ${formatUsd(tool.priceUsd)} (≈ UGX ${tool.priceUgx.toLocaleString()})`,
-          `Total: ${formatUsd(totalUsd!)} (≈ UGX ${totalUgx!.toLocaleString()})`,
+          `Quantity: ${Number(quantity).toLocaleString('en-US')} credits`,
+          `Price per credit: ${formatUsd(tool.priceUsd)} (≈ UGX ${tool.priceUgx.toLocaleString('en-US')})`,
+          `Total: ${formatUsd(totalUsd!)} (≈ UGX ${totalUgx!.toLocaleString('en-US')})`,
         ]
-      : [`Price: ${formatUsd(tool.priceUsd)} (≈ UGX ${tool.priceUgx.toLocaleString()})`];
+      : [`Price: ${formatUsd(tool.priceUsd)} (≈ UGX ${tool.priceUgx.toLocaleString('en-US')})`];
     const lines = [
       'Hello MS Soft GSM! I would like to order:',
       '',
@@ -152,7 +152,7 @@ export default function OrderToolModal({
               {formatUsd(tool.priceUsd)}
               {tool.perCredit && <span className="text-xs font-semibold text-neutral-500"> per credit</span>}
             </div>
-            <div className="text-[11px] text-neutral-500">≈ UGX {tool.priceUgx.toLocaleString()}</div>
+            <div className="text-[11px] text-neutral-500">≈ UGX {tool.priceUgx.toLocaleString('en-US')}</div>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
             <X className="h-5 w-5" />
@@ -203,7 +203,7 @@ export default function OrderToolModal({
                     {totalUgx !== null && totalUsd !== null ? (
                       <>
                         Total: <span className="font-bold text-neutral-900 dark:text-white">{formatUsd(totalUsd)}</span>{' '}
-                        (≈ UGX {totalUgx.toLocaleString()})
+                        (≈ UGX {totalUgx.toLocaleString('en-US')})
                       </>
                     ) : (
                       'Your total shows here.'

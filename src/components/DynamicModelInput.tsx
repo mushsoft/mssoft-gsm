@@ -1,5 +1,4 @@
 // components/DynamicModelInput.tsx
-import React from 'react'
 import { StringInputProps, useFormValue } from 'sanity'
 import { BRAND_MODELS_MAP } from '../schemaTypes/brandData'
 

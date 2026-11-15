@@ -214,7 +214,7 @@ function AirtelMoneyInstructions({
   return (
     <div className="space-y-2.5 rounded-lg border border-red-500/20 bg-red-500/5 p-3">
       <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
-        Pay UGX {amount.toLocaleString()} via Airtel Money:
+        Pay UGX {amount.toLocaleString('en-US')} via Airtel Money:
       </p>
       <ol className="list-inside list-decimal space-y-1 text-xs text-neutral-600 dark:text-neutral-300">
         <li>

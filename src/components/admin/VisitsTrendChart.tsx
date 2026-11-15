@@ -16,7 +16,7 @@ export default function VisitsTrendChart({ data }: { data: { date: string; count
         return (
           <div key={d.date} className="relative h-full min-w-0 flex-1">
             <div
-              title={`${label}: ${d.count.toLocaleString()} visits`}
+              title={`${label}: ${d.count.toLocaleString('en-US')} visits`}
               className="absolute bottom-0 mx-auto w-full max-w-[24px] rounded-t bg-emerald-500 transition-colors hover:bg-emerald-400"
               style={{ height: `${heightPct}%`, left: '50%', transform: 'translateX(-50%)' }}
             />

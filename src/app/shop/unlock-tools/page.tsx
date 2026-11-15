@@ -109,7 +109,7 @@ export default async function UnlockToolsPage({
               <div className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Tools Listed</div>
             </div>
             <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-950/60 px-4 py-2 text-center">
-              <div className="text-lg font-black text-amber-400">UGX {Math.round(usdRate.rate).toLocaleString()}</div>
+              <div className="text-lg font-black text-amber-400">UGX {Math.round(usdRate.rate).toLocaleString('en-US')}</div>
               <div className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Our rate per $1</div>
             </div>
           </div>

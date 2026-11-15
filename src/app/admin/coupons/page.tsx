@@ -63,7 +63,7 @@ export default async function AdminCouponsPage() {
                     {coupon.code}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs text-neutral-600 dark:text-neutral-300">
-                    {coupon.discountType === 'PERCENT' ? `${coupon.value}%` : `UGX ${coupon.value.toLocaleString()}`}
+                    {coupon.discountType === 'PERCENT' ? `${coupon.value}%` : `UGX ${coupon.value.toLocaleString('en-US')}`}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs text-neutral-600 dark:text-neutral-300">
                     {coupon.usedCount}

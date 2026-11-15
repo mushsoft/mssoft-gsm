@@ -75,7 +75,7 @@ export default async function AdminReceiptsListPage() {
                     {receipt.customerName || <span className="text-neutral-400">No name</span>}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs text-neutral-600 dark:text-neutral-300">
-                    UGX {total.toLocaleString()}
+                    UGX {total.toLocaleString('en-US')}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs text-neutral-600 dark:text-neutral-300">
                     {formatDate(receipt.documentDate)}

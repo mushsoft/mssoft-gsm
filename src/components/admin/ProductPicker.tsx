@@ -81,7 +81,7 @@ export default function ProductPicker({ onSelect }: { onSelect: (product: Produc
                 {product.title} <span className="text-neutral-400">({product.brand})</span>
               </span>
               <span className="shrink-0 font-bold text-neutral-600 dark:text-neutral-400">
-                UGX {product.price.toLocaleString()}
+                UGX {product.price.toLocaleString('en-US')}
               </span>
             </button>
           ))}

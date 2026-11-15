@@ -76,7 +76,7 @@ export default async function AdminWalletPage() {
               <li key={t.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="text-xs">
                   <div className="font-bold text-neutral-900 dark:text-white">
-                    {formatUsdCents(t.amountCents)} · pay UGX {t.amountUgx?.toLocaleString()}
+                    {formatUsdCents(t.amountCents)} · pay UGX {t.amountUgx?.toLocaleString('en-US')}
                   </div>
                   <div className="text-neutral-500">
                     {t.customer.name ?? t.customer.email} · {t.customer.phone ?? t.customer.email}
@@ -132,7 +132,7 @@ export default async function AdminWalletPage() {
                   <td className="px-2 py-2.5 text-right font-bold text-neutral-900 dark:text-white whitespace-nowrap">
                     {formatUsdCents(t.amountCents)}
                     {t.amountUgx !== null && (
-                      <span className="block text-[10px] font-normal text-neutral-500">UGX {t.amountUgx.toLocaleString()}</span>
+                      <span className="block text-[10px] font-normal text-neutral-500">UGX {t.amountUgx.toLocaleString('en-US')}</span>
                     )}
                   </td>
                   <td className="px-5 py-2.5 text-right">

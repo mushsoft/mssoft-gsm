@@ -9,8 +9,10 @@ const LOGO_RATIO = 639 / 357;
 // The source mark has fine gradient linework that turns to mush much below
 // ~40px (it was cropped from a flattened business-card photo, not a vector).
 const SIZES = {
-  sm: { height: 44, word: 'text-xl', tagline: 'text-[9px]' },
-  lg: { height: 60, word: 'text-2xl', tagline: 'text-[10px]' },
+  // The header row has to fit logo + theme, cart and menu buttons on a
+  // 360px phone, so the wordmark steps down on narrow screens.
+  sm: { height: 44, word: 'text-base tracking-wide min-[400px]:text-lg sm:text-xl sm:tracking-wider', tagline: 'text-[9px]' },
+  lg: { height: 60, word: 'text-2xl tracking-wider', tagline: 'text-[10px]' },
 } as const;
 
 /** Logo mark (public/logo-mark.png, cropped from the official business card) + "MS Soft GSM" wordmark — used in Header.tsx and Footer.tsx. */
@@ -20,7 +22,7 @@ export default function SiteLogo({ size = 'sm' }: { size?: keyof typeof SIZES })
   const imgWidth = Math.round(imgHeight * LOGO_RATIO);
 
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex items-center gap-2 sm:gap-2.5">
       <div
         // Always a light backdrop (not dark-mode-swapped) — the mark's navy
         // tones need a light surface to read, regardless of site theme.
@@ -30,7 +32,7 @@ export default function SiteLogo({ size = 'sm' }: { size?: keyof typeof SIZES })
         <Image src="/logo-mark.png" alt="MS Soft GSM" width={imgWidth} height={imgHeight} className="object-contain" priority />
       </div>
       <div className="flex flex-col">
-        <span className={`${s.word} font-black tracking-wider leading-none text-neutral-900 dark:text-white`}>
+        <span className={`${s.word} whitespace-nowrap font-black leading-none text-neutral-900 dark:text-white`}>
           MS Soft <span className="text-amber-500">GSM</span>
         </span>
         {/* The tracked-out tagline is what was pushing the header's mobile

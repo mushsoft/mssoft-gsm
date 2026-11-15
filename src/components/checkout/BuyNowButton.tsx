@@ -1,3 +1,5 @@
+import { MessageCircle } from 'lucide-react';
+
 const WHATSAPP_PHONE = '256773944288';
 
 type BuyNowButtonProps = {
@@ -23,7 +25,7 @@ export default function BuyNowButton({ productTitle, price, inStock }: BuyNowBut
     );
   }
 
-  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${productTitle}*\n💰 Price: UGX ${price.toLocaleString()}`;
+  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${productTitle}*\n💰 Price: UGX ${price.toLocaleString('en-US')}`;
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
   return (
@@ -31,8 +33,11 @@ export default function BuyNowButton({ productTitle, price, inStock }: BuyNowBut
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex w-full items-center justify-center rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-black transition-all hover:scale-[1.02] hover:bg-amber-400 active:scale-95"
+      aria-label={`Get ${productTitle} on WhatsApp`}
+      className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-black transition-all hover:scale-[1.02] hover:bg-amber-400 active:scale-95"
     >
+      {/* The WhatsApp-style icon shows it opens a chat, not a checkout. */}
+      <MessageCircle className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
       Get
     </a>
   );

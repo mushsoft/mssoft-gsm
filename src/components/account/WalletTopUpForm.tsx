@@ -118,8 +118,8 @@ export default function WalletTopUpForm({
         <p className="mt-1 text-[11px] text-neutral-500">
           {ugx !== null ? (
             <>
-              You pay <span className="font-bold text-neutral-900 dark:text-white">UGX {ugx.toLocaleString()}</span> at
-              UGX {Math.round(usdRate).toLocaleString()} per $1
+              You pay <span className="font-bold text-neutral-900 dark:text-white">UGX {ugx.toLocaleString('en-US')}</span> at
+              UGX {Math.round(usdRate).toLocaleString('en-US')} per $1
             </>
           ) : (
             parsed.error
@@ -169,7 +169,7 @@ export default function WalletTopUpForm({
       {method === 'AIRTEL_MONEY' && (
         <div className="space-y-2.5 rounded-lg border border-red-500/20 bg-red-500/5 p-3">
           <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
-            Pay {ugx !== null ? `UGX ${ugx.toLocaleString()}` : 'the amount above'} via Airtel Money:
+            Pay {ugx !== null ? `UGX ${ugx.toLocaleString('en-US')}` : 'the amount above'} via Airtel Money:
           </p>
           <ol className="list-inside list-decimal space-y-1 text-xs text-neutral-600 dark:text-neutral-300">
             <li>

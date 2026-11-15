@@ -598,7 +598,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
                         className="receipt-field w-24 rounded border border-neutral-300 px-1.5 py-1 text-right"
                       />
                     </td>
-                    <td className="py-1.5 text-right">UGX {(item.price * item.quantity).toLocaleString()}</td>
+                    <td className="py-1.5 text-right">UGX {(item.price * item.quantity).toLocaleString('en-US')}</td>
                   </>
                 )}
                 <td className="no-print py-1.5 pl-1">
@@ -630,7 +630,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
             <div className="w-full max-w-60 space-y-1 text-xs">
               <div className="flex items-center justify-between">
                 <span className="text-neutral-600">Subtotal</span>
-                <span>UGX {subtotal.toLocaleString()}</span>
+                <span>UGX {subtotal.toLocaleString('en-US')}</span>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <span className="text-neutral-600">Discount</span>
@@ -648,7 +648,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
               </div>
               <div className="flex justify-between border-t-2 border-black pt-1 text-sm font-black">
                 <span>Total</span>
-                <span>UGX {grandTotal.toLocaleString()}</span>
+                <span>UGX {grandTotal.toLocaleString('en-US')}</span>
               </div>
             </div>
           </div>

@@ -1,7 +1,11 @@
 'use client';
 
 import { motion, type Variants } from 'framer-motion';
-import { Search, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import SearchBar from '@/components/SearchBar';
+import { getSearchScope } from '@/lib/searchScope';
+
+const GLOBAL_SCOPE = getSearchScope('/');
 
 const container: Variants = {
   hidden: {},
@@ -73,30 +77,11 @@ export default function HeroContent() {
         stock, fast delivery, real WhatsApp support.
       </motion.p>
 
-      <motion.form
-        variants={item}
-        action="/shop"
-        method="GET"
-        className="mx-auto mt-6 flex max-w-lg items-stretch lg:max-w-xl"
-      >
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 text-neutral-500" />
-          <input
-            type="text"
-            name="search"
-            placeholder="Search model, brand, or part..."
-            className="w-full rounded-l-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 py-3 pl-10 pr-3 text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500 outline-none transition-shadow focus:border-amber-500/50 focus:shadow-[0_0_0_4px_rgba(245,158,11,0.15)]"
-          />
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          type="submit"
-          className="rounded-r-xl bg-amber-500 px-5 text-sm font-bold text-black transition-colors hover:bg-amber-400"
-        >
-          Search
-        </motion.button>
-      </motion.form>
+      {/* Same live search as the header (suggestions as you type), in the
+          big hero style. The header's own search is hidden on this page. */}
+      <motion.div variants={item} className="relative z-20 mx-auto mt-6 max-w-lg text-left lg:max-w-xl">
+        <SearchBar scope={GLOBAL_SCOPE} variant="hero" />
+      </motion.div>
     </motion.div>
   );
 }

@@ -32,7 +32,7 @@ export default function CatalogProductCard({
   const discountPercent = hasDiscount
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
     : null;
-  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString()}`;
+  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString('en-US')}`;
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
   return (
@@ -77,10 +77,10 @@ export default function CatalogProductCard({
 
         <div>
           <div className="mb-2 flex items-center gap-1.5">
-            <span className="text-xs font-black text-amber-500 dark:text-amber-400">UGX {product.price.toLocaleString()}</span>
+            <span className="text-xs font-black text-amber-500 dark:text-amber-400">UGX {product.price.toLocaleString('en-US')}</span>
             {hasDiscount && (
               <span className="text-[10px] text-neutral-400 line-through dark:text-neutral-600">
-                UGX {product.originalPrice!.toLocaleString()}
+                UGX {product.originalPrice!.toLocaleString('en-US')}
               </span>
             )}
           </div>

@@ -63,7 +63,7 @@ export async function markOrderPaid(orderId: string): Promise<{ transitioned: bo
     { customerId: order.customerId, email: order.customerEmail, name: order.customerName },
     {
       title: 'Payment confirmed',
-      body: `We've received your payment of UGX ${order.totalAmount.toLocaleString()} for order ${orderRef(order.txRef)} and are preparing it.`,
+      body: `We've received your payment of UGX ${order.totalAmount.toLocaleString('en-US')} for order ${orderRef(order.txRef)} and are preparing it.`,
       link: '/account/orders',
     },
     { email: false }
@@ -140,7 +140,7 @@ export async function markOrderRefunded(orderId: string): Promise<{ transitioned
     { customerId: order.customerId, email: order.customerEmail, name: order.customerName },
     {
       title: 'Order refunded',
-      body: `Order ${orderRef(order.txRef)} has been refunded (UGX ${order.totalAmount.toLocaleString()}).`,
+      body: `Order ${orderRef(order.txRef)} has been refunded (UGX ${order.totalAmount.toLocaleString('en-US')}).`,
       link: '/account/orders',
     }
   );

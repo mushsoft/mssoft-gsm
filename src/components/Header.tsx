@@ -168,12 +168,13 @@ const LEARN_LINKS: { title: string; href: string; icon: LucideIcon }[] = [
 ];
 
 export default function Header() {
-  // The home page's own hero already has a prominent search bar directly
-  // below it — showing this one too was two search bars stacked on one
-  // screen. Hide this one there; every other page still needs it since they
-  // have no hero search of their own.
+  // The home page's own hero already has a prominent search bar, so the
+  // header's search is hidden there. That's done in CSS (globals.css:
+  // .site-header-search inside a page with main[data-page="home"]), not by
+  // checking the pathname here: the ISR-regenerated home page rendered with
+  // a non-"/" pathname on the server, so the server and browser disagreed
+  // and React threw a hydration error (#418) on every home page visit.
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
   // Which category (if any) the shopper is currently browsing — the search
   // bar searches within that category as they type instead of always
   // searching the whole catalog. See src/lib/searchScope.ts.
@@ -220,22 +221,20 @@ export default function Header() {
       </div>
 
       {/* 2. MAIN BRANDING & SEARCH BAR */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2 sm:gap-4">
 
         {/* LOGO */}
         <Link href="/" className="group shrink-0">
           <SiteLogo size="sm" />
         </Link>
 
-        {/* SEARCH BAR (Desktop) — the home page's hero has its own, so skip this one there */}
-        {!isHomePage && (
-          <div className="hidden md:flex flex-1 max-w-lg">
-            <SearchBar key={searchScope.key} scope={searchScope} variant="desktop" />
-          </div>
-        )}
+        {/* SEARCH BAR (Desktop) — hidden on the home page by CSS (see above) */}
+        <div className="site-header-search hidden md:flex flex-1 max-w-lg">
+          <SearchBar key={searchScope.key} scope={searchScope} variant="desktop" />
+        </div>
 
         {/* ACTIONS */}
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <ThemeToggle />
 
           {/* Always visible (unlike the Account icon) — the cart is core to
@@ -271,12 +270,10 @@ export default function Header() {
         </div>
       </div>
 
-      {/* MOBILE SEARCH BAR — the home page's hero has its own, so skip this one there */}
-      {!isHomePage && (
-        <div className="md:hidden px-4 pb-3">
-          <SearchBar key={searchScope.key} scope={searchScope} variant="mobile" />
-        </div>
-      )}
+      {/* MOBILE SEARCH BAR — hidden on the home page by CSS (see above) */}
+      <div className="site-header-search md:hidden px-4 pb-3">
+        <SearchBar key={searchScope.key} scope={searchScope} variant="mobile" />
+      </div>
 
       {/* 3. DESKTOP NAVIGATION */}
       <nav className="hidden md:block bg-neutral-50/60 dark:bg-neutral-900/60 border-t border-neutral-200 dark:border-neutral-800">
@@ -285,7 +282,10 @@ export default function Header() {
               "FLASHING & UNLOCKING TOOLS") wraps onto another row instead of
               forcing one unbreakable row that's wider than the page — that
               used to push the whole site into horizontal scroll. */}
-          <ul className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs font-bold tracking-wide text-neutral-600 dark:text-neutral-300">
+          {/* Compact spacing and no category icons keep the whole menu on
+              one row from 1024px laptops up (the row's max width is fixed,
+              so wide screens have no more room than a 1280px laptop). */}
+          <ul className="flex flex-wrap items-center gap-x-3 xl:gap-x-3.5 gap-y-1.5 text-[11px] xl:text-xs font-bold tracking-normal text-neutral-600 dark:text-neutral-300">
             <li className="py-2.5">
               <Link href="/" className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
                 HOME
@@ -293,14 +293,12 @@ export default function Header() {
             </li>
 
             {primaryCategories.map((cat) => {
-              const Icon = cat.icon;
               return (
                 <li key={cat.title} className="relative group py-2.5">
                   <Link
                     href={cat.mainHref}
                     className="flex items-center gap-1.5 hover:text-amber-500 dark:hover:text-amber-400 transition-colors py-1"
                   >
-                    <Icon className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-400 group-hover:text-amber-500 dark:group-hover:text-amber-400" />
                     <span>{cat.title}</span>
                     <ChevronDown className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-transform group-hover:rotate-180" />
                   </Link>

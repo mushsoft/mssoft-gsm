@@ -14,6 +14,7 @@ import AddToCartButton from '@/components/cart/AddToCartButton';
 import { getSpecFields, type ProductCategory } from '@/lib/productSpecFields';
 import { getRelatedProducts } from '@/lib/relatedProducts';
 import { getOrCreateCustomer } from '@/lib/customerAuth';
+import { SITE_NAME, pageTitle, shareCardUrl, shareDescription } from '@/lib/shareMetadata';
 
 const WHATSAPP_PHONE = '256773944288';
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -28,10 +29,6 @@ const CONDITION_SCHEMA_MAP: Record<string, string> = {
   'Open Box': 'https://schema.org/RefurbishedCondition',
 };
 
-function truncate(text: string, max = 160): string {
-  return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProduct(slug);
@@ -41,30 +38,49 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // bare product name with no price reads as an ad with the price cropped
   // off, so lead the preview title with it instead of leaving it to the
   // (often price-less) product description.
-  const priceLabel = `UGX ${product.price.toLocaleString()}`;
+  const priceLabel = `UGX ${product.price.toLocaleString('en-US')}`;
   const shareTitle = `${product.title} | ${priceLabel}`;
-  const description = truncate(product.description);
-  const image = product.images[0];
+  const description = productDescription(product.title, product.description, priceLabel, product.stock > 0);
+  // Products without photos still share a proper image: a branded card with
+  // the name and price.
+  const image =
+    product.images[0] ??
+    shareCardUrl({ title: product.title, subtitle: priceLabel, photo: '/tips/phone-model-specs.jpg' });
   const url = `${baseUrl}/shop/product/${product.slug}`;
 
   return {
-    title: product.title,
+    title: pageTitle(product.title),
     description,
     alternates: { canonical: url },
     openGraph: {
       type: 'website',
+      siteName: SITE_NAME,
+      locale: 'en_UG',
       title: shareTitle,
       description,
       url,
-      images: image ? [{ url: image }] : undefined,
+      images: [{ url: image }],
     },
     twitter: {
-      card: image ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title: shareTitle,
       description,
-      images: image ? [image] : undefined,
+      images: [image],
     },
   };
+}
+
+// Search snippet and share text. Many products have a one-line description
+// ("BRAND NEW", "original display") shared by dozens of items, which reads
+// poorly in Google and duplicates across pages, so the name, price and stock
+// are always included.
+function productDescription(title: string, raw: string, priceLabel: string, inStock: boolean): string {
+  const tidy = raw.replace(/\s+/g, ' ').trim();
+  const shouty = tidy.length > 0 && tidy.length < 60 && (tidy === tidy.toUpperCase() || tidy === tidy.toLowerCase());
+  const detail = shouty ? tidy.charAt(0).toUpperCase() + tidy.slice(1).toLowerCase().replace(/\buk\b/g, 'UK') : tidy;
+  const parts = [`${title}${detail ? `: ${detail.replace(/[.\s]+$/, '')}` : ''}.`, `${priceLabel}${inStock ? ', in stock' : ''}.`];
+  parts.push('Buy from MS Soft GSM in Kampala with fast delivery across Uganda.');
+  return shareDescription(parts.join(' '), 160);
 }
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -81,7 +97,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
     : null;
 
-  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString()}`;
+  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString('en-US')}`;
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
   const specFields = getSpecFields(product.category as ProductCategory, product.subcategory);
@@ -183,10 +199,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
 
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-amber-500 dark:text-amber-400">UGX {product.price.toLocaleString()}</span>
+            <span className="text-2xl font-black text-amber-500 dark:text-amber-400">UGX {product.price.toLocaleString('en-US')}</span>
             {hasDiscount && (
               <span className="text-sm text-neutral-400 line-through dark:text-neutral-600">
-                UGX {product.originalPrice!.toLocaleString()}
+                UGX {product.originalPrice!.toLocaleString('en-US')}
               </span>
             )}
           </div>

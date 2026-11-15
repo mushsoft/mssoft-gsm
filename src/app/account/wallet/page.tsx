@@ -91,7 +91,7 @@ export default async function WalletPage({ searchParams }: { searchParams: Promi
           {formatUsdCents(customer.walletBalanceCents)}
         </div>
         <div className="text-xs text-neutral-500">
-          ≈ UGX {Math.round((customer.walletBalanceCents * usdRate.rate) / 100).toLocaleString()} at today&apos;s rate
+          ≈ UGX {Math.round((customer.walletBalanceCents * usdRate.rate) / 100).toLocaleString('en-US')} at today&apos;s rate
         </div>
       </div>
 
@@ -126,7 +126,7 @@ export default async function WalletPage({ searchParams }: { searchParams: Promi
                   </div>
                   <div className="text-[10px] text-neutral-500">
                     {formatDate(t.createdAt)}
-                    {t.amountUgx !== null && <> · UGX {t.amountUgx.toLocaleString()}</>}
+                    {t.amountUgx !== null && <> · UGX {t.amountUgx.toLocaleString('en-US')}</>}
                     {(t.type === 'PURCHASE' || t.type === 'REFUND') && t.note && <> · {t.note}</>}
                   </div>
                 </div>

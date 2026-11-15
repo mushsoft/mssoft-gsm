@@ -117,7 +117,7 @@ export default function UnlockToolsBrowser({
                         {formatUsd(item.priceUsd)}
                         {item.perCredit && <span className="text-[10px] font-semibold text-neutral-500"> / credit</span>}
                       </span>
-                      <span className="text-[10px] text-neutral-500">≈ UGX {item.priceUgx.toLocaleString()}</span>
+                      <span className="text-[10px] text-neutral-500">≈ UGX {item.priceUgx.toLocaleString('en-US')}</span>
                     </span>
                     <button
                       type="button"

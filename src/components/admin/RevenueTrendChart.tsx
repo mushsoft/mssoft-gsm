@@ -15,7 +15,7 @@ export default function RevenueTrendChart({ data }: { data: { date: string; reve
         return (
           <div key={d.date} className="relative h-full min-w-0 flex-1">
             <div
-              title={`${label}: UGX ${d.revenue.toLocaleString()}`}
+              title={`${label}: UGX ${d.revenue.toLocaleString('en-US')}`}
               className="absolute bottom-0 mx-auto w-full max-w-[24px] rounded-t bg-amber-500 transition-colors hover:bg-amber-400"
               style={{ height: `${heightPct}%`, left: '50%', transform: 'translateX(-50%)' }}
             />

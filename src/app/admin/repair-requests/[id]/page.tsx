@@ -38,7 +38,7 @@ export default async function AdminRepairRequestDetailPage({ params }: { params:
             <h1 className="text-lg font-black text-neutral-900 dark:text-white">{request.customer.name || request.customer.email}</h1>
             <RepairRequestStatusBadge status={request.status} />
           </div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">Asked {request.createdAt.toLocaleString()}</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">Asked {request.createdAt.toLocaleString('en-US')}</p>
         </div>
       </div>
 

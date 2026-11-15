@@ -61,7 +61,7 @@ export default async function AccountOrdersPage() {
               </div>
               <div className="mt-2 flex items-center justify-between border-t border-neutral-200 dark:border-neutral-800 pt-2">
                 <span className="text-[10px] font-bold uppercase tracking-wide text-neutral-500">Total</span>
-                <span className="text-sm font-black text-neutral-900 dark:text-white">UGX {order.totalAmount.toLocaleString()}</span>
+                <span className="text-sm font-black text-neutral-900 dark:text-white">UGX {order.totalAmount.toLocaleString('en-US')}</span>
               </div>
             </div>
           ))}

@@ -62,7 +62,7 @@ export default async function AdminCustomersPage() {
                     {customer.orders.length}
                   </td>
                   <td className="px-4 py-3 align-middle text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                    UGX {totalSpent.toLocaleString()}
+                    UGX {totalSpent.toLocaleString('en-US')}
                   </td>
                   <td className="px-4 py-3 align-middle text-[10px] text-neutral-500">
                     {formatDate(customer.createdAt)}

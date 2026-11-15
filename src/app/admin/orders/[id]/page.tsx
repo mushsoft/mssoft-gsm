@@ -41,7 +41,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               <FulfillmentStatusBadge status={order.fulfillmentStatus} />
             </div>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Ordered {order.createdAt.toLocaleString()}
+              Ordered {order.createdAt.toLocaleString('en-US')}
             </p>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             </div>
             <div className="flex justify-between gap-3">
               <dt className="text-neutral-500">Total</dt>
-              <dd className="font-bold text-neutral-800 dark:text-neutral-200">UGX {order.totalAmount.toLocaleString()}</dd>
+              <dd className="font-bold text-neutral-800 dark:text-neutral-200">UGX {order.totalAmount.toLocaleString('en-US')}</dd>
             </div>
           </dl>
           {order.paymentReference && (
@@ -128,19 +128,19 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     {item.product?.title ?? 'Product removed'}
                   </Link>
                   <div className="text-[10px] text-neutral-500">
-                    {item.quantity} &times; UGX {item.price.toLocaleString()}
+                    {item.quantity} &times; UGX {item.price.toLocaleString('en-US')}
                   </div>
                 </div>
               </div>
               <div className="shrink-0 text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                UGX {(item.quantity * item.price).toLocaleString()}
+                UGX {(item.quantity * item.price).toLocaleString('en-US')}
               </div>
             </div>
           ))}
         </div>
         <div className="mt-3 flex items-center justify-between border-t border-neutral-200 dark:border-neutral-800 pt-3">
           <span className="text-xs font-bold uppercase tracking-wide text-neutral-500">Total</span>
-          <span className="text-sm font-black text-neutral-900 dark:text-white">UGX {order.totalAmount.toLocaleString()}</span>
+          <span className="text-sm font-black text-neutral-900 dark:text-white">UGX {order.totalAmount.toLocaleString('en-US')}</span>
         </div>
       </div>
 

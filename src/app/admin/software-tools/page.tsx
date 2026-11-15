@@ -37,10 +37,10 @@ export default async function AdminSoftwareToolsPage() {
           <div>
             <h1 className="text-lg font-black text-neutral-900 dark:text-white">Unlock &amp; Flash Tools</h1>
             <p className="text-xs text-neutral-500">
-              {tools.length} items &middot; $1 = UGX {Math.round(usdRate.rate).toLocaleString()} (
+              {tools.length} items &middot; $1 = UGX {Math.round(usdRate.rate).toLocaleString('en-US')} (
               {usdRate.live
                 ? `live ${usdRate.marketRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} + ${usdRate.addon}`
-                : `live rate unavailable, using backup ${usdRate.marketRate.toLocaleString()} + ${usdRate.addon}`}
+                : `live rate unavailable, using backup ${usdRate.marketRate.toLocaleString('en-US')} + ${usdRate.addon}`}
               ) &middot;{' '}
               <Link href="/admin/settings" className="font-bold text-amber-500 hover:underline">
                 change add-on
@@ -94,7 +94,7 @@ export default async function AdminSoftwareToolsPage() {
                           <>
                             {formatUsd(usd)}
                             {perCredit && ' / credit'}
-                            <div className="text-[10px] font-normal text-neutral-500">UGX {ugx.toLocaleString()}</div>
+                            <div className="text-[10px] font-normal text-neutral-500">UGX {ugx.toLocaleString('en-US')}</div>
                           </>
                         );
                       })()}

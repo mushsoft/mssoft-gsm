@@ -191,13 +191,13 @@ function OrderSummaryCard({ order }: { order: OrderSummary }) {
             <span className="truncate pr-2">
               {item.title} {item.quantity > 1 ? `x${item.quantity}` : ''}
             </span>
-            <span className="shrink-0 font-mono">UGX {(item.price * item.quantity).toLocaleString()}</span>
+            <span className="shrink-0 font-mono">UGX {(item.price * item.quantity).toLocaleString('en-US')}</span>
           </div>
         ))}
       </div>
       <div className="mt-2 flex items-center justify-between border-t border-neutral-200 dark:border-neutral-800 pt-2 text-sm font-bold">
         <span className="text-neutral-500 dark:text-neutral-400">Total</span>
-        <span className="text-amber-400">UGX {order.totalAmount.toLocaleString()}</span>
+        <span className="text-amber-400">UGX {order.totalAmount.toLocaleString('en-US')}</span>
       </div>
     </div>
   );

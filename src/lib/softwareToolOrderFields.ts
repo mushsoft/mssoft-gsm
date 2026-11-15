@@ -49,7 +49,7 @@ export function validateCreditQuantity(raw: string): string | null {
   const n = Number(raw);
   if (!raw.trim()) return 'Enter how many credits you need.';
   if (!Number.isInteger(n) || n < 1) return 'Enter a whole number of credits (1 or more).';
-  if (n > MAX_CREDIT_QUANTITY) return `For more than ${MAX_CREDIT_QUANTITY.toLocaleString()} credits, message us directly.`;
+  if (n > MAX_CREDIT_QUANTITY) return `For more than ${MAX_CREDIT_QUANTITY.toLocaleString('en-US')} credits, message us directly.`;
   return null;
 }
 

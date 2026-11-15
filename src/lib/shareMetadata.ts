@@ -66,6 +66,14 @@ export function shareDescription(text: string, max = 160): string {
   return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
 
+// Page <title>: normally "Title | MS Soft GSM" (the root layout's template),
+// but Google cuts titles at about 60 characters, so long ones drop the
+// suffix and keep the words that matter.
+const MAX_TITLE_WITH_SUFFIX = 62;
+export function pageTitle(title: string): Metadata['title'] {
+  return `${title} | ${SITE_NAME}`.length > MAX_TITLE_WITH_SUFFIX ? { absolute: title } : title;
+}
+
 export function shareMetadata({
   title,
   description,
@@ -83,7 +91,7 @@ export function shareMetadata({
 }): Metadata {
   const shareTitle = `${title} | ${SITE_NAME}`;
   return {
-    title,
+    title: pageTitle(title),
     description,
     alternates: { canonical: path },
     openGraph: {

@@ -40,9 +40,9 @@ export default async function AdminAnalyticsPage() {
       <AdminNav />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <StatTile label="Total Visits" value={data.totalVisits.toLocaleString()} />
-        <StatTile label="Visits Today" value={data.visitsToday.toLocaleString()} />
-        <StatTile label="Visits (14d)" value={data.visits7Days.toLocaleString()} />
+        <StatTile label="Total Visits" value={data.totalVisits.toLocaleString('en-US')} />
+        <StatTile label="Visits Today" value={data.visitsToday.toLocaleString('en-US')} />
+        <StatTile label="Visits (14d)" value={data.visits7Days.toLocaleString('en-US')} />
       </div>
 
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">

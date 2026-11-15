@@ -159,9 +159,9 @@ export default function CartPageClient({ availableMethods }: { availableMethods:
       ? `Hello MS Soft GSM! I want to ORDER these items:\n\n${checkoutable
           .map(
             ({ product, quantity }) =>
-              `📌 *${product.title}* ×${quantity}: UGX ${(product.price * quantity).toLocaleString()}`
+              `📌 *${product.title}* ×${quantity}: UGX ${(product.price * quantity).toLocaleString('en-US')}`
           )
-          .join('\n')}\n\n💰 Total: UGX ${subtotal.toLocaleString()}`
+          .join('\n')}\n\n💰 Total: UGX ${subtotal.toLocaleString('en-US')}`
       : '';
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -237,7 +237,7 @@ export default function CartPageClient({ availableMethods }: { availableMethods:
                     {product.title}
                   </Link>
                   <div className="mt-0.5 text-xs font-black text-amber-500 dark:text-amber-400">
-                    UGX {product.price.toLocaleString()}
+                    UGX {product.price.toLocaleString('en-US')}
                   </div>
                   {!inStock ? (
                     <span className="mt-1 inline-block rounded-md bg-red-950/10 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-500 dark:text-red-300">
@@ -289,7 +289,7 @@ export default function CartPageClient({ availableMethods }: { availableMethods:
           <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
               <span className="text-xs font-bold uppercase tracking-wide text-neutral-500">Subtotal</span>
-              <span className="text-lg font-black text-amber-500 dark:text-amber-400">UGX {subtotal.toLocaleString()}</span>
+              <span className="text-lg font-black text-amber-500 dark:text-amber-400">UGX {subtotal.toLocaleString('en-US')}</span>
             </div>
 
             <form onSubmit={handleCheckout} className="mt-4 space-y-3">

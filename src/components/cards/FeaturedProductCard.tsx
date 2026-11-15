@@ -73,11 +73,11 @@ export default function FeaturedProductCard({
             {priced ? (
               <span className="flex items-baseline gap-1.5">
                 <span className="text-[15px] font-black text-amber-400">
-                  UGX {product.price.toLocaleString()}
+                  UGX {product.price.toLocaleString('en-US')}
                 </span>
                 {hasDiscount && (
                   <span className="text-[11px] text-white/40 line-through">
-                    UGX {product.originalPrice!.toLocaleString()}
+                    UGX {product.originalPrice!.toLocaleString('en-US')}
                   </span>
                 )}
               </span>

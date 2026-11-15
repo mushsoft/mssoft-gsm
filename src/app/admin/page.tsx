@@ -50,10 +50,10 @@ export default async function AdminDashboardPage() {
       <AdminNav />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile label="Revenue (30d)" value={`UGX ${data.revenue30Days.toLocaleString()}`} />
-        <StatTile label="Orders (30d)" value={data.orders30DaysCount.toLocaleString()} />
-        <StatTile label="Pending Orders" value={data.pendingOrdersCount.toLocaleString()} />
-        <StatTile label="Low Stock Items" value={data.lowStockProducts.length.toLocaleString()} />
+        <StatTile label="Revenue (30d)" value={`UGX ${data.revenue30Days.toLocaleString('en-US')}`} />
+        <StatTile label="Orders (30d)" value={data.orders30DaysCount.toLocaleString('en-US')} />
+        <StatTile label="Pending Orders" value={data.pendingOrdersCount.toLocaleString('en-US')} />
+        <StatTile label="Low Stock Items" value={data.lowStockProducts.length.toLocaleString('en-US')} />
       </div>
 
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">

@@ -249,8 +249,8 @@ export async function POST(req: Request) {
       title: "Order received",
       body:
         checkout.paymentMethod === "AIRTEL_MONEY"
-          ? `We've received order ${orderRef(txRef)} (UGX ${order.totalAmount.toLocaleString()}). We'll confirm your Airtel Money payment shortly.`
-          : `We've received order ${orderRef(txRef)} (UGX ${order.totalAmount.toLocaleString()}). It's waiting for payment confirmation.`,
+          ? `We've received order ${orderRef(txRef)} (UGX ${order.totalAmount.toLocaleString('en-US')}). We'll confirm your Airtel Money payment shortly.`
+          : `We've received order ${orderRef(txRef)} (UGX ${order.totalAmount.toLocaleString('en-US')}). It's waiting for payment confirmation.`,
       link: "/account/orders",
     },
     { email: false }

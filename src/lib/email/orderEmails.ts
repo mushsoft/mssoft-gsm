@@ -23,7 +23,7 @@ function itemsTable(items: OrderEmailItem[]): string {
         <tr>
           <td style="padding:8px 0;border-bottom:1px solid #e5e5e5;">${item.title}</td>
           <td style="padding:8px 0;border-bottom:1px solid #e5e5e5;text-align:center;">${item.quantity}</td>
-          <td style="padding:8px 0;border-bottom:1px solid #e5e5e5;text-align:right;">UGX ${(item.quantity * item.price).toLocaleString()}</td>
+          <td style="padding:8px 0;border-bottom:1px solid #e5e5e5;text-align:right;">UGX ${(item.quantity * item.price).toLocaleString('en-US')}</td>
         </tr>`
     )
     .join('');
@@ -43,7 +43,7 @@ function itemsTable(items: OrderEmailItem[]): string {
 function emailShell(title: string, message: string, data: OrderEmailData): string {
   const discountLine =
     data.discountAmount && data.discountAmount > 0
-      ? `<p style="margin:4px 0;color:#059669;font-size:13px;">Discount applied: -UGX ${data.discountAmount.toLocaleString()}</p>`
+      ? `<p style="margin:4px 0;color:#059669;font-size:13px;">Discount applied: -UGX ${data.discountAmount.toLocaleString('en-US')}</p>`
       : '';
 
   return `
@@ -52,7 +52,7 @@ function emailShell(title: string, message: string, data: OrderEmailData): strin
       <p style="font-size:14px;line-height:1.5;">Hi ${data.customerName}, ${message}</p>
       ${itemsTable(data.items)}
       ${discountLine}
-      <p style="margin-top:12px;font-size:15px;font-weight:bold;">Total: UGX ${data.totalAmount.toLocaleString()}</p>
+      <p style="margin-top:12px;font-size:15px;font-weight:bold;">Total: UGX ${data.totalAmount.toLocaleString('en-US')}</p>
       <p style="margin-top:16px;font-size:11px;color:#737373;">Order reference: ${data.txRef}</p>
     </div>
   `;

@@ -48,7 +48,7 @@ export default function SparePartCard({
   const extraCompatCount = compatibility.length - visibleCompat.length;
 
   const waMessage = item.inStock
-    ? `Hi MS Soft GSM! I want to order this part:\n\n📦 *${item.name}*\n💰 Price: UGX ${item.priceUGX.toLocaleString()}\nCode: ${item.code || item.model}`
+    ? `Hi MS Soft GSM! I want to order this part:\n\n📦 *${item.name}*\n💰 Price: UGX ${item.priceUGX.toLocaleString('en-US')}\nCode: ${item.code || item.model}`
     : `Hi MS Soft GSM! Is this part back in stock?\n\n📦 *${item.name}*\nCode: ${item.code || item.model}`;
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
@@ -162,7 +162,7 @@ export default function SparePartCard({
             <div>
               <div className="text-[9px] text-neutral-500">Price</div>
               <div className="text-xs font-black text-amber-400">
-                UGX {item.priceUGX.toLocaleString()}
+                UGX {item.priceUGX.toLocaleString('en-US')}
               </div>
             </div>
 
@@ -214,7 +214,7 @@ export default function SparePartCard({
 
             <div className="mt-4 flex items-center justify-between gap-3 border-t border-neutral-800 pt-4">
               <span className="text-xs font-black text-amber-400">
-                UGX {item.priceUGX.toLocaleString()}
+                UGX {item.priceUGX.toLocaleString('en-US')}
               </span>
               <a
                 href={whatsappUrl}

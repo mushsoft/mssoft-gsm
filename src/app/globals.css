@@ -27,6 +27,13 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* The home page hero has its own search, so the header's is hidden there.
+   CSS instead of a pathname check in Header.tsx, so server and browser
+   always render the same HTML (see the note in Header.tsx). */
+body:has(main[data-page="home"]) .site-header-search {
+  display: none !important;
+}
+
 /* Used by HeroContent.tsx — sweeps the gradient across the "Trust" text via
    background-position, on a background-size wider than the text itself. */
 @keyframes text-shimmer {
