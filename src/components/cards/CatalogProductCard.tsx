@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Flame, MessageCircle, type LucideIcon } from 'lucide-react';
 import BuyNowButton from '@/components/checkout/BuyNowButton';
 import AddToCartButton from '@/components/cart/AddToCartButton';
+import { hasPrice, orderMessage, priceText } from '@/lib/price';
 
 const WHATSAPP_PHONE = '256773944288';
 
@@ -32,7 +33,7 @@ export default function CatalogProductCard({
   const discountPercent = hasDiscount
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
     : null;
-  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString('en-US')}`;
+  const waMessage = orderMessage(product.title, product.price);
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
   return (
@@ -77,7 +78,7 @@ export default function CatalogProductCard({
 
         <div>
           <div className="mb-2 flex items-center gap-1.5">
-            <span className="text-xs font-black text-amber-500 dark:text-amber-400">UGX {product.price.toLocaleString('en-US')}</span>
+            <span className="text-xs font-black text-amber-500 dark:text-amber-400">{priceText(product.price)}</span>
             {hasDiscount && (
               <span className="text-[10px] text-neutral-400 line-through dark:text-neutral-600">
                 UGX {product.originalPrice!.toLocaleString('en-US')}
@@ -91,8 +92,8 @@ export default function CatalogProductCard({
               price={product.price}
               inStock={inStock}
             />
-            <div className="grid grid-cols-2 gap-1.5">
-              <AddToCartButton productId={product.id} inStock={inStock} compact />
+            <div className={`grid gap-1.5 ${hasPrice(product.price) ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              <AddToCartButton productId={product.id} inStock={inStock && hasPrice(product.price)} compact />
               <a
                 href={whatsappUrl}
                 target="_blank"

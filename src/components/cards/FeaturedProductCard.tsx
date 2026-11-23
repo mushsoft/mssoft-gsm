@@ -83,7 +83,7 @@ export default function FeaturedProductCard({
               </span>
             ) : (
               <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
-                View details
+                Ask for price
               </span>
             )}
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur transition-all duration-300 group-hover:bg-amber-500 group-hover:text-black">

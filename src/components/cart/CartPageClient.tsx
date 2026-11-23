@@ -93,7 +93,7 @@ export default function CartPageClient({ availableMethods }: { availableMethods:
   // clamp per-line here (display + totals + checkout payload) rather than
   // silently rewriting localStorage the moment the page loads.
   const checkoutable = displayLines
-    .filter(({ product }) => product.stock > 0)
+    .filter(({ product }) => product.stock > 0 && product.price > 0)
     .map(({ line, product }) => ({ line, product, quantity: Math.min(line.quantity, product.stock) }));
 
   const subtotal = checkoutable.reduce((sum, { product, quantity }) => sum + product.price * quantity, 0);
@@ -237,7 +237,7 @@ export default function CartPageClient({ availableMethods }: { availableMethods:
                     {product.title}
                   </Link>
                   <div className="mt-0.5 text-xs font-black text-amber-500 dark:text-amber-400">
-                    UGX {product.price.toLocaleString('en-US')}
+                    {product.price > 0 ? `UGX ${product.price.toLocaleString('en-US')}` : 'Ask for price'}
                   </div>
                   {!inStock ? (
                     <span className="mt-1 inline-block rounded-md bg-red-950/10 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-500 dark:text-red-300">

@@ -1,4 +1,5 @@
 import { MessageCircle } from 'lucide-react';
+import { ASK_FOR_PRICE, hasPrice, orderMessage } from '@/lib/price';
 
 const WHATSAPP_PHONE = '256773944288';
 
@@ -25,7 +26,7 @@ export default function BuyNowButton({ productTitle, price, inStock }: BuyNowBut
     );
   }
 
-  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${productTitle}*\n💰 Price: UGX ${price.toLocaleString('en-US')}`;
+  const waMessage = orderMessage(productTitle, price);
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
   return (
@@ -38,7 +39,7 @@ export default function BuyNowButton({ productTitle, price, inStock }: BuyNowBut
     >
       {/* The WhatsApp-style icon shows it opens a chat, not a checkout. */}
       <MessageCircle className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
-      Get
+      {hasPrice(price) ? 'Get' : ASK_FOR_PRICE}
     </a>
   );
 }

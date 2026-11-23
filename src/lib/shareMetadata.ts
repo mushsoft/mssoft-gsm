@@ -17,7 +17,7 @@ export const SHARE_IMAGE_SIZE = { width: 1200, height: 630 } as const;
 // images in our Supabase bucket or on Sanity's CDN, and YouTube video
 // thumbnails. Anything else is ignored, so the endpoint can't be used to
 // fetch arbitrary URLs.
-const LOCAL_PHOTO = /^\/(tips|og)\/[a-z0-9-]+\.(jpg|jpeg|png|webp)$/;
+const LOCAL_PHOTO = /^\/(tips|og|products)\/[a-z0-9-]+\.(jpg|jpeg|png|webp)$/;
 const IMAGE_HOSTS = new Set(['img.youtube.com', 'i.ytimg.com', 'cdn.sanity.io']);
 
 export function isAllowedSharePhoto(photo: string, supabaseHost?: string | null): boolean {

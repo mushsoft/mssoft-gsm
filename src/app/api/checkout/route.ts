@@ -156,6 +156,9 @@ export async function POST(req: Request) {
         if (!product) {
           throw new CheckoutValidationError(`Product ${item.id} could not be found`);
         }
+        if (product.price <= 0) {
+          throw new CheckoutValidationError(`${product.title} has no price yet. Please ask us on WhatsApp.`);
+        }
         if (product.stock < item.quantity) {
           throw new CheckoutValidationError(`${product.title} only has ${product.stock} unit(s) in stock`);
         }

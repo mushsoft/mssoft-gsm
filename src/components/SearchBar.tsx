@@ -164,7 +164,7 @@ export default function SearchBar({
                     <div className="truncate text-[10px] text-neutral-500 dark:text-neutral-400">{result.subtitle}</div>
                   </div>
                   {result.price != null && (
-                    <div className="shrink-0 text-xs font-bold text-amber-500">UGX {result.price.toLocaleString('en-US')}</div>
+                    <div className="shrink-0 text-xs font-bold text-amber-500">{result.price > 0 ? `UGX ${result.price.toLocaleString('en-US')}` : 'Ask for price'}</div>
                   )}
                 </Link>
               ))}

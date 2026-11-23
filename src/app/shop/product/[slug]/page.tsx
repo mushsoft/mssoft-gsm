@@ -11,6 +11,7 @@ import ReviewsSection from '@/components/product/ReviewsSection';
 import WishlistButton from '@/components/product/WishlistButton';
 import BuyNowButton from '@/components/checkout/BuyNowButton';
 import AddToCartButton from '@/components/cart/AddToCartButton';
+import { hasPrice, orderMessage, priceText } from '@/lib/price';
 import { getSpecFields, type ProductCategory } from '@/lib/productSpecFields';
 import { getRelatedProducts } from '@/lib/relatedProducts';
 import { getOrCreateCustomer } from '@/lib/customerAuth';
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // bare product name with no price reads as an ad with the price cropped
   // off, so lead the preview title with it instead of leaving it to the
   // (often price-less) product description.
-  const priceLabel = `UGX ${product.price.toLocaleString('en-US')}`;
+  const priceLabel = priceText(product.price);
   const shareTitle = `${product.title} | ${priceLabel}`;
   const description = productDescription(product.title, product.description, priceLabel, product.stock > 0);
   // Every product shares a 1200x630 branded card (name, price and the whole
@@ -102,7 +103,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
     : null;
 
-  const waMessage = `Hello MS Soft GSM! I want to ORDER this:\n\n📌 *${product.title}*\n💰 Price: UGX ${product.price.toLocaleString('en-US')}`;
+  const waMessage = orderMessage(product.title, product.price);
   const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
   const specFields = getSpecFields(product.category as ProductCategory, product.subcategory);
@@ -140,13 +141,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     ...(conditionValue && CONDITION_SCHEMA_MAP[conditionValue]
       ? { itemCondition: CONDITION_SCHEMA_MAP[conditionValue] }
       : {}),
-    offers: {
+    // Google rejects an offer priced 0, so unpriced products have none.
+    ...(hasPrice(product.price) && { offers: {
       '@type': 'Offer',
       url: `${baseUrl}/shop/product/${product.slug}`,
       priceCurrency: 'UGX',
       price: product.price,
       availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-    },
+    } }),
     ...(reviewStats._count > 0 && reviewStats._avg.rating
       ? {
           aggregateRating: {
@@ -204,7 +206,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
 
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-amber-500 dark:text-amber-400">UGX {product.price.toLocaleString('en-US')}</span>
+            <span className="text-2xl font-black text-amber-500 dark:text-amber-400">{priceText(product.price)}</span>
             {hasDiscount && (
               <span className="text-sm text-neutral-400 line-through dark:text-neutral-600">
                 UGX {product.originalPrice!.toLocaleString('en-US')}
@@ -214,7 +216,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
           <div className="space-y-2">
             <BuyNowButton productId={product.id} productTitle={product.title} price={product.price} inStock={inStock} />
-            <AddToCartButton productId={product.id} inStock={inStock} />
+            <AddToCartButton productId={product.id} inStock={inStock && hasPrice(product.price)} />
             <WishlistButton productId={product.id} initialWishlisted={!!wishlistItem} isLoggedIn={!!customer} />
             <a
               href={whatsappUrl}
