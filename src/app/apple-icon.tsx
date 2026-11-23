@@ -8,7 +8,7 @@ export const contentType = 'image/png';
 // Separate from icon.tsx (32px browser-tab favicon, kept as a simplified
 // shape — the real mark's gradient linework turns to mush that small). At
 // 180px, used for iOS/Android home-screen icons, the real logo holds up fine.
-const logoDataUri = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/logo-mark.png')).toString('base64')}`;
+const logoDataUri = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/logo-mark-trimmed.png')).toString('base64')}`;
 
 export default function AppleIcon() {
   return new ImageResponse(
@@ -23,7 +23,7 @@ export default function AppleIcon() {
           justifyContent: 'center',
         }}
       >
-        {/* logo-mark.png is a ~1.79:1 rectangle — fill by width and let
+        {/* logo-mark-trimmed.png is a ~1.8:1 rectangle — fill by width and let
             height follow so it isn't stretched into a square. */}
         {/* eslint-disable-next-line @next/next/no-img-element -- Satori (ImageResponse) only accepts a raw <img>, not next/image */}
         <img src={logoDataUri} width={152} height={85} alt="" />

@@ -6,7 +6,7 @@ export const alt = 'MS Soft GSM | Phones, Spare Parts & Technician Support Ugand
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-const logoDataUri = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/logo-mark.png')).toString('base64')}`;
+const logoDataUri = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/logo-mark-trimmed.png')).toString('base64')}`;
 
 // Default social-share preview for every route that doesn't set its own
 // openGraph.images (e.g. product pages use the product photo instead — see
@@ -31,7 +31,7 @@ export default function Image() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
           <div
-            // logo-mark.png is a ~1.79:1 rectangle, not square — size the
+            // logo-mark-trimmed.png is a ~1.8:1 rectangle, not square — size the
             // chip around the image's own proportions (padding, not a fixed
             // square) instead of stretching it to fit.
             style={{

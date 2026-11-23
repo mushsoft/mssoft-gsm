@@ -200,17 +200,18 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
   const isRefund = config.payment === 'refund';
   const warrantyEnd = docType === 'WARRANTY' && extra.period ? warrantyEndDate(documentDate, extra.period) : null;
 
-  const contactLine = [shopProfile.phone && `Tel ${shopProfile.phone}`, shopProfile.whatsapp && `WhatsApp ${shopProfile.whatsapp}`]
-    .filter(Boolean)
-    .join('  ·  ');
-  const webLine = [shopProfile.email, shopProfile.website].filter(Boolean).join('  ·  ');
-  const socials = [
+  // Each detail stays on one line, so a phone number never splits in two.
+  const contacts = [
+    shopProfile.address,
+    shopProfile.phone && `Tel ${shopProfile.phone}`,
+    shopProfile.whatsapp && `WhatsApp ${shopProfile.whatsapp}`,
+    shopProfile.email,
+    shopProfile.website,
     shopProfile.tiktok && `TikTok ${shopProfile.tiktok}`,
     shopProfile.instagram && `Instagram ${shopProfile.instagram}`,
     shopProfile.facebook && `Facebook ${shopProfile.facebook}`,
-  ]
-    .filter(Boolean)
-    .join('  ·  ');
+    shopProfile.tinNumber && `TIN ${shopProfile.tinNumber}`,
+  ].filter(Boolean) as string[];
 
   // Job cards have many fields: they get their own full-width section.
   const wideExtras = config.extras.length > 3 || !config.partyLabel;
@@ -333,7 +334,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
     );
     if (field.kind === 'textarea') {
       return (
-        <label key={field.key} className={field.wide ? 'col-span-2 block' : 'block'}>
+        <label key={field.key} className={`${field.wide ? 'col-span-2 block' : 'block'} ${value.trim() ? '' : 'print:hidden'}`}>
           {label}
           <textarea
             value={value}
@@ -348,7 +349,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
     }
     if (field.kind === 'select') {
       return (
-        <label key={field.key} className={field.wide ? 'col-span-2 block' : 'block'}>
+        <label key={field.key} className={`${field.wide ? 'col-span-2 block' : 'block'} ${value.trim() ? '' : 'print:hidden'}`}>
           {label}
           <select
             value={value}
@@ -368,7 +369,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
     }
     if (field.kind === 'date') {
       return (
-        <label key={field.key} className={field.wide ? 'col-span-2 block' : 'block'}>
+        <label key={field.key} className={`${field.wide ? 'col-span-2 block' : 'block'} ${value.trim() ? '' : 'print:hidden'}`}>
           {label}
           <input
             type="date"
@@ -381,7 +382,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
       );
     }
     return (
-      <label key={field.key} className={field.wide ? 'col-span-2 block' : 'block'}>
+      <label key={field.key} className={`${field.wide ? 'col-span-2 block' : 'block'} ${value.trim() ? '' : 'print:hidden'}`}>
         {label}
         <input
           type={field.kind === 'number' ? 'number' : 'text'}
@@ -406,9 +407,9 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
   const cardExtras = splitExtras ? config.extras.filter((f) => !f.wide) : config.extras;
 
   const extrasCard = config.extras.length > 0 && (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+    <div className={`rounded-xl border border-neutral-200 bg-neutral-50 p-4 ${cardExtras.some((f) => extra[f.key]?.trim()) ? "" : "print:invisible"}`}>
       <div className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-amber-600">{config.extrasTitle}</div>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
+      <div className={`grid gap-x-3 gap-y-2.5 ${splitExtras ? 'grid-cols-3' : 'grid-cols-2'}`}>
         {cardExtras.map((field) => renderExtraField(field))}
         {warrantyEnd && (
           <div className="col-span-2 rounded-lg bg-amber-500 px-3 py-2 text-black">
@@ -423,7 +424,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
   );
 
   const longExtrasRow = longExtras.length > 0 && (
-    <section className="mt-4 grid grid-cols-2 gap-4">
+    <section className="mt-3 grid grid-cols-2 gap-4">
       {longExtras.map((field) => (
         <div key={field.key} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
           {renderExtraField({ ...field, wide: false })}
@@ -554,23 +555,16 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
           <div className="flex flex-1 flex-col px-10 pb-5 pt-6">
             {/* Header: business on the left, document title and number on the right. */}
             <header className="flex items-start justify-between gap-6">
-              <div className="flex items-start gap-4">
-                <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white p-2">
+              <div className="flex items-center gap-4">
+                <div className="flex h-20 w-36 shrink-0 items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element -- plain HTML/print document, not a Next.js route (no optimization needed here) */}
-                  <img src="/logo-mark.png" alt="" width={122} height={68} className="max-h-full max-w-full object-contain" />
+                  <img src="/logo-mark-trimmed.png" alt="" width={248} height={138} className="h-full w-full object-contain" />
                 </div>
                 <div>
                   <div className="text-2xl font-black leading-none tracking-tight">{shopProfile.businessName}</div>
                   {shopProfile.tagline && (
                     <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-600">{shopProfile.tagline}</div>
                   )}
-                  <div className="mt-2 space-y-0.5 text-[11px] leading-snug text-neutral-600">
-                    {shopProfile.address && <div>{shopProfile.address}</div>}
-                    {contactLine && <div>{contactLine}</div>}
-                    {webLine && <div>{webLine}</div>}
-                    {socials && <div>{socials}</div>}
-                    {shopProfile.tinNumber && <div className="font-semibold text-neutral-800">TIN: {shopProfile.tinNumber}</div>}
-                  </div>
                 </div>
               </div>
 
@@ -605,9 +599,16 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
                 </div>
               </div>
             </header>
+            {contacts.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-0.5 border-t border-neutral-200 pt-2 text-[10px] text-neutral-600">
+                {contacts.map((c) => (
+                  <span key={c} className="whitespace-nowrap">{c}</span>
+                ))}
+              </div>
+            )}
 
             {/* Customer, plus either this type's own fields or a summary. */}
-            <section className={`mt-5 grid gap-4 ${config.partyLabel ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <section className={`mt-4 grid gap-4 ${splitExtras ? 'grid-cols-[1fr_1.7fr]' : config.partyLabel ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {config.partyLabel && (
                 <div className="rounded-xl border border-neutral-200 p-4">
                   <div className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-amber-600">{config.partyLabel}</div>
@@ -843,7 +844,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
 
             {/* Totals, with a PAID / UNPAID stamp beside them. */}
             {config.showTotals && (
-              <section className="receipt-keep mt-5 flex items-end justify-between gap-6">
+              <section className="receipt-keep mt-3 flex items-end justify-between gap-6">
                 <div className="pb-2 pl-2">
                   {config.stamp && (
                     <div
@@ -958,7 +959,7 @@ export default function ReceiptDocument({ initial, shopProfile }: { initial: Rec
               <p className="print-only hidden whitespace-pre-wrap text-[11px] leading-relaxed text-neutral-700">{notesByType[docType]}</p>
             </section>
 
-            <footer className="receipt-keep mt-auto flex items-end justify-between gap-4 pt-4 text-[10px] text-neutral-500">
+            <footer className="receipt-keep mt-auto flex items-end justify-between gap-4 pt-3 text-[10px] text-neutral-500">
               <div>
                 <div className="font-bold text-neutral-800">Thank you for your business.</div>
                 <div>{[shopProfile.website, shopProfile.whatsapp && `WhatsApp ${shopProfile.whatsapp}`].filter(Boolean).join('  ·  ')}</div>
