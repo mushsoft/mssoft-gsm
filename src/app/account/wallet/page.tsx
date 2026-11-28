@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getShopProfile } from '@/lib/shopProfile';
 import { getUsdRate } from '@/lib/usdRate';
 import { availableTopUpMethods } from '@/lib/wallet';
+import { isProofMethod, PROOF_METHOD_LABELS, proofDestinations } from '@/lib/paymentProof';
 import { formatUsdCents } from '@/lib/walletAmounts';
 import { formatDate } from '@/lib/formatDate';
 import AccountLogoutButton from '@/components/account/AccountLogoutButton';
@@ -19,6 +20,7 @@ const METHOD_LABELS: Record<string, string> = {
   MOBILE_MONEY: 'Mobile Money',
   CARD: 'Card',
   AIRTEL_MONEY: 'Airtel Money',
+  ...PROOF_METHOD_LABELS,
 };
 const STATUS_STYLES = {
   PENDING: 'bg-amber-500/10 text-amber-500',
@@ -29,7 +31,7 @@ const STATUS_STYLES = {
 // abandoned — stop auto-refreshing for it.
 const WATCH_PENDING_MS = 30 * 60 * 1000;
 function isAwaitingGateway(t: { status: string; paymentMethod: string | null; createdAt: Date }): boolean {
-  return t.status === 'PENDING' && t.paymentMethod !== 'AIRTEL_MONEY' && Date.now() - t.createdAt.getTime() < WATCH_PENDING_MS;
+  return t.status === 'PENDING' && t.paymentMethod !== 'AIRTEL_MONEY' && !isProofMethod(t.paymentMethod) && Date.now() - t.createdAt.getTime() < WATCH_PENDING_MS;
 }
 
 export default async function WalletPage({ searchParams }: { searchParams: Promise<{ tx_ref?: string }> }) {
@@ -101,6 +103,7 @@ export default async function WalletPage({ searchParams }: { searchParams: Promi
           usdRate={usdRate.rate}
           hasPhone={Boolean(customer.phone)}
           availableMethods={availableTopUpMethods()}
+          proofDestinations={proofDestinations(profile)}
         />
         <p className="mt-4 text-[11px] text-neutral-500">
           Wallet credit can be spent on unlock &amp; flash tools on this site. It can&apos;t be withdrawn as cash.
@@ -127,6 +130,7 @@ export default async function WalletPage({ searchParams }: { searchParams: Promi
                   <div className="text-[10px] text-neutral-500">
                     {formatDate(t.createdAt)}
                     {t.amountUgx !== null && <> · UGX {t.amountUgx.toLocaleString('en-US')}</>}
+                    {t.amountUgx === null && t.paymentMethod === 'BINANCE' && <> · {(t.amountCents / 100).toFixed(2)} USDT</>}
                     {(t.type === 'PURCHASE' || t.type === 'REFUND') && t.note && <> · {t.note}</>}
                   </div>
                 </div>

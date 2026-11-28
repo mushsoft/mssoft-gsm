@@ -43,6 +43,10 @@ export default async function AdminSettingsPage() {
             tinNumber: profile.tinNumber ?? '',
             creditRateUgx: String(profile.creditRateUgx),
             usdRateAddonUgx: String(profile.usdRateAddonUgx),
+            mtnMerchantCode: profile.mtnMerchantCode ?? '',
+            airtelMerchantCode: profile.airtelMerchantCode ?? '',
+            binancePayId: profile.binancePayId ?? '',
+            binanceName: profile.binanceName ?? '',
           }}
         />
       </div>

@@ -29,7 +29,7 @@ describe('live site (Vercel production)', () => {
   it('never offers pawaPay with sandbox settings', () => {
     setEnv({ ...site, VERCEL_ENV: 'production', PAWAPAY_API_TOKEN: 't', PAWAPAY_BASE_URL: 'https://api.sandbox.pawapay.io' });
     expect(availableCheckoutMethods()).toEqual(['AIRTEL_MONEY']);
-    expect(availableTopUpMethods()).toEqual(['AIRTEL_MONEY']);
+    expect(availableTopUpMethods()).toEqual([]);
   });
 
   it('offers pawaPay with live settings (and with no base URL, which defaults to live)', () => {
@@ -42,13 +42,13 @@ describe('live site (Vercel production)', () => {
   it('never offers Flutterwave with a test key', () => {
     setEnv({ ...site, VERCEL_ENV: 'production', FLUTTERWAVE_SECRET_KEY: 'FLWSECK_TEST-abc', FLUTTERWAVE_WEBHOOK_SECRET_HASH: 'h' });
     expect(availableCheckoutMethods()).toEqual(['AIRTEL_MONEY']);
-    expect(availableTopUpMethods()).toEqual(['AIRTEL_MONEY']);
+    expect(availableTopUpMethods()).toEqual([]);
   });
 
   it('offers Flutterwave at checkout with a live key, but in the wallet only with the webhook secret too', () => {
     setEnv({ ...site, VERCEL_ENV: 'production', FLUTTERWAVE_SECRET_KEY: 'FLWSECK-live' });
     expect(availableCheckoutMethods()).toEqual(['MOBILE_MONEY', 'CARD', 'AIRTEL_MONEY']);
-    expect(availableTopUpMethods()).toEqual(['AIRTEL_MONEY']);
+    expect(availableTopUpMethods()).toEqual([]);
   });
 
   it('offers nothing but Airtel without a site URL', () => {
@@ -68,6 +68,6 @@ describe('local / preview (testing)', () => {
       FLUTTERWAVE_WEBHOOK_SECRET_HASH: 'h',
     });
     expect(availableCheckoutMethods()).toEqual(['PAWAPAY', 'MOBILE_MONEY', 'CARD', 'AIRTEL_MONEY']);
-    expect(availableTopUpMethods()).toEqual(['PAWAPAY', 'MOBILE_MONEY', 'CARD', 'AIRTEL_MONEY']);
+    expect(availableTopUpMethods()).toEqual(['PAWAPAY', 'MOBILE_MONEY', 'CARD']);
   });
 });

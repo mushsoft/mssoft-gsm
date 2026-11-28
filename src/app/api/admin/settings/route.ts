@@ -14,6 +14,10 @@ const OPTIONAL_TEXT_FIELDS = [
   'facebook',
   'address',
   'tinNumber',
+  'mtnMerchantCode',
+  'airtelMerchantCode',
+  'binancePayId',
+  'binanceName',
 ] as const;
 
 export async function PATCH(req: Request) {

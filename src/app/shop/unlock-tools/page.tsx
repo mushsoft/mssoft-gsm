@@ -98,7 +98,7 @@ export default async function UnlockToolsPage({
               </h1>
               <p className="mt-1 max-w-xl text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
                 DC-Unlocker, Octoplus, NCK, Z3X, Miracle, UnlockTool, Chimera, schematics and more.
-                We top these up for you locally in Credits, no card needed. Find yours below and order on WhatsApp.
+                Top up your wallet by Mobile Money or Binance (USDT), then order here and we load it for you.
               </p>
             </div>
           </div>
@@ -107,10 +107,6 @@ export default async function UnlockToolsPage({
             <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-950/60 px-4 py-2 text-center">
               <div className="text-lg font-black text-amber-400">{tools.length}</div>
               <div className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Tools Listed</div>
-            </div>
-            <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-950/60 px-4 py-2 text-center">
-              <div className="text-lg font-black text-amber-400">UGX {Math.round(usdRate.rate).toLocaleString('en-US')}</div>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Our rate per $1</div>
             </div>
           </div>
         </div>

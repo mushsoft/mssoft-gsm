@@ -246,7 +246,7 @@ model WalletTransaction {
   // when they started, so a later rate change can't alter this top-up.
   amountUgx        Int?
   usdRate          Float?
-  paymentMethod    String? // PAWAPAY, MOBILE_MONEY, CARD or AIRTEL_MONEY
+  paymentMethod    String? // PAWAPAY, MOBILE_MONEY, CARD, AIRTEL_MONEY, MTN_MERCHANT, AIRTEL_MERCHANT or BINANCE
   txRef            String                  @unique // our reference: "WT-" top-up, "WP-" purchase, "WR-" refund
   // pawaPay depositId, or the Airtel Money transaction ID the customer typed.
   paymentReference String?
@@ -258,11 +258,29 @@ model WalletTransaction {
 
   customer  Customer   @relation(fields: [customerId], references: [id])
   toolOrder ToolOrder? @relation(fields: [toolOrderId], references: [id])
+  proof     PaymentProof?
 
   @@index([customerId, createdAt])
   @@index([status, paymentMethod])
   @@index([paymentReference])
   @@index([toolOrderId])
+}
+
+// The payment screenshot a customer uploads for a Mobile Money merchant or
+// Binance top-up. Kept in the database (not public storage) so only an
+// admin can see it. sha256 stops the same screenshot being used twice.
+model PaymentProof {
+  id                  String   @id @default(uuid())
+  walletTransactionId String   @unique
+  mimeType            String
+  sizeBytes           Int
+  sha256              String
+  data                Bytes
+  createdAt           DateTime @default(now())
+
+  walletTransaction WalletTransaction @relation(fields: [walletTransactionId], references: [id], onDelete: Cascade)
+
+  @@index([sha256])
 }
 
 enum ToolOrderStatus {
@@ -428,6 +446,13 @@ model ShopProfile {
   // UGX added on top of the USD→UGX market rate for unlock-tool prices,
   // e.g. market 4,131 + 99 → we price at 4,230 per $1.
   usdRateAddonUgx Int    @default(99)
+  // Where customers send wallet top-ups that are proved with a screenshot
+  // (see src/lib/paymentProof.ts). A method is only offered once its
+  // details are filled in here.
+  mtnMerchantCode   String?
+  airtelMerchantCode String?
+  binancePayId      String?
+  binanceName       String? // the Binance nickname customers should see when paying
   updatedAt    DateTime @updatedAt
 }
 

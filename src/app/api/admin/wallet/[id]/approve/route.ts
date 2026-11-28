@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { requireAdminApi } from '@/lib/adminAuth';
 import { prisma } from '@/lib/prisma';
+import { isProofMethod } from '@/lib/paymentProof';
 import { completeTopUp } from '@/lib/wallet';
 
-// Manual approval for Airtel Money (direct-to-merchant) top-ups only — the
-// admin matches the customer's transaction ID against their Airtel SMS/app.
+// Manual approval for top-ups paid straight to us: Airtel Money with a typed
+// transaction ID, or a Mobile Money merchant / Binance payment with a
+// screenshot. The admin checks the money really arrived before approving.
 // Gateway top-ups (pawaPay/Flutterwave) are deliberately not approvable
 // here: they're credited only after the gateway's own API confirms payment.
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -17,9 +19,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   if (!topUp || topUp.type !== 'TOPUP') {
     return NextResponse.json({ success: false, error: 'Top-up not found' }, { status: 404 });
   }
-  if (topUp.paymentMethod !== 'AIRTEL_MONEY') {
+  if (topUp.paymentMethod !== 'AIRTEL_MONEY' && !isProofMethod(topUp.paymentMethod)) {
     return NextResponse.json(
-      { success: false, error: 'Only Airtel Money top-ups are approved by hand; others confirm automatically.' },
+      { success: false, error: 'Only top-ups paid straight to us are approved by hand; others confirm automatically.' },
       { status: 400 }
     );
   }

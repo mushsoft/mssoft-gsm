@@ -18,6 +18,10 @@ export type ShopProfileFormValues = {
   tinNumber: string;
   creditRateUgx: string;
   usdRateAddonUgx: string;
+  mtnMerchantCode: string;
+  airtelMerchantCode: string;
+  binancePayId: string;
+  binanceName: string;
 };
 
 export default function ShopProfileForm({ initialValues }: { initialValues: ShopProfileFormValues }) {
@@ -181,6 +185,56 @@ export default function ShopProfileForm({ initialValues }: { initialValues: Shop
           />
         </div>
       </div>
+
+      <fieldset className="space-y-3 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+        <legend className="px-1 text-xs font-black text-neutral-900 dark:text-white">Wallet top-ups with payment screenshot</legend>
+        <p className="text-[10px] text-neutral-400">
+          Customers pay these themselves, then upload a screenshot. You approve each one in Wallets after checking the
+          money arrived. Leave a box empty to hide that option.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelClass}>MTN MoMo Pay merchant code</label>
+            <input
+              value={values.mtnMerchantCode}
+              onChange={(e) => update('mtnMerchantCode', e.target.value)}
+              disabled={isSubmitting}
+              className={inputClass}
+              placeholder="Not set: MTN is hidden"
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Airtel merchant ID</label>
+            <input
+              value={values.airtelMerchantCode}
+              onChange={(e) => update('airtelMerchantCode', e.target.value)}
+              disabled={isSubmitting}
+              className={inputClass}
+              placeholder="6923944"
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Binance Pay ID</label>
+            <input
+              value={values.binancePayId}
+              onChange={(e) => update('binancePayId', e.target.value)}
+              disabled={isSubmitting}
+              className={inputClass}
+              placeholder="Not set: Binance is hidden"
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Binance name</label>
+            <input
+              value={values.binanceName}
+              onChange={(e) => update('binanceName', e.target.value)}
+              disabled={isSubmitting}
+              className={inputClass}
+              placeholder="Name customers see in Binance"
+            />
+          </div>
+        </div>
+      </fieldset>
 
       <div>
         <label className={labelClass}>Dollar Rate Add-on (UGX)</label>

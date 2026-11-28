@@ -4,10 +4,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 
-// Approve / Reject for a pending Airtel Money wallet top-up, with a confirm
+// Approve / Reject for a pending wallet top-up paid straight to us, with a confirm
 // step like OrderActions — approving credits real balance and can't be
 // undone here.
-export default function WalletTopUpActions({ topUpId, summary }: { topUpId: string; summary: string }) {
+export default function WalletTopUpActions({
+  topUpId,
+  summary,
+  methodLabel,
+}: {
+  topUpId: string;
+  summary: string;
+  methodLabel: string;
+}) {
   const router = useRouter();
   const [confirming, setConfirming] = useState<'approve' | 'reject' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +56,7 @@ export default function WalletTopUpActions({ topUpId, summary }: { topUpId: stri
         >
           <p className="mb-2 text-xs text-neutral-700 dark:text-neutral-300">
             {confirming === 'approve'
-              ? `Confirm you received this Airtel Money payment? This adds ${summary} to the customer's wallet and can't be undone here.`
+              ? `Confirm the ${methodLabel} payment really arrived in your account? This adds ${summary} to the customer's wallet and can't be undone here.`
               : 'Reject this top-up? No balance is changed.'}
           </p>
           <div className="flex gap-2">

@@ -7,12 +7,14 @@ import AutoRefresh from '@/components/AutoRefresh';
 import AdminNav from '@/components/admin/AdminNav';
 import LogoutButton from '@/components/admin/LogoutButton';
 import WalletTopUpActions from '@/components/admin/WalletTopUpActions';
+import { PROOF_METHOD_LABELS, PROOF_METHODS, isProofMethod } from '@/lib/paymentProof';
 
 const METHOD_LABELS: Record<string, string> = {
   PAWAPAY: 'pawaPay',
   MOBILE_MONEY: 'Mobile Money',
   CARD: 'Card',
   AIRTEL_MONEY: 'Airtel Money',
+  ...PROOF_METHOD_LABELS,
 };
 const STATUS_STYLES = {
   PENDING: 'bg-amber-500/10 text-amber-500',
@@ -26,7 +28,7 @@ export default async function AdminWalletPage() {
   const customerSelect = { select: { name: true, email: true, phone: true } } as const;
   const [awaitingApproval, recent, totals, topHolders] = await Promise.all([
     prisma.walletTransaction.findMany({
-      where: { type: 'TOPUP', status: 'PENDING', paymentMethod: 'AIRTEL_MONEY' },
+      where: { type: 'TOPUP', status: 'PENDING', paymentMethod: { in: ['AIRTEL_MONEY', ...PROOF_METHODS] } },
       orderBy: { createdAt: 'asc' },
       include: { customer: customerSelect },
     }),
@@ -66,7 +68,7 @@ export default async function AdminWalletPage() {
 
       <section className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
         <h2 className="border-b border-neutral-200 dark:border-neutral-800 px-5 py-3 text-sm font-black text-neutral-900 dark:text-white">
-          Airtel Money top-ups awaiting approval ({awaitingApproval.length})
+          Top-ups awaiting approval ({awaitingApproval.length})
         </h2>
         {awaitingApproval.length === 0 ? (
           <p className="p-5 text-xs text-neutral-500">Nothing to approve.</p>
@@ -74,20 +76,51 @@ export default async function AdminWalletPage() {
           <ul className="divide-y divide-neutral-200 dark:divide-neutral-800">
             {awaitingApproval.map((t) => (
               <li key={t.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="text-xs">
-                  <div className="font-bold text-neutral-900 dark:text-white">
-                    {formatUsdCents(t.amountCents)} · pay UGX {t.amountUgx?.toLocaleString('en-US')}
+                <div className="flex gap-3 text-xs">
+                  {isProofMethod(t.paymentMethod) && (
+                    // Opens full size in a new tab to read the amount and ID.
+                    <a
+                      href={`/api/admin/wallet/${t.id}/proof`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0"
+                      title="Open the payment screenshot"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- private admin-only image, not for next/image */}
+                      <img
+                        src={`/api/admin/wallet/${t.id}/proof`}
+                        alt="Payment screenshot"
+                        className="h-28 w-20 rounded-lg border border-neutral-200 dark:border-neutral-800 object-cover"
+                      />
+                    </a>
+                  )}
+                  <div>
+                    <div className="font-bold text-neutral-900 dark:text-white">
+                      {formatUsdCents(t.amountCents)} ·{' '}
+                      {t.amountUgx !== null
+                        ? `should have paid UGX ${t.amountUgx.toLocaleString('en-US')}`
+                        : `should have paid ${(t.amountCents / 100).toFixed(2)} USDT`}
+                    </div>
+                    <div className="text-neutral-500">
+                      {t.customer.name ?? t.customer.email} · {t.customer.phone ?? t.customer.email}
+                    </div>
+                    <div className="mt-1">
+                      {METHOD_LABELS[t.paymentMethod ?? ''] ?? t.paymentMethod}
+                      {t.paymentReference && (
+                        <>
+                          {' '}· ID{' '}
+                          <span className="font-mono font-bold text-neutral-900 dark:text-white">{t.paymentReference}</span>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-[10px] text-neutral-500">{formatDate(t.createdAt)}</div>
                   </div>
-                  <div className="text-neutral-500">
-                    {t.customer.name ?? t.customer.email} · {t.customer.phone ?? t.customer.email}
-                  </div>
-                  <div className="mt-1">
-                    Airtel transaction ID:{' '}
-                    <span className="font-mono font-bold text-neutral-900 dark:text-white">{t.paymentReference}</span>
-                  </div>
-                  <div className="text-[10px] text-neutral-500">{formatDate(t.createdAt)}</div>
                 </div>
-                <WalletTopUpActions topUpId={t.id} summary={formatUsdCents(t.amountCents)} />
+                <WalletTopUpActions
+                  topUpId={t.id}
+                  summary={formatUsdCents(t.amountCents)}
+                  methodLabel={METHOD_LABELS[t.paymentMethod ?? ''] ?? 'this'}
+                />
               </li>
             ))}
           </ul>

@@ -127,18 +127,18 @@ describe('availableTopUpMethods', () => {
 
   it('never offers Flutterwave without its webhook secret (payments could not be confirmed)', () => {
     withEnv({ NEXT_PUBLIC_BASE_URL: 'https://x', PAWAPAY_API_TOKEN: 't', FLUTTERWAVE_SECRET_KEY: 'k' }, () => {
-      expect(availableTopUpMethods()).toEqual(['PAWAPAY', 'AIRTEL_MONEY']);
+      expect(availableTopUpMethods()).toEqual(['PAWAPAY']);
     });
   });
 
   it('offers every method when everything is configured', () => {
     withEnv(
       { NEXT_PUBLIC_BASE_URL: 'https://x', PAWAPAY_API_TOKEN: 't', FLUTTERWAVE_SECRET_KEY: 'k', FLUTTERWAVE_WEBHOOK_SECRET_HASH: 'h' },
-      () => expect(availableTopUpMethods()).toEqual(['PAWAPAY', 'MOBILE_MONEY', 'CARD', 'AIRTEL_MONEY'])
+      () => expect(availableTopUpMethods()).toEqual(['PAWAPAY', 'MOBILE_MONEY', 'CARD'])
     );
   });
 
-  it('always keeps admin-approved Airtel Money', () => {
-    withEnv({}, () => expect(availableTopUpMethods()).toEqual(['AIRTEL_MONEY']));
+  it('offers no gateway when none is configured (screenshot top-ups cover that)', () => {
+    withEnv({}, () => expect(availableTopUpMethods()).toEqual([]));
   });
 });

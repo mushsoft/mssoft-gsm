@@ -7,8 +7,8 @@ import { useState } from 'react';
 export type { PaymentMethod } from '@/lib/paymentConfig';
 import type { PaymentMethod } from '@/lib/paymentConfig';
 
-export const AIRTEL_MERCHANT_ID = '6923944';
-export const AIRTEL_USSD_CODE = '*185*9#';
+import { AIRTEL_MERCHANT_ID, AIRTEL_USSD_CODE } from '@/lib/airtelMerchant';
+export { AIRTEL_MERCHANT_ID, AIRTEL_USSD_CODE };
 
 export interface CheckoutFieldValues {
   customerName: string;

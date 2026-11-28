@@ -8,8 +8,9 @@
 //    let anyone "pay" with test numbers/cards and get a real order or real
 //    wallet credit. Locally and on preview deployments they still work, so
 //    testing stays possible.
-//  - Airtel Money direct is always offered: an admin confirms each payment
-//    by hand against the Airtel SMS.
+//  - Airtel Money direct is always offered at checkout: an admin confirms
+//    each payment by hand against the Airtel SMS. Wallet top-ups paid
+//    straight to us use a payment screenshot instead (see paymentProof.ts).
 //
 // Reads environment variables only (no DB), so it's safe to call anywhere
 // on the server, including at build time.
@@ -57,6 +58,5 @@ export function availableTopUpMethods(): PaymentMethod[] {
   const methods: PaymentMethod[] = [];
   if (isPawapayEnabled()) methods.push('PAWAPAY');
   if (isFlutterwaveConfirmable()) methods.push('MOBILE_MONEY', 'CARD');
-  methods.push('AIRTEL_MONEY');
   return methods;
 }
