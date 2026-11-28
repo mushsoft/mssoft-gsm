@@ -17,7 +17,7 @@ const { POST } = await import('@/app/api/wallet/topup/proof/route');
 
 const jpeg = (seed: string) => new Uint8Array([0xff, 0xd8, 0xff, 0xe0, ...new TextEncoder().encode(seed)]);
 
-function send(fields: Record<string, string>, file?: Uint8Array, type = 'image/jpeg') {
+function send(fields: Record<string, string>, file?: Uint8Array<ArrayBuffer>, type = 'image/jpeg') {
   const form = new FormData();
   for (const [k, v] of Object.entries(fields)) form.set(k, v);
   if (file) form.set('proof', new Blob([file], { type }), 'proof.jpg');
